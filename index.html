@@ -689,6 +689,11 @@ footer {
     const esc = (x) => String(x == null ? '' : x).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
     document.getElementById('myGreeting').innerText = `${user.name}님의 학습 폴더`;
     document.getElementById('myPathLabel').innerText = `${user.username}/`;
+    if (user.role === 'professor' || user.role === 'admin') {
+      const btn = document.querySelector('.my-head .my-btn');
+      btn.insertAdjacentHTML('beforebegin', '<a class="my-btn" href="prof.html" style="margin-right:8px">🗂 교수 폴더 열기</a>');
+      btn.innerText = '📝 내 시험기록';
+    }
     const grid = document.getElementById('myGrid');
     try {
       const folder = await aiexamRpc('ax_folder', { p_token: aiexamGetToken(), p_username: null });

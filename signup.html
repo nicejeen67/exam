@@ -73,7 +73,7 @@ h1 { font-size: 1.15rem; font-weight: 800; margin-bottom: 4px; }
   </div>
 
   <h1>회원가입</h1>
-  <p class="lead">가입한 <b>아이디로 나만의 학습 폴더</b>가 만들어집니다.<br>시험 기록과 AI가 만든 모의고사가 이 폴더에 과목별로 저장됩니다.</p>
+  <p class="lead" id="leadText">가입한 <b>아이디로 나만의 학습 폴더</b>가 자동으로 만들어집니다.<br>시험 기록과 AI가 만든 모의고사가 이 폴더에 과목별로 저장됩니다.</p>
 
   <form id="signupForm" novalidate>
     <div class="role-toggle" role="radiogroup" aria-label="가입 유형">
@@ -144,6 +144,9 @@ h1 { font-size: 1.15rem; font-weight: 800; margin-bottom: 4px; }
       role = btn.dataset.role;
       $('subjectField').style.display = role === 'professor' ? 'block' : 'none';
       $('submitBtn').innerText = role === 'professor' ? '교수 가입 신청' : '가입하기';
+      $('leadText').innerHTML = role === 'professor'
+        ? '가입한 <b>아이디로 교수 폴더</b>가 자동으로 만들어집니다.<br>올린 교안·기출문제가 <b>아이디/과목명/교안/주차/</b>로 저장되고 관리할 수 있습니다.'
+        : '가입한 <b>아이디로 나만의 학습 폴더</b>가 자동으로 만들어집니다.<br>시험 기록과 AI가 만든 모의고사가 이 폴더에 과목별로 저장됩니다.';
     });
   });
 

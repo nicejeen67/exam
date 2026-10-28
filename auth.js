@@ -208,11 +208,12 @@
     name.textContent = user.name + ' (' + user.username + ' · ' + (ROLE_LABEL[user.role] || user.role) + ')';
     el.appendChild(name);
     var folder = document.createElement('a');
-    folder.href = BASE + 'my.html';
+    var isProf = user.role === 'professor' || user.role === 'admin';
+    folder.href = BASE + (isProf ? 'prof.html' : 'my.html');
     folder.className = 'aiexam-userbar-logout';
     folder.style.textDecoration = 'none';
-    folder.textContent = '📁 내 폴더';
-    folder.title = user.username + ' 폴더 (시험 기록 · 생성한 모의고사)';
+    folder.textContent = isProf ? '🗂 교수 폴더' : '📁 내 폴더';
+    folder.title = user.username + (isProf ? '/ 교수 폴더 (교안 · 기출문제)' : '/ 학생 폴더 (시험 기록 · 생성한 모의고사)');
     el.appendChild(folder);
     var out = document.createElement('button');
     out.type = 'button';

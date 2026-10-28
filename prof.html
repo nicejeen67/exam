@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script>
+  if (!sessionStorage.getItem('aiexam_token')) {
+    location.replace('auth.html?redirect=' + encodeURIComponent(location.pathname + location.search));
+  }
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>교수 폴더 | AI EXAM</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard/dist/web/static/woff2/Pretendard-Regular.woff2') format('woff2');
+  font-weight: 45 920; font-display: swap;
+}
+:root {
+  --bg: #0B1220; --bg-panel: #121A2C; --bg-panel-raised: #17213A; --line: #26324C; --line-bright: #37456A;
+  --gold: #C9A227; --gold-soft: rgba(201,162,39,.14); --signal: #38D39F; --signal-soft: rgba(56,211,159,.12);
+  --urgent: #E2572B; --urgent-soft: rgba(226,87,43,.14); --text: #EDF1F7; --text-muted: #92A0BC; --text-faint: #5E6B87; --radius: 14px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.5; }
+a { color: inherit; text-decoration: none; }
+header { border-bottom: 1px solid var(--line); position: sticky; top: 0; background: rgba(11,18,32,.92); backdrop-filter: blur(10px); z-index: 10; }
+.header-inner { max-width: 1000px; margin: 0 auto; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.nav { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; font-size: .85rem; color: var(--text-muted); }
+.brand-mark { font-size: 1.05rem; font-weight: 800; color: var(--text); }
+.brand-mark span { color: var(--gold); }
+.aiexam-userbar-name { font-size: .8rem; color: var(--text-muted); margin-right: 4px; }
+.aiexam-userbar-logout { font-size: .75rem; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--text); cursor: pointer; font-family: inherit; }
+.wrap { max-width: 1000px; margin: 0 auto; padding: 28px 20px 60px; }
+h1 { font-size: 1.4rem; font-weight: 800; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.path { font-family: ui-monospace, Consolas, monospace; font-size: .85rem; color: var(--gold); background: var(--gold-soft); padding: 3px 10px; border-radius: 999px; }
+.sub { color: var(--text-muted); font-size: .86rem; margin: 6px 0 22px; }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+.stat { background: var(--bg-panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
+.stat .lbl { font-size: .74rem; color: var(--text-muted); }
+.stat .num { font-size: 1.35rem; font-weight: 800; margin-top: 2px; }
+.panel { background: var(--bg-panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; margin-bottom: 20px; }
+.panel h2 { font-size: 1rem; font-weight: 800; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.upload-grid { display: grid; grid-template-columns: 1.3fr .7fr 1.4fr; gap: 10px; }
+.field label { display: block; font-size: .74rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 600; }
+.field input, .field select { width: 100%; background: var(--bg-panel-raised); border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; color: var(--text); font-size: .86rem; font-family: inherit; }
+.field input:focus, .field select:focus { outline: none; border-color: var(--gold); }
+.upload-row { display: flex; gap: 10px; align-items: flex-end; margin-top: 10px; flex-wrap: wrap; }
+.upload-row .field { flex: 1; min-width: 220px; }
+.dest { font-family: ui-monospace, Consolas, monospace; font-size: .76rem; color: var(--text-faint); margin-top: 8px; overflow-wrap: anywhere; }
+.dest b { color: var(--gold); font-weight: 600; }
+.btn { font-size: .8rem; font-weight: 700; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line-bright); background: var(--bg-panel-raised); color: var(--text); cursor: pointer; font-family: inherit; white-space: nowrap; }
+.btn:hover { border-color: var(--gold); }
+.btn.gold { background: var(--gold); border-color: var(--gold); color: #1A1404; }
+.btn.danger { background: transparent; border-color: rgba(226,87,43,.4); color: var(--urgent); }
+.btn.sm { font-size: .74rem; padding: 5px 11px; }
+.btn:disabled { opacity: .5; cursor: default; }
+.msg { margin-top: 10px; font-size: .8rem; display: none; padding: 8px 12px; border-radius: 8px; }
+.msg.ok { display: block; background: var(--signal-soft); color: var(--signal); }
+.msg.err { display: block; background: var(--urgent-soft); color: #FCA783; }
+.toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+.spacer { flex: 1; }
+.subject-block { background: var(--bg-panel); border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: 14px; overflow: hidden; }
+.subject-head { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.subject-head h3 { font-size: 1rem; font-weight: 700; }
+.mono { font-family: ui-monospace, Consolas, monospace; font-size: .76rem; color: var(--text-faint); overflow-wrap: anywhere; }
+.kind { padding: 10px 18px 6px; }
+.kind-title { font-size: .84rem; font-weight: 800; color: var(--gold); margin: 6px 0 8px; }
+details.week { border: 1px solid var(--line); border-radius: 10px; margin-bottom: 8px; background: var(--bg-panel-raised); }
+details.week > summary { cursor: pointer; padding: 10px 14px; font-size: .85rem; font-weight: 700; list-style: none; display: flex; gap: 8px; align-items: center; }
+details.week > summary::-webkit-details-marker { display: none; }
+details.week > summary::before { content: '📁'; }
+details.week[open] > summary::before { content: '📂'; }
+.cnt { color: var(--text-faint); font-weight: 500; font-size: .78rem; }
+.row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 9px 14px; border-top: 1px solid var(--line); }
+.row-title { font-size: .86rem; font-weight: 600; }
+.row-meta { font-size: .74rem; color: var(--text-muted); }
+.row-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.q-detail { font-size: .8rem; color: var(--text-muted); padding: 4px 0 2px; display: none; }
+.q-detail.show { display: block; }
+.q-detail .ok { color: var(--signal); font-weight: 700; }
+.empty { color: var(--text-faint); font-size: .85rem; padding: 26px 16px; text-align: center; border: 1px dashed var(--line); border-radius: var(--radius); line-height: 1.8; }
+#status { color: var(--text-faint); font-size: .85rem; padding: 20px 0; }
+#authLoadingOverlay { position: fixed; inset: 0; z-index: 999; background: var(--bg); display: flex; align-items: center; justify-content: center; color: var(--text-faint); font-size: .85rem; }
+@media (max-width: 700px) {
+  .stats { grid-template-columns: 1fr 1fr; }
+  .upload-grid { grid-template-columns: 1fr; }
+  .row { grid-template-columns: 1fr; }
+  .row-actions { justify-content: flex-start; }
+}
+</style>
+</head>
+<body>
+<div id="authLoadingOverlay">확인 중...</div>
+<header>
+  <div class="header-inner">
+    <div class="nav">
+      <a class="brand-mark" href="index.html">AI<span>EXAM</span></a>
+      <a href="index.html">🏠 과목 포털</a>
+      <a href="my.html">📝 내 시험기록</a>
+      <a id="adminLink" href="admin.html" style="display:none">관리자</a>
+    </div>
+    <div id="userBar"></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1>🗂 교수 폴더 <span class="path" id="folderPath">/</span></h1>
+  <p class="sub" id="folderSub">교안과 기출문제를 올리면 이 폴더에 과목·주차별로 자동 저장됩니다.</p>
+
+  <div class="stats">
+    <div class="stat"><div class="lbl">담당 과목</div><div class="num" id="statSubject" style="font-size:1rem;margin-top:6px">-</div></div>
+    <div class="stat"><div class="lbl">교안 파일</div><div class="num" id="statFiles">0</div></div>
+    <div class="stat"><div class="lbl">교안 용량</div><div class="num" id="statSize">0</div></div>
+    <div class="stat"><div class="lbl">등록한 기출문제</div><div class="num" id="statQuestions">0</div></div>
+  </div>
+
+  <!-- 교안 올리기 (본인 폴더일 때만) -->
+  <section class="panel" id="uploadPanel" style="display:none">
+    <h2>⬆ 교안 올리기</h2>
+    <div class="upload-grid">
+      <div class="field"><label for="upSubject">과목</label><select id="upSubject"></select></div>
+      <div class="field"><label for="upWeek">주차</label><select id="upWeek"></select></div>
+      <div class="field"><label for="upTitle">교안 제목 (학생 화면 주차 이름)</label><input id="upTitle" maxlength="100" placeholder="예: 부동산의 개념과 분류"></div>
+    </div>
+    <div class="upload-row">
+      <div class="field"><label for="upFile">파일 (PDF · DOCX · DOC · TXT, 8MB 이하)</label><input type="file" id="upFile" accept=".pdf,.doc,.docx,.txt"></div>
+      <button class="btn gold" type="button" id="upBtn">폴더에 저장</button>
+    </div>
+    <div class="dest" id="upDest"></div>
+    <div class="msg" id="upMsg"></div>
+    <div class="dest" style="margin-top:10px">※ 기출문제는 각 과목 페이지의 [자료 업로드 → 🧪 기출문제]에서 등록하면 이 폴더의 "기출문제"에 자동 정리됩니다.</div>
+  </section>
+
+  <div class="toolbar">
+    <strong style="font-size:1rem">📂 폴더 내용</strong>
+    <span class="spacer"></span>
+    <button class="btn" type="button" id="zipBtn">⬇ 폴더 전체 내려받기(ZIP)</button>
+  </div>
+  <div id="status">불러오는 중...</div>
+  <div id="folderList"></div>
+</main>
+
+<script src="config.js"></script>
+<script src="auth.js"></script>
+<script>
+  /* =========================================================
+     교수 폴더
+       교수아이디/과목명/교안/01주차/일시_파일명
+       교수아이디/과목명/기출문제/01주차/
+     - 본인 폴더: 교안 올리기 · 내려받기 · 삭제, 기출문제 보기 · 삭제
+     - 관리자: ?user=교수아이디 로 다른 교수 폴더 열람
+     ========================================================= */
+  const EXAM_WEEKS = [8, 15];                 // 시험 주차는 교안 업로드 제외 (과목 페이지와 동일)
+  const SUBJECT_ORDER = ['real-estate-intro', 'real-estate-law', 'brokerage-practice', 'real-estate-public-law', 'public-notice-law', 'real-estate-tax', 'appraisal-theory'];
+  let viewer = null, folder = null, isOwn = true;
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const wk = (n) => String(n).padStart(2, '0') + '주차';
+  const fmtSize = (b) => b >= 1048576 ? (b / 1048576).toFixed(1) + 'MB' : Math.max(1, Math.round(b / 1024)) + 'KB';
+  const dateStr = (d) => new Date(d).toLocaleString('ko-KR');
+  const subjName = (id) => (folder.subjects.find(s => s.id === id) || {}).name || id;
+
+  function download(blob, name) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+  function b64ToBlob(b64, mime) {
+    const bin = atob(b64 || ''); const arr = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+    return new Blob([arr], { type: mime || 'application/octet-stream' });
+  }
+
+  /* ---------- 업로드 패널 ---------- */
+  function setupUpload() {
+    const subjects = viewer.role === 'admin' ? folder.subjects : folder.subjects.filter(s => s.id === viewer.subject_id);
+    $('upSubject').innerHTML = subjects.map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('');
+    $('upSubject').disabled = subjects.length <= 1;
+    const weeks = []; for (let w = 1; w <= 15; w++) if (!EXAM_WEEKS.includes(w)) weeks.push(w);
+    $('upWeek').innerHTML = weeks.map(w => `<option value="${w}">${w}주차</option>`).join('');
+    const updateDest = () => {
+      const f = $('upFile').files[0];
+      $('upDest').innerHTML = '저장 위치: <b>' + esc(`${viewer.username}/${subjName($('upSubject').value)}/교안/${wk($('upWeek').value)}/`) + '</b>' + (f ? esc('일시_' + f.name) : '');
+    };
+    ['upSubject', 'upWeek', 'upFile'].forEach(id => $(id).addEventListener('change', updateDest));
+    updateDest();
+    $('uploadPanel').style.display = 'block';
+
+    $('upBtn').onclick = async () => {
+      const f = $('upFile').files[0];
+      const msg = $('upMsg');
+      if (!f) { msg.className = 'msg err'; msg.innerText = '파일을 선택해 주세요.'; return; }
+      const ext = f.name.split('.').pop().toLowerCase();
+      if (!['pdf', 'doc', 'docx', 'txt'].includes(ext)) { msg.className = 'msg err'; msg.innerText = 'PDF, Word(doc/docx), TXT 파일만 올릴 수 있습니다.'; return; }
+      const fd = new FormData();
+      fd.append('subject_id', $('upSubject').value);
+      fd.append('week_no', $('upWeek').value);
+      fd.append('kind', 'lecture');
+      fd.append('title', $('upTitle').value.trim() || f.name.replace(/\.[^/.]+$/, ''));
+      fd.append('file', f);
+      $('upBtn').disabled = true; $('upBtn').innerText = '저장 중...';
+      try {
+        const res = await fetch(`${AIEXAM_API}/materials`, { method: 'POST', headers: { Authorization: `Bearer ${aiexamGetToken()}` }, body: fd });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || '업로드 실패');
+        msg.className = 'msg ok'; msg.innerText = '저장되었습니다: ' + data.path + '  (학생 화면의 해당 주차에도 바로 표시됩니다)';
+        $('upFile').value = ''; $('upTitle').value = '';
+        await load();
+      } catch (e) { msg.className = 'msg err'; msg.innerText = e.message; }
+      finally { $('upBtn').disabled = false; $('upBtn').innerText = '폴더에 저장'; }
+    };
+  }
+
+  /* ---------- 폴더 트리 ---------- */
+  function render() {
+    const mats = folder.materials, qs = folder.questions;
+    $('statFiles').innerText = mats.length;
+    $('statSize').innerText = fmtSize(mats.reduce((a, m) => a + (m.size || 0), 0));
+    $('statQuestions').innerText = qs.length;
+    $('statSubject').innerText = folder.role === 'admin' ? '전 과목 (관리자)' : (folder.subject_name || '-');
+    $('status').style.display = 'none';
+
+    const list = $('folderList');
+    if (!mats.length && !qs.length) {
+      list.innerHTML = `<div class="empty">📂 <b>${esc(folder.username)}/</b> 폴더가 비어 있습니다.<br>${isOwn ? '위 [교안 올리기]로 첫 교안을 저장하거나, 과목 페이지에서 기출문제를 등록해 보세요.' : '이 교수가 올린 자료가 아직 없습니다.'}</div>`;
+      return;
+    }
+    const subjects = SUBJECT_ORDER.filter(id => mats.some(m => m.subject_id === id) || qs.some(q => q.subject_id === id));
+    list.innerHTML = subjects.map(sid => {
+      const sm = mats.filter(m => m.subject_id === sid);
+      const sq = qs.filter(q => q.subject_id === sid);
+      const name = subjName(sid);
+      const group = (arr) => { const g = {}; arr.forEach(x => (g[x.week_no] = g[x.week_no] || []).push(x)); return Object.keys(g).sort((a, b) => a - b).map(w => [w, g[w]]); };
+
+      const matHtml = sm.length ? `<div class="kind"><div class="kind-title">📂 교안 <span class="cnt">(${sm.length})</span></div>` +
+        group(sm).map(([w, items]) => `<details class="week" open><summary>${wk(w)} <span class="cnt">${items.length}개</span></summary>` +
+          items.map(m => `<div class="row">
+            <div><div class="row-title">📄 ${esc(m.title)}</div>
+              <div class="row-meta">${esc(m.filename)} · ${fmtSize(m.size)} · ${dateStr(m.uploaded_at)}</div>
+              <div class="mono">${esc(m.path)}</div></div>
+            <div class="row-actions">
+              <button class="btn sm" type="button" data-act="mdown" data-id="${m.id}">내려받기</button>
+              ${isOwn || viewer.role === 'admin' ? `<button class="btn sm danger" type="button" data-act="mdel" data-id="${m.id}">삭제</button>` : ''}
+            </div></div>`).join('') + `</details>`).join('') + `</div>` : '';
+
+      const qHtml = sq.length ? `<div class="kind"><div class="kind-title">📂 기출문제 <span class="cnt">(${sq.length})</span></div>` +
+        group(sq).map(([w, items]) => `<details class="week"><summary>${wk(w)} <span class="cnt">${items.length}문항</span></summary>` +
+          items.map((q, i) => `<div class="row">
+            <div><div class="row-title">Q${i + 1}. ${esc(q.question)}</div>
+              <div class="row-meta">${dateStr(q.created_at)}</div>
+              <div class="q-detail" id="qd${q.id}">${q.options.map((o, j) => `<div class="${j + 1 === q.answer ? 'ok' : ''}">${j + 1}. ${esc(o)}${j + 1 === q.answer ? ' ✓' : ''}</div>`).join('')}<div style="margin-top:4px">해설: ${esc(q.explanation)}</div></div></div>
+            <div class="row-actions">
+              <button class="btn sm" type="button" data-act="qview" data-id="${q.id}">보기</button>
+              ${isOwn || viewer.role === 'admin' ? `<button class="btn sm danger" type="button" data-act="qdel" data-id="${q.id}">삭제</button>` : ''}
+            </div></div>`).join('') + `</details>`).join('') + `</div>` : '';
+
+      return `<section class="subject-block">
+        <div class="subject-head"><h3>${esc(name)}</h3><span class="mono">${esc(folder.username)}/${esc(name)}/</span>
+          <span class="spacer"></span><a class="btn sm" href="${sid}.html">과목 페이지 →</a></div>
+        ${matHtml}${qHtml}</section>`;
+    }).join('');
+
+    list.querySelectorAll('[data-act]').forEach(b => b.onclick = () => action(b.dataset.act, parseInt(b.dataset.id, 10)));
+  }
+
+  async function action(act, id) {
+    const t = aiexamGetToken();
+    try {
+      if (act === 'mdown') {
+        const m = folder.materials.find(x => x.id === id);
+        const d = await aiexamRpc('ax_material_download', { p_token: t, p_id: id });
+        download(b64ToBlob(d.data_b64, d.mime), m ? m.filename : d.filename);
+      } else if (act === 'mdel') {
+        if (!confirm('이 교안을 삭제할까요? 학생 화면에서도 사라집니다.')) return;
+        await aiexamRpc('ax_material_delete', { p_token: t, p_id: id });
+        await load();
+      } else if (act === 'qview') {
+        $('qd' + id).classList.toggle('show');
+      } else if (act === 'qdel') {
+        if (!confirm('이 기출문제를 삭제할까요? 학생 모의고사에서도 빠집니다.')) return;
+        await aiexamRpc('ax_question_delete', { p_token: t, p_id: id });
+        await load();
+      }
+    } catch (e) { alert(e.message); }
+  }
+
+  /* ---------- ZIP (교수아이디/과목/교안/주차/파일 구조 그대로) ---------- */
+  function loadScript(src) {
+    return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('ZIP 라이브러리를 불러오지 못했습니다.')); document.head.appendChild(s); });
+  }
+  $('zipBtn').onclick = async () => {
+    if (!folder || (!folder.materials.length && !folder.questions.length)) { alert('내려받을 파일이 없습니다.'); return; }
+    const btn = $('zipBtn'); btn.disabled = true; btn.innerText = '압축 중...';
+    try {
+      if (typeof JSZip === 'undefined') await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
+      const zip = new JSZip();
+      for (const m of folder.materials) {
+        const d = await aiexamRpc('ax_material_download', { p_token: aiexamGetToken(), p_id: m.id });
+        zip.file(m.path, b64ToBlob(d.data_b64, d.mime));
+      }
+      const byKey = {};
+      folder.questions.forEach(q => { const k = `${folder.username}/${q.subject_name}/기출문제/${wk(q.week_no)}/기출문제.json`; (byKey[k] = byKey[k] || []).push(q); });
+      Object.entries(byKey).forEach(([k, arr]) => zip.file(k, JSON.stringify(arr.map(q => ({ question: q.question, options: q.options, answer: q.answer, explanation: q.explanation, created_at: q.created_at })), null, 2)));
+      download(await zip.generateAsync({ type: 'blob' }), `${folder.username}_교수폴더_${new Date().toISOString().slice(0, 10)}.zip`);
+    } catch (e) { alert(e.message); }
+    finally { btn.disabled = false; btn.innerText = '⬇ 폴더 전체 내려받기(ZIP)'; }
+  };
+
+  async function load() {
+    const target = new URLSearchParams(location.search).get('user') || null;
+    folder = await aiexamRpc('ax_prof_folder', { p_token: aiexamGetToken(), p_username: target });
+    isOwn = folder.username.toLowerCase() === viewer.username.toLowerCase();
+    $('folderPath').innerText = folder.username + '/';
+    $('folderSub').innerText = (folder.name ? folder.name + ' · ' : '') + (isOwn
+      ? '교안과 기출문제를 올리면 이 폴더에 과목·주차별로 자동 저장됩니다.'
+      : '관리자 열람 중');
+    render();
+  }
+
+  (async function init() {
+    viewer = await aiexamRequireAuth(['professor', 'admin']);
+    if (!viewer) return;
+    aiexamRenderUserBar($('userBar'), viewer);
+    if (viewer.role === 'admin') $('adminLink').style.display = 'inline';
+    $('authLoadingOverlay').style.display = 'none';
+    try {
+      await load();
+      if (isOwn) setupUpload();
+    } catch (e) { $('status').innerText = e.message; }
+  })();
+</script>
+</body>
+</html>

@@ -381,9 +381,10 @@ h1 {
           <h3>${p.name} <span style="color:var(--text-faint); font-weight:500;">(@${p.username})</span>
             <span class="status-pill ${p.status}">${statusLabel(p.status)}</span>
           </h3>
-          <p>담당 과목: ${p.subject_name || '미지정'}</p>
+          <p>담당 과목: ${p.subject_name || '미지정'} · 교수 폴더: ${p.username}/</p>
         </div>
         <div class="prof-actions">
+          <a class="act-btn" href="prof.html?user=${encodeURIComponent(p.username)}">🗂 폴더 보기</a>
           <button type="button" class="act-btn reject" data-action="delete-account">🗑️ 계정 삭제</button>
         </div>
       </div>
