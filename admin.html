@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script>
+  // 로그인 여부를 화면이 그려지기 전에 즉시 확인 - 없으면 바로 로그인 페이지로 이동 (깜박임 방지)
+  if (!sessionStorage.getItem('aiexam_token')) {
+    location.replace('auth.html?redirect=' + encodeURIComponent(location.pathname + location.search));
+  }
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>관리자 | AI EXAM</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<style>
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard/dist/web/static/woff2/Pretendard-Regular.woff2') format('woff2');
+  font-weight: 45 920;
+  font-display: swap;
+}
+
+:root {
+  --bg: #0B1220;
+  --bg-panel: #121A2C;
+  --bg-panel-raised: #17213A;
+  --line: #26324C;
+  --gold: #C9A227;
+  --gold-soft: rgba(201, 162, 39, 0.14);
+  --signal: #38D39F;
+  --signal-soft: rgba(56, 211, 159, 0.12);
+  --urgent: #E2572B;
+  --urgent-soft: rgba(226, 87, 43, 0.14);
+  --text: #EDF1F7;
+  --text-muted: #92A0BC;
+  --text-faint: #5E6B87;
+  --radius: 14px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+a { color: inherit; text-decoration: none; }
+
+.wrap {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 0 24px 60px;
+}
+
+header {
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 32px;
+}
+
+.header-inner {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand-mark { font-size: 1.05rem; font-weight: 800; }
+.brand-mark span { color: var(--gold); }
+
+.aiexam-userbar-name {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-right: 10px;
+}
+
+.aiexam-userbar-logout {
+  font-size: 0.75rem;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+h1 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.page-sub {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 28px;
+}
+
+.search-box-wrap {
+  margin-bottom: 24px;
+}
+
+#userSearchInput {
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--bg-panel);
+  color: var(--text);
+  font-size: 0.88rem;
+  font-family: inherit;
+}
+
+#userSearchInput:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+#userSearchInput::placeholder {
+  color: var(--text-faint);
+}
+
+.section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 30px 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.count-badge {
+  font-size: 0.72rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--gold-soft);
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.empty-note {
+  font-size: 0.85rem;
+  color: var(--text-faint);
+  padding: 20px 0;
+}
+
+.prof-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.prof-info h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.prof-info p {
+  margin-top: 3px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.status-pill {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  margin-left: 8px;
+}
+
+.status-pill.active { background: var(--signal-soft); color: var(--signal); }
+.status-pill.pending { background: var(--gold-soft); color: var(--gold); }
+.status-pill.rejected { background: var(--urgent-soft); color: var(--urgent); }
+
+.prof-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.subject-select {
+  background: var(--bg-panel-raised);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 7px 10px;
+  color: var(--text);
+  font-size: 0.8rem;
+  font-family: inherit;
+}
+
+.act-btn {
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--bg-panel-raised);
+  color: var(--text);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.act-btn.approve {
+  background: var(--signal);
+  border-color: var(--signal);
+  color: #06231A;
+}
+
+.act-btn.reject {
+  background: transparent;
+  border-color: rgba(226, 87, 43, 0.4);
+  color: var(--urgent);
+}
+
+#loadingNote {
+  font-size: 0.85rem;
+  color: var(--text-faint);
+  padding: 20px 0;
+}
+</style>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="brand-mark">AI<span>EXAM</span> · 관리자</div>
+    <div style="display:flex; align-items:center; gap:16px;">
+      <a href="index.html" style="font-size:0.85rem; color:var(--text-muted); text-decoration:none;">🏠 과목 포털로 이동</a>
+      <a href="#" id="systemManageLink" hidden style="font-size:0.85rem; color:var(--text-muted); text-decoration:none;">🖥️ 시스템 관리</a>
+      <div id="userBar"></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <h1>교수 계정 관리</h1>
+  <p class="page-sub">교수 회원가입을 승인하고 담당 과목을 배정합니다.</p>
+
+  <div id="loadingNote">불러오는 중...</div>
+
+  <div id="content" style="display:none;">
+    <div class="search-box-wrap">
+      <input type="text" id="userSearchInput" placeholder="🔍 교수 또는 학생 이름/아이디로 검색" />
+    </div>
+
+    <div class="section-title">
+      승인 대기 <span class="count-badge" id="pendingCount">0</span>
+    </div>
+    <div id="pendingList"></div>
+
+    <div class="section-title">전체 교수 계정</div>
+    <div id="allProfList"></div>
+
+    <div class="section-title" style="margin-top:40px;">학생 계정 관리</div>
+    <div id="studentList"></div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="auth.js"></script>
+<script>
+  let subjectsCache = [];
+
+  async function loadSubjects() {
+    const res = await fetch(`${AIEXAM_API}/subjects`);
+    subjectsCache = await res.json();
+  }
+
+  function subjectOptions(selectedId) {
+    return subjectsCache.map(s =>
+      `<option value="${s.id}" ${s.id === selectedId ? 'selected' : ''}>${s.name}</option>`
+    ).join('');
+  }
+
+  function statusLabel(status) {
+    if (status === 'active') return '승인됨';
+    if (status === 'rejected') return '거부됨';
+    return '대기중';
+  }
+
+  async function loadPending() {
+    const token = aiexamGetToken();
+    const res = await fetch(`${AIEXAM_API}/admin/pending-professors`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const list = await res.json();
+
+    const countEl = document.getElementById('pendingCount');
+    countEl.innerText = list.length;
+
+    const container = document.getElementById('pendingList');
+    if (list.length === 0) {
+      container.innerHTML = '<div class="empty-note">승인 대기 중인 교수 계정이 없습니다.</div>';
+      return;
+    }
+
+    container.innerHTML = list.map(p => `
+      <div class="prof-card" data-user-id="${p.id}">
+        <div class="prof-info">
+          <h3>${p.name} <span style="color:var(--text-faint); font-weight:500;">(@${p.username})</span></h3>
+          <p>신청 과목: ${p.subject_name || '미지정'}</p>
+        </div>
+        <div class="prof-actions">
+          <select class="subject-select" data-role="subject-select">${subjectOptions(p.subject_id)}</select>
+          <button type="button" class="act-btn approve" data-action="approve">승인</button>
+          <button type="button" class="act-btn reject" data-action="reject">거부</button>
+        </div>
+      </div>
+    `).join('');
+
+    container.querySelectorAll('.prof-card').forEach(card => {
+      const userId = card.dataset.userId;
+      card.querySelector('[data-action="approve"]').addEventListener('click', () => approveProfessor(userId, card));
+      card.querySelector('[data-action="reject"]').addEventListener('click', () => rejectProfessor(userId, card));
+    });
+  }
+
+  async function approveProfessor(userId, card) {
+    const token = aiexamGetToken();
+    const subjectId = card.querySelector('[data-role="subject-select"]').value;
+    const formData = new FormData();
+    formData.append('user_id', userId);
+    formData.append('subject_id', subjectId);
+
+    const res = await fetch(`${AIEXAM_API}/admin/approve`, {
+      method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: formData
+    });
+    if (res.ok) {
+      await refreshAll();
+    } else {
+      const data = await res.json();
+      alert(data.detail || '승인에 실패했습니다.');
+    }
+  }
+
+  async function rejectProfessor(userId) {
+    if (!confirm('이 교수 계정 가입을 거부하시겠습니까?')) return;
+    const token = aiexamGetToken();
+    const formData = new FormData();
+    formData.append('user_id', userId);
+
+    const res = await fetch(`${AIEXAM_API}/admin/reject`, {
+      method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: formData
+    });
+    if (res.ok) {
+      await refreshAll();
+    } else {
+      const data = await res.json();
+      alert(data.detail || '거부 처리에 실패했습니다.');
+    }
+  }
+
+  async function loadAllProfessors() {
+    const token = aiexamGetToken();
+    const res = await fetch(`${AIEXAM_API}/admin/professors`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const list = await res.json();
+
+    const container = document.getElementById('allProfList');
+    if (list.length === 0) {
+      container.innerHTML = '<div class="empty-note">등록된 교수 계정이 없습니다.</div>';
+      return;
+    }
+
+    container.innerHTML = list.map(p => `
+      <div class="prof-card" data-user-id="${p.id}">
+        <div class="prof-info">
+          <h3>${p.name} <span style="color:var(--text-faint); font-weight:500;">(@${p.username})</span>
+            <span class="status-pill ${p.status}">${statusLabel(p.status)}</span>
+          </h3>
+          <p>담당 과목: ${p.subject_name || '미지정'}</p>
+        </div>
+        <div class="prof-actions">
+          <button type="button" class="act-btn reject" data-action="delete-account">🗑️ 계정 삭제</button>
+        </div>
+      </div>
+    `).join('');
+
+    container.querySelectorAll('.prof-card').forEach(card => {
+      const userId = card.dataset.userId;
+      const delBtn = card.querySelector('[data-action="delete-account"]');
+      if (delBtn) delBtn.addEventListener('click', () => deleteUserAccount(userId, '교수'));
+    });
+  }
+
+  async function loadStudents() {
+    const token = aiexamGetToken();
+    const res = await fetch(`${AIEXAM_API}/admin/students`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const list = await res.json();
+
+    const container = document.getElementById('studentList');
+    if (list.length === 0) {
+      container.innerHTML = '<div class="empty-note">등록된 학생 계정이 없습니다.</div>';
+      return;
+    }
+
+    container.innerHTML = list.map(s => `
+      <div class="prof-card" data-user-id="${s.id}">
+        <div class="prof-info">
+          <h3>${s.name} <span style="color:var(--text-faint); font-weight:500;">(@${s.username})</span></h3>
+          <p>폴더: ${s.username}/ · 파일 ${s.file_count || 0}개 · 가입일: ${new Date(s.created_at).toLocaleDateString('ko-KR')}</p>
+        </div>
+        <div class="prof-actions">
+          <a class="act-btn" href="my.html?user=${encodeURIComponent(s.username)}">📁 폴더 보기</a>
+          <button type="button" class="act-btn reject" data-action="delete-account">🗑️ 계정 삭제</button>
+        </div>
+      </div>
+    `).join('');
+
+    container.querySelectorAll('.prof-card').forEach(card => {
+      const userId = card.dataset.userId;
+      const delBtn = card.querySelector('[data-action="delete-account"]');
+      if (delBtn) delBtn.addEventListener('click', () => deleteUserAccount(userId, '학생'));
+    });
+  }
+
+  async function deleteUserAccount(userId, labelKor) {
+    const confirmMsg = labelKor === '학생'
+      ? '이 학생 계정을 완전히 삭제하시겠습니까?\n(자격증 취득, 본인 요청 등으로 삭제 시 사용)\n이미 응시한 시험 기록은 삭제되지 않고 그대로 유지됩니다.'
+      : '이 교수 계정을 완전히 삭제하시겠습니까?\n이미 등록된 교안·기출문제는 삭제되지 않고 그대로 유지됩니다.';
+    if (!confirm(confirmMsg)) return;
+
+    const token = aiexamGetToken();
+    const res = await fetch(`${AIEXAM_API}/admin/users/${userId}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (res.ok) {
+      await refreshAll();
+    } else {
+      const data = await res.json();
+      alert(data.detail || '삭제에 실패했습니다.');
+    }
+  }
+
+  /* 교수/학생 이름·아이디 실시간 검색 (승인대기·전체교수·학생 목록 모두 대상) */
+  function applyUserSearch() {
+    const query = document.getElementById('userSearchInput').value.trim().toLowerCase();
+    document.querySelectorAll('#pendingList .prof-card, #allProfList .prof-card, #studentList .prof-card').forEach(card => {
+      const text = card.textContent.toLowerCase();
+      card.style.display = (!query || text.includes(query)) ? '' : 'none';
+    });
+  }
+
+  document.getElementById('userSearchInput').addEventListener('input', applyUserSearch);
+
+  async function refreshAll() {
+    await Promise.all([loadPending(), loadAllProfessors(), loadStudents()]);
+    applyUserSearch();
+  }
+
+  (async function init() {
+    const user = await aiexamRequireAuth(['admin']);
+    if (!user) return;
+
+    aiexamRenderUserBar(document.getElementById('userBar'), user);
+    document.getElementById('systemManageLink').addEventListener('click', async (event) => {
+      event.preventDefault();
+      const link = event.currentTarget;
+      link.textContent = '🖥️ 연결 중...';
+      try {
+        const res = await fetch(`${AIEXAM_API}/admin/terminal-token`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${aiexamGetToken()}` }
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.detail || '터미널 인증에 실패했습니다.');
+        const features = `popup=yes,width=${screen.availWidth},height=${screen.availHeight},left=0,top=0`;
+        const popup = window.open(data.url, 'aiexamSystemTerminal', features);
+        if (!popup) throw new Error('팝업이 차단되었습니다. 팝업 허용 후 다시 시도해주세요.');
+        popup.focus();
+      } catch (error) {
+        alert(error.message);
+      } finally {
+        link.textContent = '🖥️ 시스템 관리';
+      }
+    });
+    await loadSubjects();
+    await refreshAll();
+
+    document.getElementById('loadingNote').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+  })();
+</script>
+
+</body>
+</html>

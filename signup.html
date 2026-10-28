@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>회원가입 | AI EXAM</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard/dist/web/static/woff2/Pretendard-Regular.woff2') format('woff2');
+  font-weight: 45 920; font-display: swap;
+}
+:root {
+  --bg: #0B1220; --bg-panel: #121A2C; --bg-panel-raised: #17213A; --line: #26324C;
+  --gold: #C9A227; --gold-soft: rgba(201,162,39,.14); --signal: #38D39F; --urgent: #E2572B;
+  --text: #EDF1F7; --text-muted: #92A0BC; --text-faint: #5E6B87; --radius: 14px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif;
+  background: var(--bg); color: var(--text); min-height: 100vh;
+  display: flex; align-items: center; justify-content: center; padding: 24px 16px;
+}
+.card { width: 100%; max-width: 440px; background: var(--bg-panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 32px 28px; }
+.brand { text-align: center; margin-bottom: 22px; }
+.brand-mark { font-size: 1.2rem; font-weight: 800; }
+.brand-mark span { color: var(--gold); }
+.brand-sub { margin-top: 4px; font-size: .78rem; color: var(--text-faint); }
+h1 { font-size: 1.15rem; font-weight: 800; margin-bottom: 4px; }
+.lead { font-size: .8rem; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6; }
+.role-toggle { display: flex; gap: 8px; margin-bottom: 16px; }
+.role-toggle button {
+  flex: 1; padding: 10px 0; border-radius: 8px; border: 1px solid var(--line); background: var(--bg-panel-raised);
+  color: var(--text-muted); font-size: .84rem; font-weight: 700; cursor: pointer; font-family: inherit;
+}
+.role-toggle button.active { border-color: var(--gold); color: var(--gold); background: var(--gold-soft); }
+.field { margin-bottom: 14px; }
+.field label { display: block; font-size: .78rem; color: var(--text-muted); margin-bottom: 5px; font-weight: 600; }
+.field input, .field select {
+  width: 100%; background: var(--bg-panel-raised); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px 12px; color: var(--text); font-size: .9rem; font-family: inherit;
+}
+.field input:focus, .field select:focus { outline: none; border-color: var(--gold); }
+.field input.invalid { border-color: var(--urgent); }
+.hint { font-size: .72rem; color: var(--text-faint); margin-top: 5px; line-height: 1.5; }
+.hint.ok { color: var(--signal); }
+.hint.bad { color: #FCA783; }
+.folder-preview {
+  display: inline-block; font-family: ui-monospace, Consolas, monospace; color: var(--gold);
+  background: var(--gold-soft); padding: 1px 8px; border-radius: 999px; font-size: .74rem;
+}
+.agree { display: flex; gap: 8px; align-items: flex-start; font-size: .76rem; color: var(--text-muted); margin: 4px 0 16px; line-height: 1.5; }
+.agree input { margin-top: 3px; flex-shrink: 0; }
+.submit-btn {
+  width: 100%; padding: 12px 0; border-radius: 999px; border: none; background: var(--gold); color: #1A1404;
+  font-size: .92rem; font-weight: 800; cursor: pointer; font-family: inherit;
+}
+.submit-btn:disabled { opacity: .6; cursor: default; }
+.msg { margin-top: 14px; padding: 10px 12px; border-radius: 8px; font-size: .8rem; line-height: 1.5; display: none; }
+.msg.error { display: block; background: rgba(226,87,43,.12); border: 1px solid rgba(226,87,43,.35); color: #FCA783; }
+.msg.success { display: block; background: rgba(56,211,159,.1); border: 1px solid rgba(56,211,159,.35); color: #7FE8C4; }
+.foot { margin-top: 18px; text-align: center; font-size: .8rem; color: var(--text-faint); }
+.foot a { color: var(--gold); text-decoration: none; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="brand">
+    <div class="brand-mark">AI<span>EXAM</span></div>
+    <div class="brand-sub">서울사이버대학교 AI부동산빅데이터학과</div>
+  </div>
+
+  <h1>회원가입</h1>
+  <p class="lead">가입한 <b>아이디로 나만의 학습 폴더</b>가 만들어집니다.<br>시험 기록과 AI가 만든 모의고사가 이 폴더에 과목별로 저장됩니다.</p>
+
+  <form id="signupForm" novalidate>
+    <div class="role-toggle" role="radiogroup" aria-label="가입 유형">
+      <button type="button" class="active" data-role="student" aria-pressed="true">🎓 학생으로 가입</button>
+      <button type="button" data-role="professor" aria-pressed="false">👩‍🏫 교수로 가입</button>
+    </div>
+
+    <div class="field">
+      <label for="name">이름</label>
+      <input type="text" id="name" maxlength="40" autocomplete="name" placeholder="홍길동" required>
+    </div>
+
+    <div class="field">
+      <label for="username">아이디 (= 폴더 이름)</label>
+      <input type="text" id="username" maxlength="20" autocomplete="username" placeholder="영문·숫자·밑줄 4~20자" required>
+      <div class="hint" id="usernameHint">내 폴더: <span class="folder-preview" id="folderPreview">아이디/</span></div>
+    </div>
+
+    <div class="field">
+      <label for="password">비밀번호</label>
+      <input type="password" id="password" maxlength="64" autocomplete="new-password" placeholder="8자 이상" required>
+    </div>
+
+    <div class="field">
+      <label for="password2">비밀번호 확인</label>
+      <input type="password" id="password2" maxlength="64" autocomplete="new-password" required>
+      <div class="hint" id="pwHint"></div>
+    </div>
+
+    <div class="field" id="subjectField" style="display:none">
+      <label for="subject">담당 과목</label>
+      <select id="subject"><option value="">불러오는 중...</option></select>
+      <div class="hint">교수 계정은 관리자 승인 후 로그인할 수 있습니다.</div>
+    </div>
+
+    <label class="agree">
+      <input type="checkbox" id="agree">
+      <span>입력한 이름·아이디와 학습 기록(시험 점수, 생성한 모의고사)이 학습 관리를 위해 저장되며, 담당 교수와 관리자가 열람할 수 있음에 동의합니다.</span>
+    </label>
+
+    <button type="submit" class="submit-btn" id="submitBtn">가입하기</button>
+    <div class="msg" id="msg" role="status"></div>
+  </form>
+
+  <div class="foot">이미 계정이 있나요? <a href="auth.html">로그인</a> · <a href="index.html">처음으로</a></div>
+</div>
+
+<script src="config.js"></script>
+<script src="auth.js"></script>
+<script>
+  /* =========================================================
+     회원가입
+     - 실제 저장은 auth.js 가 Supabase 함수(ax_register)로 처리
+     - 아이디 규칙은 서버와 동일: 영문·숫자·밑줄 4~20자
+     ========================================================= */
+  const ID_RULE = /^[a-zA-Z0-9_]{4,20}$/;
+  let role = 'student';
+
+  const $ = (id) => document.getElementById(id);
+  const msg = $('msg');
+  function show(text, type) { msg.className = 'msg ' + type; msg.innerText = text; }
+
+  // 가입 유형(학생/교수) 전환
+  document.querySelectorAll('.role-toggle button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.role-toggle button').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-pressed', 'false'); });
+      btn.classList.add('active'); btn.setAttribute('aria-pressed', 'true');
+      role = btn.dataset.role;
+      $('subjectField').style.display = role === 'professor' ? 'block' : 'none';
+      $('submitBtn').innerText = role === 'professor' ? '교수 가입 신청' : '가입하기';
+    });
+  });
+
+  // 아이디 입력 → 폴더 이름 미리보기
+  $('username').addEventListener('input', () => {
+    const v = $('username').value.trim();
+    $('folderPreview').innerText = (v || '아이디') + '/';
+    const hint = $('usernameHint');
+    if (!v) { hint.className = 'hint'; $('username').classList.remove('invalid'); return; }
+    const ok = ID_RULE.test(v);
+    hint.className = 'hint ' + (ok ? 'ok' : 'bad');
+    $('username').classList.toggle('invalid', !ok);
+    hint.firstChild.textContent = ok ? '사용 가능한 형식입니다 · 내 폴더: ' : '영문·숫자·밑줄만 4~20자 · 내 폴더: ';
+  });
+
+  // 비밀번호 확인
+  function checkPw() {
+    const a = $('password').value, b = $('password2').value, hint = $('pwHint');
+    if (!b) { hint.innerText = ''; return; }
+    const ok = a === b && a.length >= 8;
+    hint.className = 'hint ' + (ok ? 'ok' : 'bad');
+    hint.innerText = a.length < 8 ? '비밀번호는 8자 이상이어야 합니다.' : (a === b ? '비밀번호가 일치합니다.' : '비밀번호가 일치하지 않습니다.');
+  }
+  $('password').addEventListener('input', checkPw);
+  $('password2').addEventListener('input', checkPw);
+
+  // 과목 목록 (교수 가입용)
+  (async function loadSubjects() {
+    try {
+      const res = await fetch(`${AIEXAM_API}/subjects`);
+      const list = await res.json();
+      if (!res.ok) throw new Error(list.detail || '과목 목록 오류');
+      $('subject').innerHTML = '<option value="">담당 과목을 선택하세요</option>' +
+        list.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+    } catch (e) {
+      $('subject').innerHTML = '<option value="">과목 목록을 불러오지 못했습니다</option>';
+      show(e.message, 'error');
+    }
+  })();
+
+  // 제출
+  $('signupForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = $('name').value.trim();
+    const username = $('username').value.trim();
+    const pw = $('password').value;
+
+    if (!name) return show('이름을 입력해 주세요.', 'error');
+    if (!ID_RULE.test(username)) return show('아이디는 영문·숫자·밑줄(_)만 사용해 4~20자로 입력해 주세요. (이메일 형식 불가)', 'error');
+    if (pw.length < 8) return show('비밀번호는 8자 이상 입력해 주세요.', 'error');
+    if (pw !== $('password2').value) return show('비밀번호 확인이 일치하지 않습니다.', 'error');
+    if (role === 'professor' && !$('subject').value) return show('담당 과목을 선택해 주세요.', 'error');
+    if (!$('agree').checked) return show('학습 기록 저장에 동의해 주세요.', 'error');
+
+    const fd = new FormData();
+    fd.append('name', name);
+    fd.append('username', username);
+    fd.append('password', pw);
+    fd.append('role', role);
+    if (role === 'professor') fd.append('subject_id', $('subject').value);
+
+    $('submitBtn').disabled = true;
+    try {
+      const res = await fetch(`${AIEXAM_API}/register`, { method: 'POST', body: fd });
+      const data = await res.json();
+      if (!res.ok) { show(data.detail || '가입에 실패했습니다.', 'error'); return; }
+      show(data.message, 'success');
+      $('signupForm').reset();
+      $('folderPreview').innerText = '아이디/';
+      $('usernameHint').className = 'hint';
+      $('usernameHint').firstChild.textContent = '내 폴더: ';
+      $('pwHint').innerText = '';
+      if (role === 'student') {
+        setTimeout(() => { location.href = 'auth.html?u=' + encodeURIComponent(username); }, 1500);
+      }
+    } catch (err) {
+      show('서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.', 'error');
+    } finally {
+      $('submitBtn').disabled = false;
+    }
+  });
+</script>
+</body>
+</html>

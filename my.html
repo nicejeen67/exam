@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script>
+  if (!sessionStorage.getItem('aiexam_token')) {
+    location.replace('auth.html?redirect=' + encodeURIComponent(location.pathname + location.search));
+  }
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>내 폴더 | AI EXAM</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard/dist/web/static/woff2/Pretendard-Regular.woff2') format('woff2');
+  font-weight: 45 920; font-display: swap;
+}
+:root {
+  --bg: #0B1220; --bg-panel: #121A2C; --bg-panel-raised: #17213A; --line: #26324C; --line-bright: #37456A;
+  --gold: #C9A227; --gold-soft: rgba(201,162,39,.14); --signal: #38D39F; --signal-soft: rgba(56,211,159,.12);
+  --urgent: #E2572B; --urgent-soft: rgba(226,87,43,.14); --text: #EDF1F7; --text-muted: #92A0BC; --text-faint: #5E6B87; --radius: 14px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.5; }
+a { color: inherit; text-decoration: none; }
+header { border-bottom: 1px solid var(--line); position: sticky; top: 0; background: rgba(11,18,32,.9); backdrop-filter: blur(10px); z-index: 10; }
+.header-inner { max-width: 980px; margin: 0 auto; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.brand-mark { font-size: 1.05rem; font-weight: 800; }
+.brand-mark span { color: var(--gold); }
+.aiexam-userbar-name { font-size: .8rem; color: var(--text-muted); margin-right: 4px; }
+.aiexam-userbar-logout { font-size: .75rem; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--text); cursor: pointer; font-family: inherit; }
+.wrap { max-width: 980px; margin: 0 auto; padding: 28px 20px 60px; }
+h1 { font-size: 1.4rem; font-weight: 800; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.path { font-family: ui-monospace, Consolas, monospace; font-size: .85rem; color: var(--gold); background: var(--gold-soft); padding: 3px 10px; border-radius: 999px; }
+.sub { color: var(--text-muted); font-size: .86rem; margin: 6px 0 22px; }
+.toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 18px; }
+.chip { font-size: .8rem; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg-panel); color: var(--text-muted); cursor: pointer; font-family: inherit; }
+.chip.active { border-color: var(--gold); color: var(--gold); background: var(--gold-soft); }
+.btn { font-size: .8rem; font-weight: 700; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line-bright); background: var(--bg-panel-raised); color: var(--text); cursor: pointer; font-family: inherit; white-space: nowrap; }
+.btn:hover { border-color: var(--gold); }
+.btn.gold { background: var(--gold); border-color: var(--gold); color: #1A1404; }
+.btn.danger { background: transparent; border-color: rgba(226,87,43,.4); color: var(--urgent); }
+.btn:disabled { opacity: .5; cursor: default; }
+.spacer { flex: 1; }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 22px; }
+.stat { background: var(--bg-panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
+.stat .lbl { font-size: .74rem; color: var(--text-muted); }
+.stat .num { font-size: 1.5rem; font-weight: 800; margin-top: 2px; }
+.subject-block { background: var(--bg-panel); border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: 14px; overflow: hidden; }
+.subject-head { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.subject-head h2 { font-size: 1rem; font-weight: 700; }
+.subject-head .folder { font-family: ui-monospace, Consolas, monospace; font-size: .76rem; color: var(--text-faint); }
+.subfolder { padding: 10px 18px 14px; }
+.subfolder-title { font-size: .8rem; font-weight: 700; color: var(--gold); margin: 6px 0 8px; display: flex; align-items: center; gap: 6px; }
+.file-row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; margin-bottom: 8px; background: var(--bg-panel-raised); }
+.file-name { font-family: ui-monospace, Consolas, monospace; font-size: .74rem; color: var(--text-faint); overflow-wrap: anywhere; }
+.file-title { font-size: .9rem; font-weight: 700; margin-bottom: 2px; }
+.file-meta { font-size: .76rem; color: var(--text-muted); }
+.score.pass { color: var(--signal); font-weight: 800; }
+.score.fail { color: var(--urgent); font-weight: 800; }
+.file-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.empty { color: var(--text-faint); font-size: .85rem; padding: 26px 0; text-align: center; border: 1px dashed var(--line); border-radius: var(--radius); }
+#status { color: var(--text-faint); font-size: .85rem; padding: 20px 0; }
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: none; align-items: center; justify-content: center; padding: 16px; z-index: 50; }
+.modal.show { display: flex; }
+.modal-card { background: var(--bg-panel); border: 1px solid var(--line); border-radius: var(--radius); width: 760px; max-width: 100%; max-height: 88vh; overflow-y: auto; padding: 22px; }
+.q-block { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
+.q-text { font-weight: 700; font-size: .9rem; margin-bottom: 6px; }
+.opt { font-size: .84rem; padding: 4px 8px; border-radius: 6px; margin-bottom: 3px; color: var(--text-muted); }
+.opt.correct { background: var(--signal-soft); color: var(--signal); font-weight: 700; }
+.opt.wrong { background: var(--urgent-soft); color: var(--urgent); font-weight: 700; }
+.expl { font-size: .8rem; color: var(--text-muted); background: var(--bg-panel-raised); border-radius: 6px; padding: 8px 10px; margin-top: 6px; }
+#authLoadingOverlay { position: fixed; inset: 0; z-index: 999; background: var(--bg); display: flex; align-items: center; justify-content: center; color: var(--text-faint); font-size: .85rem; }
+@media (max-width: 640px) {
+  .stats { grid-template-columns: 1fr 1fr; }
+  .file-row { grid-template-columns: 1fr; }
+  .file-actions { justify-content: flex-start; }
+}
+</style>
+</head>
+<body>
+<div id="authLoadingOverlay">확인 중...</div>
+<header>
+  <div class="header-inner">
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+      <a class="brand-mark" href="index.html">AI<span>EXAM</span></a>
+      <a href="index.html" style="font-size:.85rem;color:var(--text-muted)">🏠 과목 포털</a>
+      <a id="adminLink" href="admin.html" style="font-size:.85rem;color:var(--text-muted);display:none">관리자</a>
+    </div>
+    <div id="userBar"></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1>📁 학생 폴더 <span class="path" id="folderPath">/</span></h1>
+  <p class="sub" id="folderSub">시험을 치르거나 AI 모의고사를 생성하면 이 폴더에 자동으로 저장됩니다.</p>
+
+  <div class="stats">
+    <div class="stat"><div class="lbl">시험 기록</div><div class="num" id="statAttempts">0</div></div>
+    <div class="stat"><div class="lbl">생성한 모의고사</div><div class="num" id="statGenerated">0</div></div>
+    <div class="stat"><div class="lbl">평균 점수</div><div class="num" id="statAvg">-</div></div>
+    <div class="stat"><div class="lbl">최고 점수</div><div class="num" id="statBest">-</div></div>
+  </div>
+
+  <div class="toolbar">
+    <div id="subjectChips" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+    <span class="spacer"></span>
+    <button class="btn gold" id="zipBtn" type="button">⬇ 폴더 전체 내려받기(ZIP)</button>
+  </div>
+
+  <div id="status">불러오는 중...</div>
+  <div id="folderList"></div>
+</main>
+
+<div class="modal" id="viewModal">
+  <div class="modal-card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px">
+      <div>
+        <div style="font-weight:800" id="viewTitle"></div>
+        <div class="file-name" id="viewPath"></div>
+        <div class="file-meta" id="viewMeta" style="margin-top:4px"></div>
+      </div>
+      <button class="btn" type="button" id="viewClose">닫기</button>
+    </div>
+    <div id="viewBody"></div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="auth.js"></script>
+<script>
+  const SUBJECT_ORDER = ['real-estate-intro', 'real-estate-law', 'brokerage-practice', 'real-estate-public-law', 'public-notice-law', 'real-estate-tax', 'appraisal-theory'];
+  const KIND_LABEL = { attempt: '시험기록', generated: '생성모의고사' };
+  let viewer = null, folder = null, filter = 'all';
+
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const fileName = (p) => p.split('/').pop();
+  const dateStr = (d) => new Date(d).toLocaleString('ko-KR');
+
+  function renderStats(files) {
+    const att = files.filter(f => f.kind === 'attempt');
+    const scores = att.map(f => f.score).filter(s => typeof s === 'number');
+    document.getElementById('statAttempts').innerText = att.length;
+    document.getElementById('statGenerated').innerText = files.filter(f => f.kind === 'generated').length;
+    document.getElementById('statAvg').innerText = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) + '점' : '-';
+    document.getElementById('statBest').innerText = scores.length ? Math.max(...scores) + '점' : '-';
+  }
+
+  function renderChips() {
+    const counts = {};
+    folder.files.forEach(f => { counts[f.subject_id] = (counts[f.subject_id] || 0) + 1; });
+    const chips = [{ id: 'all', name: '전체', n: folder.files.length }]
+      .concat(folder.subjects.filter(s => counts[s.id]).map(s => ({ id: s.id, name: s.name, n: counts[s.id] })));
+    document.getElementById('subjectChips').innerHTML = chips.map(c =>
+      `<button type="button" class="chip ${filter === c.id ? 'active' : ''}" data-id="${c.id}">${esc(c.name)} ${c.n}</button>`).join('');
+    document.querySelectorAll('#subjectChips .chip').forEach(b => b.onclick = () => { filter = b.dataset.id; render(); });
+  }
+
+  function fileRow(f) {
+    const canDelete = viewer.role === 'admin' || viewer.username.toLowerCase() === folder.username.toLowerCase();
+    const meta = f.kind === 'attempt'
+      ? `<span class="score ${f.score >= 60 ? 'pass' : 'fail'}">${f.score}점</span> · ${f.correct_count}/${f.total_questions}문항 정답 · ${dateStr(f.created_at)}`
+      : `${f.question_count}문항 · ${dateStr(f.created_at)}`;
+    return `<div class="file-row">
+      <div>
+        <div class="file-title">${esc(f.title)}</div>
+        <div class="file-meta">${meta}</div>
+        <div class="file-name">📄 ${esc(fileName(f.path))}</div>
+      </div>
+      <div class="file-actions">
+        <button class="btn" type="button" data-act="view" data-id="${f.id}">열기</button>
+        <a class="btn" href="${f.subject_id}.html?retake=${f.id}">다시 풀기</a>
+        <button class="btn" type="button" data-act="json" data-id="${f.id}">내려받기</button>
+        ${canDelete ? `<button class="btn danger" type="button" data-act="del" data-id="${f.id}">삭제</button>` : ''}
+      </div>
+    </div>`;
+  }
+
+  function render() {
+    renderChips();
+    const files = folder.files.filter(f => filter === 'all' || f.subject_id === filter);
+    renderStats(files);
+    const list = document.getElementById('folderList');
+    document.getElementById('status').style.display = 'none';
+    if (!folder.files.length) {
+      list.innerHTML = `<div class="empty">아직 폴더가 비어 있습니다.<br>과목 페이지에서 기출 모의고사를 풀거나 [AI 모의고사]를 생성하면 <b>${esc(folder.username)}/과목명/</b> 아래에 자동으로 저장됩니다.<br><br><a class="btn gold" href="index.html">과목 선택하러 가기</a></div>`;
+      return;
+    }
+    const bySubject = {};
+    files.forEach(f => { (bySubject[f.subject_id] = bySubject[f.subject_id] || []).push(f); });
+    list.innerHTML = SUBJECT_ORDER.filter(id => bySubject[id]).map(id => {
+      const fs = bySubject[id];
+      const name = fs[0].subject_name;
+      const sub = ['attempt', 'generated'].map(kind => {
+        const k = fs.filter(f => f.kind === kind);
+        if (!k.length) return '';
+        return `<div class="subfolder"><div class="subfolder-title">📂 ${KIND_LABEL[kind]} <span style="color:var(--text-faint);font-weight:500">(${k.length})</span></div>${k.map(fileRow).join('')}</div>`;
+      }).join('');
+      return `<section class="subject-block">
+        <div class="subject-head"><h2>${esc(name)}</h2><span class="folder">${esc(folder.username)}/${esc(name)}/</span>
+          <span class="spacer"></span><a class="btn" href="${id}.html">과목 학습하기 →</a></div>${sub}</section>`;
+    }).join('');
+    list.querySelectorAll('[data-act]').forEach(b => b.onclick = () => action(b.dataset.act, parseInt(b.dataset.id, 10)));
+  }
+
+  async function getFile(id) { return aiexamRpc('ax_file_get', { p_token: aiexamGetToken(), p_id: id }); }
+
+  function download(blob, name) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+  function fileJson(f) {
+    return JSON.stringify({ path: f.path, title: f.title, subtitle: f.subtitle, subject: f.subject_name, kind: KIND_LABEL[f.kind],
+      student: { username: f.owner_username, name: f.student_name }, created_at: f.created_at,
+      score: f.score, correct_count: f.correct_count, total_questions: f.total_questions, questions: f.questions }, null, 2);
+  }
+
+  async function action(act, id) {
+    try {
+      if (act === 'view') {
+        const f = await getFile(id);
+        document.getElementById('viewTitle').innerText = f.title;
+        document.getElementById('viewPath').innerText = f.path;
+        document.getElementById('viewMeta').innerHTML = f.kind === 'attempt'
+          ? `응시자 ${esc(f.student_name)} · ${dateStr(f.created_at)} · <span class="score ${f.score >= 60 ? 'pass' : 'fail'}">${f.score}점</span> (${f.correct_count}/${f.total_questions})`
+          : `${esc(f.student_name)} · ${dateStr(f.created_at)} · ${f.question_count}문항`;
+        document.getElementById('viewBody').innerHTML = (f.questions || []).map((q, i) => {
+          const picked = q.studentAnswer;
+          return `<div class="q-block"><div class="q-text">Q${i + 1}. ${esc(q.question)}${f.kind === 'attempt' ? (picked === q.answer ? ' <span class="score pass">정답</span>' : ' <span class="score fail">오답</span>') : ''}</div>
+            ${(q.options || []).map((o, j) => {
+              const n = j + 1;
+              const cls = n === q.answer ? 'correct' : (n === picked ? 'wrong' : '');
+              return `<div class="opt ${cls}">${n}. ${esc(o)}${n === picked ? ' (내 선택)' : ''}${n === q.answer ? ' ✓' : ''}</div>`;
+            }).join('')}
+            ${q.explanation ? `<div class="expl"><b>해설</b> ${esc(q.explanation)}</div>` : ''}</div>`;
+        }).join('');
+        document.getElementById('viewModal').classList.add('show');
+      } else if (act === 'json') {
+        const f = await getFile(id);
+        download(new Blob([fileJson(f)], { type: 'application/json' }), fileName(f.path));
+      } else if (act === 'del') {
+        if (!confirm('이 파일을 폴더에서 삭제할까요? 삭제하면 되돌릴 수 없습니다.')) return;
+        await aiexamRpc('ax_file_delete', { p_token: aiexamGetToken(), p_id: id });
+        await load();
+      }
+    } catch (e) { alert(e.message); }
+  }
+
+  function loadScript(src) {
+    return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('ZIP 라이브러리를 불러오지 못했습니다.')); document.head.appendChild(s); });
+  }
+  document.getElementById('zipBtn').onclick = async () => {
+    const btn = document.getElementById('zipBtn');
+    if (!folder || !folder.files.length) { alert('내려받을 파일이 없습니다.'); return; }
+    btn.disabled = true; btn.innerText = '압축 중...';
+    try {
+      if (typeof JSZip === 'undefined') await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
+      const zip = new JSZip();
+      for (const meta of folder.files) {
+        const f = await getFile(meta.id);
+        zip.file(f.path, fileJson(f));        // 학생아이디/과목명/시험기록/파일.json 구조 그대로
+      }
+      const blob = await zip.generateAsync({ type: 'blob' });
+      download(blob, `${folder.username}_폴더_${new Date().toISOString().slice(0, 10)}.zip`);
+    } catch (e) { alert(e.message); }
+    finally { btn.disabled = false; btn.innerText = '⬇ 폴더 전체 내려받기(ZIP)'; }
+  };
+
+  document.getElementById('viewClose').onclick = () => document.getElementById('viewModal').classList.remove('show');
+  document.getElementById('viewModal').onclick = (e) => { if (e.target.id === 'viewModal') e.currentTarget.classList.remove('show'); };
+
+  async function load() {
+    const target = new URLSearchParams(location.search).get('user') || null;
+    folder = await aiexamRpc('ax_folder', { p_token: aiexamGetToken(), p_username: target });
+    const hash = decodeURIComponent(location.hash.slice(1));
+    if (hash && folder.files.some(f => f.subject_id === hash)) filter = hash;   // 포털의 [폴더 보기] → 해당 과목만
+    document.getElementById('folderPath').innerText = folder.username + '/';
+    document.getElementById('folderSub').innerText = (folder.name ? folder.name + ' · ' : '') +
+      (target && target.toLowerCase() !== viewer.username.toLowerCase()
+        ? (viewer.role === 'admin' ? '관리자 열람 중' : '담당 과목 파일만 표시됩니다')
+        : '시험을 치르거나 AI 모의고사를 생성하면 이 폴더에 자동으로 저장됩니다.');
+    render();
+  }
+
+  (async function init() {
+    viewer = await aiexamRequireAuth();
+    if (!viewer) return;
+    aiexamRenderUserBar(document.getElementById('userBar'), viewer);
+    if (viewer.role === 'admin') document.getElementById('adminLink').style.display = 'inline';
+    document.getElementById('authLoadingOverlay').style.display = 'none';
+    try { await load(); } catch (e) { document.getElementById('status').innerText = e.message; }
+  })();
+</script>
+</body>
+</html>

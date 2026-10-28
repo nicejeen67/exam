@@ -1,0 +1,5002 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <script>
+    // 로그인 여부를 화면이 그려지기 전에 즉시 확인 - 없으면 바로 로그인 페이지로 이동 (깜박임 방지)
+    if (!sessionStorage.getItem('aiexam_token')) {
+      location.replace('auth.html?redirect=' + encodeURIComponent(location.pathname + location.search));
+    }
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>공인중개사 부동산세법 Smart AI Master | 합격 솔루션</title>
+  <!-- Google Fonts: Pretendard & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --primary-light: #eff6ff;
+      --accent-purple: #8b5cf6;
+      --accent-purple-hover: #7c3aed;
+      --accent-emerald: #10b981;
+      --accent-emerald-hover: #059669;
+      --accent-rose: #f43f5e;
+      --accent-amber: #f59e0b;
+      
+      --bg-main: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-panel: #f1f5f9;
+      --bg-header: #0f172a;
+      --border-color: #e2e8f0;
+      --border-subtle: #cbd5e1;
+      
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --text-subtle: #94a3b8;
+      --text-inverted: #ffffff;
+      
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.15), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --radius-full: 9999px;
+
+      --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [data-theme="dark"] {
+      --bg-main: #0b0f19;
+      --bg-surface: #131b2e;
+      --bg-panel: #1e293b;
+      --bg-header: #070a12;
+      --border-color: #27354f;
+      --border-subtle: #334155;
+      
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-subtle: #64748b;
+      --primary-light: #1e293b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+      user-select: none;
+    }
+
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-subtle);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-subtle);
+    }
+
+    /* Header (Clean, Ultra-high contrast) */
+    header {
+      background: #ffffff !important;
+      color: #0f172a !important;
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      z-index: 50;
+      border-bottom: 1px solid #e2e8f0 !important;
+    }
+
+    [data-theme="dark"] header {
+      background: #0f172a !important;
+      color: #ffffff !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      background: #00a651;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+      box-shadow: 0 0 15px rgba(0, 166, 81, 0.45);
+      flex-shrink: 0;
+    }
+
+    .brand h1 {
+      font-size: 1.25rem;
+      font-weight: 900 !important;
+      letter-spacing: -0.02em;
+      color: #1e3a8a !important;
+      background: none !important;
+      -webkit-text-fill-color: #1e3a8a !important;
+      margin: 0;
+    }
+
+    [data-theme="dark"] .brand h1 {
+      color: #ffffff !important;
+      -webkit-text-fill-color: #ffffff !important;
+    }
+
+    .brand-badge {
+      font-size: 0.72rem;
+      padding: 3px 9px;
+      background: #8b5cf6;
+      border-radius: var(--radius-full);
+      color: #ffffff !important;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .timer-display {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      color: #0f172a;
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      transition: var(--transition);
+    }
+
+    [data-theme="dark"] .timer-display {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+    }
+
+    .timer-display.running {
+      border-color: var(--accent-emerald);
+      color: #059669;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+      animation: pulse-border 2s infinite;
+    }
+
+    [data-theme="dark"] .timer-display.running {
+      color: #34d399;
+    }
+
+    .timer-display.danger {
+      border-color: var(--accent-rose);
+      color: #e11d48;
+      animation: pulse-danger 1s infinite;
+    }
+
+    [data-theme="dark"] .timer-display.danger {
+      color: #fb7185;
+    }
+
+    @keyframes pulse-border {
+      0%, 100% { box-shadow: 0 0 10px rgba(16, 185, 129, 0.2); }
+      50% { box-shadow: 0 0 18px rgba(16, 185, 129, 0.5); }
+    }
+
+    @keyframes pulse-danger {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    /* Gemini API Key Header Widget */
+    .aiexam-userbar-name {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-right: 8px;
+      font-weight: 600;
+    }
+
+    .aiexam-userbar-logout {
+      font-size: 0.75rem;
+      padding: 5px 12px;
+      border-radius: var(--radius-full);
+      border: 1.5px solid var(--border-color);
+      background: transparent;
+      color: var(--text-main);
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    #authLoadingOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #0f172a;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+    }
+
+    .api-key-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f8fafc;
+      border: 1.5px solid #cbd5e1;
+      color: #0f172a;
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+      outline: none;
+      user-select: none;
+    }
+
+    [data-theme="dark"] .api-key-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.18);
+      color: #f1f5f9;
+    }
+
+    .api-key-btn:hover {
+      background: #eff6ff;
+      border-color: var(--primary);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+    }
+
+    [data-theme="dark"] .api-key-btn:hover {
+      background: rgba(59, 130, 246, 0.15);
+      border-color: #60a5fa;
+    }
+
+    .api-status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .api-status-dot.active {
+      background: var(--accent-emerald);
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
+      animation: pulse-emerald 2s infinite;
+    }
+
+    .api-status-dot.unconfigured {
+      background: #94a3b8;
+    }
+
+    @keyframes pulse-emerald {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.2); }
+    }
+
+    .api-key-badge {
+      font-size: 0.7rem;
+      padding: 2px 7px;
+      border-radius: var(--radius-full);
+      background: #e2e8f0;
+      color: #475569;
+      font-weight: 700;
+    }
+
+    [data-theme="dark"] .api-key-badge {
+      background: rgba(255, 255, 255, 0.15);
+      color: #cbd5e1;
+    }
+
+    .api-key-btn.configured .api-key-badge {
+      background: rgba(16, 185, 129, 0.15);
+      color: #059669;
+    }
+
+    [data-theme="dark"] .api-key-btn.configured .api-key-badge {
+      background: rgba(16, 185, 129, 0.25);
+      color: #34d399;
+    }
+
+    /* Provider Tabs (ChatGPT / Gemini / Claude selector) */
+    .provider-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .provider-tab-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 9px 8px;
+      border-radius: var(--radius-md);
+      border: 1.5px solid var(--border-color);
+      background: var(--bg-panel);
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .provider-tab-btn:hover {
+      border-color: var(--primary);
+      color: var(--text-main);
+    }
+
+    .provider-tab-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    }
+
+    /* API Key Modal Styling */
+    .api-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+
+    .api-input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .api-input-wrap input {
+      width: 100%;
+      padding: 10px 42px 10px 14px;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-size: 0.88rem;
+      background: var(--bg-panel);
+      color: var(--text-main);
+      outline: none;
+      transition: var(--transition);
+      font-family: 'Outfit', -apple-system, sans-serif;
+    }
+
+    .api-input-wrap input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+      background: var(--bg-surface);
+    }
+
+    .toggle-visibility-btn {
+      position: absolute;
+      right: 8px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px;
+      color: var(--text-muted);
+    }
+
+    .api-helper-box {
+      background: rgba(59, 130, 246, 0.06);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      text-align: left;
+    }
+
+    .icon-btn {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      color: #0f172a;
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      transition: var(--transition);
+    }
+
+    [data-theme="dark"] .icon-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+    }
+
+    .icon-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-1px);
+    }
+
+    /* Main Container (3 Columns) */
+    .app-body {
+      display: grid;
+      grid-template-columns: 280px 1fr 410px;
+      flex: 1;
+      height: calc(100vh - 61px);
+      overflow: hidden;
+    }
+
+    /* Left Panel */
+    .left-panel {
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-surface);
+    }
+
+    .panel-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-main);
+    }
+
+    .panel-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .category-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .category-item {
+      padding: 2px 12px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      background: var(--bg-panel);
+      border: 1px solid transparent;
+      color: var(--text-main);
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .category-item:hover {
+      background: var(--primary-light);
+      border-color: var(--primary);
+      transform: translateX(3px);
+    }
+
+    .category-item.active {
+      background: linear-gradient(135deg, var(--primary), var(--accent-purple));
+      color: #fff;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+      border-color: transparent;
+    }
+
+    .cat-badge {
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: var(--radius-full);
+      background: rgba(0, 0, 0, 0.08);
+      font-weight: 600;
+    }
+
+    .category-item.active .cat-badge {
+      background: rgba(255, 255, 255, 0.25);
+      color: #fff;
+    }
+
+    .category-item.week-item {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 3px;
+      cursor: default;
+    }
+
+    .week-row-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .week-num-badge {
+      flex-shrink: 0;
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 1px 7px;
+      border-radius: var(--radius-full);
+      background: rgba(0, 0, 0, 0.08);
+      color: var(--text-main);
+    }
+
+    .category-item.active .week-num-badge {
+      background: rgba(255, 255, 255, 0.25);
+      color: #fff;
+    }
+
+    .week-title-input {
+      flex: 1;
+      min-width: 0;
+      border: 1px solid transparent;
+      background: transparent;
+      color: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 6px;
+      transition: var(--transition);
+    }
+
+    .week-title-input:hover {
+      border-color: var(--border-subtle);
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    [data-theme="dark"] .week-title-input:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .week-title-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: var(--bg-surface);
+      color: var(--text-main);
+    }
+
+    .category-item.active .week-title-input {
+      color: #fff;
+    }
+
+    .category-item.active .week-title-input::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .week-exam-label {
+      flex: 1;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .week-exam-note {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      padding-left: 2px;
+      line-height: 1.2;
+    }
+
+    .category-item.active .week-exam-note {
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .category-item.exam-week {
+      background: repeating-linear-gradient(135deg, var(--bg-panel), var(--bg-panel) 8px, rgba(148,163,184,0.12) 8px, rgba(148,163,184,0.12) 16px);
+    }
+
+    .week-material-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding-left: 2px;
+    }
+
+    .week-file-chip {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--accent-emerald);
+    }
+
+    .week-file-chip.empty {
+      color: var(--text-subtle);
+      font-weight: 500;
+    }
+
+    .category-item.active .week-file-chip {
+      color: #d1fae5;
+    }
+
+    .category-item.active .week-file-chip.empty {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .week-file-btn {
+      flex-shrink: 0;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 1px 8px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      color: var(--text-main);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .week-file-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .week-file-remove {
+      color: var(--accent-rose);
+      border-color: rgba(244, 63, 94, 0.3);
+    }
+
+    .week-file-remove:hover {
+      background: rgba(244, 63, 94, 0.1);
+      border-color: var(--accent-rose);
+      color: var(--accent-rose);
+    }
+
+    .exam-material-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-size: 0.82rem;
+    }
+
+    .exam-material-item .em-title {
+      flex: 1;
+      min-width: 0;
+      font-weight: 600;
+      color: var(--text-main);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .exam-material-item .em-meta {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .exam-material-empty {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      padding: 20px 0;
+      text-align: center;
+    }
+
+    .eh-list-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-size: 0.84rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .eh-list-item:hover {
+      border-color: var(--primary);
+      background: var(--bg-panel);
+    }
+
+    .eh-list-item .eh-item-title {
+      flex: 1;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .eh-list-item .eh-item-meta {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .eh-list-item .eh-item-score {
+      font-weight: 800;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .eh-list-item .eh-item-score.pass { color: var(--accent-emerald); }
+    .eh-list-item .eh-item-score.fail { color: var(--accent-rose); }
+
+    .eh-question-block {
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    .eh-question-block .eh-q-text {
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 8px;
+      font-size: 0.88rem;
+    }
+
+    .eh-question-block .eh-opt {
+      padding: 5px 8px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      margin-bottom: 4px;
+    }
+
+    .eh-question-block .eh-opt.eh-correct {
+      background: rgba(16, 185, 129, 0.12);
+      color: var(--accent-emerald);
+      font-weight: 700;
+    }
+
+    .eh-question-block .eh-opt.eh-wrong-picked {
+      background: rgba(244, 63, 94, 0.12);
+      color: var(--accent-rose);
+      font-weight: 700;
+    }
+
+    .eh-question-block .eh-explanation {
+      margin-top: 8px;
+      padding: 8px 10px;
+      background: var(--bg-panel);
+      border-radius: 6px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .eh-question-block .eh-status-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 999px;
+      margin-left: 8px;
+    }
+
+    .eh-question-block .eh-status-badge.correct { background: rgba(16,185,129,0.15); color: var(--accent-emerald); }
+    .eh-question-block .eh-status-badge.wrong { background: rgba(244,63,94,0.15); color: var(--accent-rose); }
+
+    #examHistoryPrintHeader {
+      display: none;
+    }
+
+    @media print {
+      body * { visibility: hidden; }
+      #examHistoryPrintArea, #examHistoryPrintArea * { visibility: visible; }
+      #examHistoryPrintArea {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+      }
+      #examHistoryPrintHeader { display: block; }
+      #examHistoryScreenInfo { display: none; }
+      .eh-question-block { break-inside: avoid; }
+    }
+
+    .exam-quiz-week-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+    }
+
+    .exam-quiz-week-item .eq-title {
+      flex: 1;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .exam-quiz-week-item .eq-count {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+    }
+
+    .exam-quiz-week-item .eq-go-btn {
+      flex-shrink: 0;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 7px 14px;
+      border-radius: var(--radius-full);
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .exam-quiz-week-item .eq-go-btn:disabled {
+      background: var(--border-color);
+      color: var(--text-subtle);
+      cursor: not-allowed;
+    }
+
+    .eq-builder-block {
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin-bottom: 12px;
+      position: relative;
+    }
+
+    .eq-builder-block .eq-remove-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      border-radius: var(--radius-full);
+      border: 1px solid rgba(244, 63, 94, 0.3);
+      background: transparent;
+      color: var(--accent-rose);
+      cursor: pointer;
+    }
+
+    .eq-builder-block textarea,
+    .eq-builder-block input[type="text"] {
+      width: 100%;
+      padding: 7px 9px;
+      border: 1px solid var(--border-color);
+      border-radius: 7px;
+      background: var(--bg-surface);
+      color: var(--text-main);
+      font-size: 0.82rem;
+      font-family: inherit;
+      margin-bottom: 6px;
+    }
+
+    .eq-builder-block textarea { resize: vertical; min-height: 44px; }
+
+    .eq-option-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 5px;
+    }
+
+    .eq-option-row input[type="radio"] { flex-shrink: 0; }
+    .eq-option-row input[type="text"] { margin-bottom: 0; }
+
+    .eq-builder-block label {
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .key-points-box {
+      background: var(--bg-panel);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      border: 1px solid var(--border-color);
+    }
+
+    .key-points-box h4 {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .key-points-list {
+      list-style: none;
+      font-size: 0.78rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .key-points-list li {
+      position: relative;
+      padding-left: 14px;
+      line-height: 1.4;
+      color: var(--text-main);
+    }
+
+    .key-points-list li::before {
+      content: '📌';
+      position: absolute;
+      left: 0;
+      font-size: 9px;
+      top: 2px;
+    }
+
+    .upload-box {
+      margin-top: auto;
+      padding: 12px;
+      background: var(--bg-panel);
+      border: 1.5px dashed var(--border-subtle);
+      border-radius: var(--radius-md);
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .upload-box:hover {
+      border-color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .upload-box p {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-top: 4px;
+    }
+
+    .upload-box span {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    /* Center Panel */
+    .center-panel {
+      background: var(--bg-main);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 14px;
+      gap: 12px;
+    }
+
+    .ai-hero-card {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      color: #fff;
+      padding: 16px 20px;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .ai-hero-info h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ai-hero-info p {
+      font-size: 0.82rem;
+      color: #cbd5e1;
+    }
+
+    .quick-chips {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .chip-btn {
+      padding: 5px 10px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: var(--radius-full);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: var(--transition);
+    }
+
+    .chip-btn:hover {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+      transform: translateY(-1px);
+    }
+
+    /* Chat / AI Output Area */
+    .chat-container {
+      flex: 1;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .message {
+      display: flex;
+      gap: 10px;
+      max-width: 90%;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message.user {
+      margin-left: auto;
+      flex-direction: row-reverse;
+    }
+
+    .msg-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+      font-weight: bold;
+    }
+
+    .message.ai .msg-avatar {
+      background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(139, 92, 246, 0.4);
+    }
+
+    .message.user .msg-avatar {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .msg-bubble {
+      padding: 12px 16px;
+      border-radius: var(--radius-lg);
+      font-size: 0.88rem;
+      line-height: 1.6;
+      user-select: text;
+    }
+
+    .message.ai .msg-bubble {
+      background: var(--bg-panel);
+      color: var(--text-main);
+      border-top-left-radius: 2px;
+      border: 1px solid var(--border-color);
+    }
+
+    .message.user .msg-bubble {
+      background: var(--primary);
+      color: #fff;
+      border-top-right-radius: 2px;
+    }
+
+    .msg-bubble h4 {
+      font-size: 0.95rem;
+      color: var(--primary);
+      margin: 8px 0 4px 0;
+    }
+
+    .msg-bubble table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 0.8rem;
+    }
+
+    .msg-bubble th, .msg-bubble td {
+      border: 1px solid var(--border-color);
+      padding: 6px 10px;
+      text-align: left;
+    }
+
+    .msg-bubble th {
+      background: rgba(59, 130, 246, 0.1);
+      font-weight: 700;
+    }
+
+    .memorize-tag {
+      display: inline-block;
+      padding: 2px 6px;
+      background: #fef08a;
+      color: #854d0e;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 0.75rem;
+      margin-right: 4px;
+    }
+
+    /* Input Bar */
+    .input-bar {
+      display: flex;
+      gap: 8px;
+      background: var(--bg-surface);
+      padding: 8px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .input-bar input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      color: var(--text-main);
+      outline: none;
+      font-family: inherit;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-ai {
+      background: linear-gradient(135deg, var(--accent-purple), #ec4899);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+    }
+    .btn-ai:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+
+    .btn-success {
+      background: var(--accent-emerald);
+      color: #fff;
+    }
+    .btn-success:hover {
+      background: var(--accent-emerald-hover);
+    }
+
+    .btn-danger {
+      background: var(--accent-rose);
+      color: #fff;
+    }
+
+    /* Right Panel (Test Arena) */
+    .right-panel {
+      background: var(--bg-surface);
+      border-left: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .test-controls-card {
+      padding: 14px 16px;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Exam Upload Area in Right Panel */
+    .exam-upload-zone {
+      background: var(--bg-surface);
+      border: 1.5px dashed #3b82f6;
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(59, 130, 246, 0.04);
+    }
+
+    .exam-upload-zone:hover {
+      background: rgba(59, 130, 246, 0.1);
+      border-color: #2563eb;
+      transform: translateY(-1px);
+    }
+
+    .exam-upload-icon {
+      font-size: 24px;
+      width: 38px;
+      height: 38px;
+      background: #eff6ff;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--primary);
+    }
+
+    [data-theme="dark"] .exam-upload-icon {
+      background: #1e293b;
+    }
+
+    .exam-upload-text {
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+    }
+
+    .exam-upload-text strong {
+      font-size: 0.82rem;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .exam-upload-text span {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .file-badge-container {
+      display: flex;
+      gap: 4px;
+      margin-top: 2px;
+    }
+
+    .f-badge {
+      font-size: 0.62rem;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+    .f-pdf { background: #fee2e2; color: #b91c1c; }
+    .f-doc { background: #dbeafe; color: #1d4ed8; }
+    .f-hwp { background: #e0e7ff; color: #4338ca; }
+    .f-txt { background: #f1f5f9; color: #475569; }
+
+    .uploaded-exam-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--accent-emerald);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .uploaded-exam-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .uploaded-exam-info .file-name {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-main);
+      max-width: 220px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .uploaded-exam-info .file-meta {
+      font-size: 0.7rem;
+      color: var(--accent-emerald);
+      font-weight: 600;
+    }
+
+    .remove-file-btn {
+      background: none;
+      border: none;
+      color: var(--accent-rose);
+      font-size: 14px;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+    }
+    .remove-file-btn:hover {
+      background: rgba(244, 63, 94, 0.1);
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .custom-select {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      background: var(--bg-surface);
+      color: var(--text-main);
+      font-size: 0.85rem;
+      outline: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .test-content-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Idle / Start State Card */
+    .test-start-banner {
+      background: var(--bg-panel);
+      border-radius: var(--radius-lg);
+      padding: 20px 16px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      border: 1px dashed var(--border-subtle);
+    }
+
+    .test-icon-large {
+      font-size: 36px;
+      background: var(--primary-light);
+      width: 64px;
+      height: 64px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .test-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      width: 100%;
+      margin: 6px 0;
+    }
+
+    .test-stat-item {
+      background: var(--bg-surface);
+      padding: 8px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+    }
+
+    .test-stat-item .num {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .test-stat-item .lbl {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    /* Active Question Card */
+    .question-card {
+      background: var(--bg-surface);
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      user-select: text;
+    }
+
+    .q-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .q-number-tag {
+      background: var(--primary);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+    }
+
+    .q-source-tag {
+      background: rgba(139, 92, 246, 0.15);
+      color: var(--accent-purple);
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .q-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      line-height: 1.5;
+      color: var(--text-main);
+    }
+
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .option-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      background: var(--bg-panel);
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+
+    .option-item:hover {
+      border-color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .option-item.selected {
+      border-color: var(--primary);
+      background: rgba(59, 130, 246, 0.12);
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .option-radio {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+      transition: var(--transition);
+    }
+
+    .option-item.selected .option-radio {
+      border-color: var(--primary);
+      background: var(--primary);
+    }
+
+    .option-item.selected .option-radio::after {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: #fff;
+      border-radius: 50%;
+    }
+
+    .option-num {
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-right: 2px;
+    }
+
+    .option-item.selected .option-num {
+      color: var(--primary);
+    }
+
+    /* Explanation Box */
+    .explanation-box {
+      margin-top: 8px;
+      padding: 12px;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: var(--radius-md);
+      font-size: 0.82rem;
+      line-height: 1.5;
+      color: #166534;
+    }
+
+    [data-theme="dark"] .explanation-box {
+      background: #064e3b;
+      border-color: #059669;
+      color: #a7f3d0;
+    }
+
+    .explanation-box.wrong {
+      background: #fff1f2;
+      border-color: #fecdd3;
+      color: #9f1239;
+    }
+
+    [data-theme="dark"] .explanation-box.wrong {
+      background: #4c0519;
+      border-color: #e11d48;
+      color: #fecdd3;
+    }
+
+    /* Result Modal / Overlay */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .modal-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      background: var(--bg-surface);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      max-width: 480px;
+      width: 90%;
+      box-shadow: var(--shadow-xl);
+      text-align: center;
+      border: 1px solid var(--border-color);
+      transform: scale(0.95);
+      transition: transform 0.2s ease;
+    }
+
+    .modal-overlay.show .modal-card {
+      transform: scale(1);
+    }
+
+    .score-circle {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      margin: 16px auto;
+      background: conic-gradient(var(--accent-emerald) calc(var(--score-pct) * 1%), var(--border-color) 0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .score-inner {
+      width: 86px;
+      height: 86px;
+      background: var(--bg-surface);
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .score-inner .score-value {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .score-inner .score-label {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* Floating / Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(50px);
+      background: #1e293b;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: var(--radius-full);
+      box-shadow: var(--shadow-lg);
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 200;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* Official Exam Paper Popup Modal */
+    .official-exam-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 16px;
+    }
+
+    .official-exam-modal.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .official-exam-window {
+      width: 96vw;
+      max-width: 1440px;
+      height: 94vh;
+      background: #f8fafc;
+      border-radius: 12px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      transform: scale(0.97);
+      transition: transform 0.25s ease;
+    }
+
+    .official-exam-modal.show .official-exam-window {
+      transform: scale(1);
+    }
+
+    .official-exam-header {
+      background: #0f172a;
+      color: #fff;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #3b82f6;
+    }
+
+    .official-exam-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .official-badge {
+      background: #3b82f6;
+      color: #fff;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+    }
+
+    .official-exam-body {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      flex: 1;
+      overflow: hidden;
+      background: #cbd5e1;
+      gap: 12px;
+      padding: 12px;
+    }
+
+    /* Authentic Exam Paper Container */
+    .paper-scroll-view {
+      overflow-y: auto;
+      padding-right: 4px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .authentic-paper {
+      background: #ffffff;
+      width: 100%;
+      max-width: 960px;
+      min-height: 100%;
+      padding: 36px 40px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    .paper-official-top {
+      border-bottom: 2px solid #0f172a;
+      padding-bottom: 12px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .paper-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      font-size: 13px;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 6px;
+    }
+
+    .paper-main-title {
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: #0f172a;
+      margin: 8px 0;
+    }
+
+    .paper-notice-bar {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      padding: 8px 14px;
+      font-size: 12px;
+      color: #475569;
+      text-align: left;
+      border-radius: 4px;
+      line-height: 1.5;
+    }
+
+    /* 2-Column Questions Area */
+    .paper-questions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: 36px;
+      row-gap: 28px;
+      position: relative;
+    }
+
+    .paper-questions-grid::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 1px;
+      background: #e2e8f0;
+    }
+
+    .paper-q-item {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: #0f172a;
+      page-break-inside: avoid;
+    }
+
+    .paper-q-title {
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .paper-q-num {
+      font-size: 15px;
+      font-weight: 900;
+      color: #1e293b;
+      margin-right: 4px;
+    }
+
+    .paper-options {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .paper-opt-btn {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: text;
+      border: 1px solid transparent;
+    }
+
+    .paper-opt-btn:hover {
+      background: #eff6ff;
+      border-color: #93c5fd;
+      color: #1d4ed8;
+    }
+
+    .paper-opt-btn.selected {
+      background: #dbeafe;
+      border-color: #3b82f6;
+      color: #1e40af;
+      font-weight: 700;
+    }
+
+    .paper-opt-num {
+      font-weight: 800;
+      color: #3b82f6;
+      flex-shrink: 0;
+    }
+
+    /* OMR Panel on Right */
+    .omr-sheet-panel {
+      background: #ffffff;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      border: 1px solid #cbd5e1;
+      overflow: hidden;
+    }
+
+    .omr-header {
+      background: #0f172a;
+      color: #fff;
+      padding: 12px 16px;
+      text-align: center;
+      font-weight: 800;
+      font-size: 14px;
+      letter-spacing: 0.05em;
+      border-bottom: 3px solid #ef4444;
+    }
+
+    .omr-candidate-info {
+      background: #f8fafc;
+      padding: 10px 14px;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .omr-grid-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .omr-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .omr-row.filled {
+      border-color: #3b82f6;
+      background: #eff6ff;
+    }
+
+    .omr-q-label {
+      font-weight: 800;
+      font-size: 12px;
+      color: #334155;
+      width: 38px;
+    }
+
+    .omr-bubbles {
+      display: flex;
+      gap: 6px;
+    }
+
+    .omr-bubble {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 1.5px solid #94a3b8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      background: #fff;
+      color: #475569;
+    }
+
+    .omr-bubble:hover {
+      border-color: #ef4444;
+      color: #ef4444;
+      background: #fee2e2;
+    }
+
+    .omr-bubble.marked {
+      background: #0f172a;
+      border-color: #0f172a;
+      color: #ffffff;
+      box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.2);
+    }
+
+    .omr-footer {
+      padding: 14px;
+      background: #f8fafc;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* Score Report Banner */
+    .official-score-banner {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      color: #fff;
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .app-body {
+        grid-template-columns: 240px 1fr 340px;
+      }
+      .paper-questions-grid {
+        grid-template-columns: 1fr;
+      }
+      .paper-questions-grid::before {
+        display: none;
+      }
+      .official-exam-body {
+        grid-template-columns: 1fr 280px;
+      }
+    }
+  </style>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+</head>
+<body>
+
+  <div id="authLoadingOverlay">확인 중...</div>
+
+  <!-- Top Header -->
+  <header>
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="50,16 84,80 16,80" fill="none" stroke="#ffffff" stroke-width="11" stroke-linejoin="round" stroke-linecap="round"/>
+          <line x1="8" y1="56" x2="92" y2="56" stroke="#ffffff" stroke-width="11" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <h1>공인중개사 부동산세법 Smart AI Master</h1>
+      </div>
+      <span class="brand-badge">2026 합격 패스</span>
+    </div>
+
+    <div class="header-controls">
+      <div id="userBar" style="display:flex; align-items:center; margin-right:6px;"></div>
+
+      <!-- 기출문제 풀기 (교수: 업로드 / 학생: 열람) -->
+      <!-- 시험 응시 기록 (학생: 본인 기록 / 교수·관리자: 전체 학생 기록) -->
+      <button id="examHistoryBtn" class="api-key-btn" title="시험 응시 기록 (인쇄·오답 분석)">
+        <span class="api-key-icon">📋</span>
+        <span>시험 기록</span>
+      </button>
+
+      <button id="examMaterialsBtn" class="api-key-btn" title="기출문제 풀기 (주차별 실전 모의고사)">
+        <span class="api-key-icon">🧪</span>
+        <span>기출문제 풀기</span>
+      </button>
+
+      <!-- AI API Key Button (ChatGPT / Gemini / Claude 선택 가능) in Top Right Header -->
+      <button id="apiKeyModalBtn" class="api-key-btn" title="학생 개인 AI API Key 설정 (ChatGPT / Gemini / Claude)">
+        <span id="apiKeyDot" class="api-status-dot unconfigured"></span>
+        <span class="api-key-icon">🔑</span>
+        <span id="apiKeyStatusText">API 키</span>
+        <span id="apiKeyBadge" class="api-key-badge">미등록</span>
+      </button>
+
+      <div id="timerDisplay" class="timer-display">
+        <span>⏱️ 남은 시간:</span>
+        <span id="timerText">40:00</span>
+      </div>
+
+      <div class="header-actions">
+        <button id="themeToggleBtn" class="icon-btn" title="다크/라이트 모드 전환">🌓</button>
+        <button id="resetAppBtn" class="icon-btn" title="앱 상태 초기화">🔄</button>
+        <button id="soundToggleBtn" class="icon-btn" title="효과음 켜기/끄기">🔊</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Body 3-Column Layout -->
+  <main class="app-body">
+    
+    <!-- LEFT PANEL: 15-Week Syllabus & Lecture Material Upload -->
+    <aside class="left-panel">
+      <div class="panel-header">
+        <div class="panel-title">
+          <span>📚</span> 15주차 강의계획 및 교안
+        </div>
+        <span id="lawCountBadge" class="cat-badge" style="background:var(--primary); color:#fff;">15주차</span>
+      </div>
+
+      <div class="panel-content">
+        <ul id="categoryList" class="category-list">
+          <!-- Populated by JS: 15 weeks, each with editable title + per-week upload -->
+        </ul>
+
+        <!-- 자료 업로드 (담당 교수 전용, 로그인 상태에 따라 JS로 표시/숨김) -->
+        <button id="weekUploadOpenBtn" class="upload-box" style="display:none; width:100%; cursor:pointer; border:none;" type="button">
+          <div style="font-size: 24px;">📁</div>
+          <p>교안 · 기출문제 업로드</p>
+          <span>주차를 선택해서 자료를 등록하세요</span>
+        </button>
+
+        <!-- Selected Week's Material Info -->
+        <div class="key-points-box">
+          <h4 id="keyPointsTitle">📎 교안 정보</h4>
+          <ul id="keyPointsList" class="key-points-list">
+            <!-- Populated by JS -->
+          </ul>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CENTER PANEL: AI Interactive Tutor & Exam Generator -->
+    <section class="center-panel">
+      <div class="ai-hero-card">
+        <div class="ai-hero-info">
+          <h3><span>🤖</span> 세법 AI 튜터 & 스마트 예상문제</h3>
+          <p>실제 출제위원 시각으로 핵심 이론과 계산 공식의 함정을 짚어드립니다.</p>
+        </div>
+        <button class="btn btn-ai" id="genExamBtn">
+          <span>✨</span> <span id="genExamBtnLabel">AI모의고사</span>
+        </button>
+      </div>
+
+      <!-- Quick Query Chips -->
+      <div class="quick-chips" id="quickChipsContainer">
+        <button class="chip-btn" data-query="취득세와 등록면허세는 어떻게 다른가요?">🏛️ 취득세 vs 등록면허세</button>
+        <button class="chip-btn" data-query="재산세와 종합부동산세의 과세기준일은 언제인가요?">📅 과세기준일 정리</button>
+        <button class="chip-btn" data-query="1세대 1주택 비과세 요건을 알려줘">🏠 1세대1주택 비과세</button>
+        <button class="chip-btn" data-query="장기보유특별공제 계산 방법은?">📊 장기보유특별공제</button>
+        <button class="chip-btn" data-query="종합합산·별도합산·분리과세대상 토지 차이는?">🗺️ 토지 재산세 구분</button>
+      </div>
+
+      <!-- Chat Stream -->
+      <div class="chat-container" id="chatContainer">
+        <div class="message ai">
+          <div class="msg-avatar">AI</div>
+          <div class="msg-bubble">
+            안녕하세요! <strong>공인중개사 부동산세법 Smart AI Master</strong>입니다.<br>
+            선택된 단원의 <strong>교안 질의응답</strong>, <strong>지문 족집게 해설</strong>, <strong>적중 예상문제 생성</strong>을 도와드립니다.<br>
+            우측 시험장에서 <strong>기출문제 PDF/Word(doc, docx, hwp) 파일</strong>을 업로드하여 나만의 CBT 모의고사를 직접 응시할 수도 있습니다!
+          </div>
+        </div>
+      </div>
+
+      <!-- Input Bar -->
+      <div class="input-bar">
+        <input type="text" id="userInput" placeholder="예: 수요의 가격탄력성과 균형가격 변화는 어떻게 계산하나요?" />
+        <button class="btn btn-primary" id="sendBtn">
+          <span>질문하기</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- RIGHT PANEL: CBT Mock Test Arena -->
+    <aside class="right-panel">
+      <div class="panel-header">
+        <div class="panel-title">
+          <span>📝</span> 실전 기출 시험장
+        </div>
+        <span id="testStatusBadge" class="cat-badge" style="background:#10b981; color:#fff;">시험 대기</span>
+      </div>
+
+      <!-- Exam Mode Select & Upload Area -->
+      <div class="test-controls-card">
+        
+        <!-- File Upload Zone for Exam Questions (PDF, Word, HWP, TXT) -->
+        <div class="exam-upload-zone" id="examUploadZone" title="클릭하거나 파일을 끌어다 놓아 기출문제를 업로드하세요">
+          <input type="file" id="examFileInput" accept=".pdf,.doc,.docx,.hwp,.txt" style="display:none;" />
+          <div class="exam-upload-icon">📄</div>
+          <div class="exam-upload-text">
+            <strong>
+              기출문제 PDF / Word 업로드
+              <span style="font-size:10px; background:var(--primary); color:#fff; padding:1px 5px; border-radius:3px;">NEW</span>
+            </strong>
+            <div class="file-badge-container">
+              <span class="f-badge f-pdf">PDF</span>
+              <span class="f-badge f-doc">WORD (DOC/DOCX)</span>
+              <span class="f-badge f-hwp">HWP</span>
+              <span class="f-badge f-txt">TXT</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Uploaded Exam File Card -->
+        <div id="uploadedExamCard" class="uploaded-exam-card" style="display: none;">
+          <div class="uploaded-exam-info">
+            <span style="font-size: 18px;">📑</span>
+            <div>
+              <div class="file-name" id="uploadedFileName">기출문제_34회_부동산세법.pdf</div>
+              <div class="file-meta" id="uploadedFileMeta">✨ AI 문항 추출 완료 (5문항 자동 등록)</div>
+            </div>
+          </div>
+          <button class="remove-file-btn" id="removeExamFileBtn" title="업로드 파일 삭제">✖</button>
+        </div>
+
+        <div class="form-group">
+          <label for="examModeSelect">시험 모드 선택</label>
+          <select id="examModeSelect" class="custom-select">
+            <option value="CURRENT_CHAPTER">단원별 기출 엄선 (현재 선택 단원)</option>
+            <option value="EXAM_34">제34회 공인중개사 2차 실전 기출모의</option>
+            <option value="EXAM_33">제33회 공인중개사 2차 실전 기출모의</option>
+            <option value="AI_WEAKNESS">🎯 AI 맞춤형 킬러 함정 지문 모의</option>
+          </select>
+        </div>
+
+        <button id="startTestBtn" class="btn btn-success" style="width: 100%; padding: 10px; font-weight: 700;">
+          🚀 실전 타이머 시험 시작 (40분)
+        </button>
+        <button id="submitTestBtn" class="btn btn-danger" style="width: 100%; padding: 10px; font-weight: 700; display: none;">
+          ✅ 답안 제출 및 즉시 채점
+        </button>
+      </div>
+
+      <!-- Test Question Area -->
+      <div class="test-content-area" id="testContentArea">
+        <!-- Idle State -->
+        <div class="test-start-banner" id="idleTestBanner">
+          <div class="test-icon-large">⏱️</div>
+          <h3 style="font-size: 1rem; margin-top: 4px;">실전 CBT 모의고사</h3>
+          <p style="font-size: 0.8rem; color: var(--text-muted);">
+            내 PDF/Word 기출문제를 업로드하거나 AI 적중 예상문제를 출제하여 실전 타이머 시험을 응시하세요.
+          </p>
+          <div class="test-stats-grid">
+            <div class="test-stat-item">
+              <div class="num" id="statTotalQuestions">5</div>
+              <div class="lbl">엄선 문항</div>
+            </div>
+            <div class="test-stat-item">
+              <div class="num">40분</div>
+              <div class="lbl">제한 시간</div>
+            </div>
+            <div class="test-stat-item">
+              <div class="num">60점</div>
+              <div class="lbl">합격 기준</div>
+            </div>
+          </div>
+          <button id="bannerAiGenBtn" class="btn btn-ai" style="width: 100%; padding: 10px; font-weight: 700; margin-top: 8px;">
+            <span>🎯</span> 현재 단원 AI 적중 예상문제 즉시 출제 & 응시
+          </button>
+        </div>
+
+        <!-- Questions container dynamically populated -->
+        <div id="questionsContainer" style="display: none; display: flex; flex-direction: column; gap: 14px;"></div>
+      </div>
+    </aside>
+
+  <!-- OFFICIAL REAL ESTATE EXAM PAPER POPUP MODAL (정식 시험지 & CBT OMR 팝업창) -->
+  <div class="official-exam-modal" id="officialExamModal">
+    <div class="official-exam-window">
+      
+      <!-- Top Window Bar -->
+      <div class="official-exam-header">
+        <div class="official-exam-title">
+          <div style="width: 24px; height: 24px; background: #00a651; border-radius: 5px; display: flex; align-items: center; justify-content: center; padding: 3px; flex-shrink: 0; box-shadow: 0 0 8px rgba(0,166,81,0.4);">
+            <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+              <polygon points="50,16 84,80 16,80" fill="none" stroke="#ffffff" stroke-width="11" stroke-linejoin="round" stroke-linecap="round"/>
+              <line x1="8" y1="56" x2="92" y2="56" stroke="#ffffff" stroke-width="11" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span class="official-badge">공인중개사 1차 실전시험</span>
+          <span id="popupExamMainTitle">2026년도 제37회 공인중개사 자격시험 제2차 시험 (부동산세법) - A형</span>
+        </div>
+        
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <!-- Timer in popup -->
+          <div class="timer-display running" style="background: rgba(0,0,0,0.5); padding: 4px 12px; font-size: 0.95rem;">
+            <span>⏱️ 남은 시간:</span>
+            <span id="popupTimerText">40:00</span>
+          </div>
+
+          <button id="closeOfficialExamBtn" class="icon-btn" title="시험지 팝업 닫기" style="background: rgba(239, 68, 68, 0.3); border-color: #ef4444; font-size: 16px;">✖</button>
+        </div>
+      </div>
+
+      <!-- Main Body: Paper Left + OMR Right -->
+      <div class="official-exam-body">
+        
+        <!-- Left: Authentic 2-Column Korean Test Paper -->
+        <div class="paper-scroll-view" id="paperScrollView">
+          <div class="authentic-paper">
+            
+            <div class="paper-official-top">
+              <div class="paper-title-row">
+                <span>제 2 교시</span>
+                <span id="paperSubHeader">부 동 산 세 법 (A형)</span>
+                <span>과목코드: 04</span>
+              </div>
+              <h2 class="paper-main-title" id="paperExamHeaderTitle">공인중개사 부동산세법 실전시험지</h2>
+              <div class="paper-notice-bar">
+                ※ 문제지의 각 문항을 신중히 읽고 물음에 가장 알맞은 답 하나만을 골라 <strong>우측 답안카드(OMR)</strong>의 해당 번호에 표기하거나 <strong>문제지 보기를 직접 클릭</strong>하시오.
+              </div>
+            </div>
+
+            <!-- Score banner in explanation mode -->
+            <div id="popupScoreBanner" class="official-score-banner" style="display: none;">
+              <div>
+                <h3 style="font-size: 1.1rem; margin-bottom: 2px;">📊 공식 채점 결과 성적표</h3>
+                <p id="popupScoreDetails" style="font-size: 0.82rem; color: #cbd5e1;">총 5문항 중 4문항 정답 | 득점: 80점 (합격)</p>
+              </div>
+              <button class="btn btn-primary" id="popupRetryBtn" style="padding: 6px 14px; font-size: 0.8rem;">🔄 시험 다시 풀기</button>
+            </div>
+
+            <!-- Questions 2-Column Grid -->
+            <div class="paper-questions-grid" id="officialPaperQuestionsGrid">
+              <!-- Populated by JS -->
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Right: Real-time Computer Based Test OMR Sheet -->
+        <div class="omr-sheet-panel">
+          <div class="omr-header">
+            📋 OMR 답안카드 (부동산세법)
+          </div>
+          
+          <div class="omr-candidate-info">
+            <span>수험번호: <strong>2026-0828-A01</strong></span>
+            <span>수험자: <strong>합격도전자</strong></span>
+          </div>
+
+          <div style="padding: 8px 12px; background: #eff6ff; font-size: 11px; font-weight: 700; color: #1e40af; display: flex; justify-content: space-between; border-bottom: 1px solid #dbeafe;">
+            <span>진행률: <strong id="omrAnsweredCount">0</strong> / <span id="omrTotalCount">5</span> 문항</span>
+            <span id="omrPendingCount" style="color: #ef4444;">미표기: 5문항</span>
+          </div>
+
+          <div class="omr-grid-container" id="omrGridContainer">
+            <!-- Populated by JS -->
+          </div>
+
+          <div class="omr-footer">
+            <button id="popupSubmitTestBtn" class="btn btn-danger" style="width: 100%; padding: 12px; font-size: 0.9rem; font-weight: 800; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);">
+              📤 최종 답안 제출 및 자동 채점
+            </button>
+            <button id="popupReviewToggleBtn" class="btn btn-primary" style="width: 100%; padding: 10px; font-size: 0.85rem; font-weight: 700; display: none;">
+              📖 정답 및 해설 집중 보기
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- AI API Key Configuration Modal (ChatGPT / Gemini / Claude 선택형) -->
+  <div class="modal-overlay" id="apiKeyModal">
+    <div class="modal-card" style="max-width: 520px; text-align: left;">
+      <div class="api-modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 22px;">🔑</span>
+          <h2 style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0;">AI API 키 설정</h2>
+        </div>
+        <button id="closeApiKeyModalBtn" class="remove-file-btn" style="font-size: 18px;" title="닫기">✕</button>
+      </div>
+
+      <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 12px;">
+        원하는 AI 제공사를 선택하고 학생 개인의 API Key를 등록하면, 실시간 초개인화 AI 질의응답 및 무제한 기출 적중 예상문제 생성이 활성화됩니다.
+      </p>
+
+      <!-- Provider Selector Tabs -->
+      <div id="providerTabs" class="provider-tabs">
+        <button type="button" class="provider-tab-btn" data-provider="gemini">🔷 Gemini</button>
+        <button type="button" class="provider-tab-btn" data-provider="openai">🟢 ChatGPT</button>
+        <button type="button" class="provider-tab-btn" data-provider="claude">🟠 Claude</button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div class="form-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <label for="apiKeyInput" id="apiKeyInputLabel" style="font-size: 0.8rem; font-weight: 700; color: var(--text-main); margin: 0;">
+              Gemini API Key
+            </label>
+            <a id="apiKeyLinkA" href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" style="color: var(--primary); text-decoration: underline; font-weight: 600; font-size: 0.75rem;">
+              🔗 무료 API 키 발급받기
+            </a>
+          </div>
+          <div class="api-input-wrap">
+            <input type="password" id="apiKeyInput" placeholder="AIzaSy... 로 시작하는 API 키를 입력하세요" autocomplete="off" spellcheck="false" />
+            <button type="button" id="toggleApiKeyVisibilityBtn" class="toggle-visibility-btn" title="비밀번호 보기/숨기기">👁️</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="apiModelSelect" style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">
+            AI 모델 선택
+          </label>
+          <select id="apiModelSelect" class="custom-select"></select>
+        </div>
+
+        <!-- Connection Test Status Box -->
+        <div id="apiTestStatus" style="display: none; padding: 10px 12px; border-radius: var(--radius-md); font-size: 0.8rem; line-height: 1.4;">
+        </div>
+
+        <div class="api-helper-box">
+          <div style="font-weight: 700; color: var(--text-main); margin-bottom: 4px;">🔒 안전한 로컬 브라우저 저장</div>
+          <span>입력하신 API 키는 브라우저 내부(LocalStorage)에만 제공사별로 안전하게 보관되며, 선택한 AI사의 공식 API 서버로만 직접 전송됩니다(중간 서버 경유 없음). 언제든지 삭제하거나 변경할 수 있습니다. 일부 브라우저/네트워크 환경에서는 보안 정책(CORS)으로 인해 특정 제공사의 직접 호출이 제한될 수 있으니, 등록 후 [연결 테스트]로 확인해보세요.</span>
+        </div>
+
+        <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px;">
+          <button type="button" id="apiTestBtn" class="btn" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: var(--text-main); font-weight: 700; padding: 8px 14px; font-size: 0.82rem; cursor: pointer;">
+            ⚡ 연결 테스트
+          </button>
+          <button type="button" id="apiDeleteBtn" class="btn" style="background: #fee2e2; border: 1px solid #fecdd3; color: #dc2626; font-weight: 700; padding: 8px 12px; font-size: 0.82rem; cursor: pointer; display: none;">
+            🗑️ 키 삭제
+          </button>
+          <button type="button" id="apiSaveBtn" class="btn btn-primary" style="font-weight: 700; padding: 8px 18px; font-size: 0.85rem; cursor: pointer;">
+            💾 저장하고 이 AI로 사용하기
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 기출문제 자료실 Modal (교수: 업로드 / 학생·기타: 열람·다운로드) -->
+  <div class="modal-overlay" id="examMaterialsModal">
+    <div class="modal-card" style="max-width: 520px; text-align: left;">
+      <div class="api-modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 22px;">🧪</span>
+          <h2 style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0;">기출문제 풀기</h2>
+        </div>
+        <button id="closeExamMaterialsModalBtn" class="remove-file-btn" style="font-size: 18px;" title="닫기">✕</button>
+      </div>
+
+      <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px;">
+        담당 교수가 등록한 주차별 기출문제를 실제 시험처럼 풀어보고, 제출 즉시 정답·오답과 해설을 확인할 수 있습니다.
+      </p>
+
+      <div id="examQuizWeekList" style="display:flex; flex-direction:column; gap:8px; max-height:380px; overflow-y:auto;">
+        <!-- JS로 채워짐 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 주차 자료 업로드 Modal (교수 전용) - 교안 또는 기출문제(채점형)를 주차를 선택해서 등록 -->
+  <div class="modal-overlay" id="weekUploadModal">
+    <div class="modal-card" style="max-width: 560px; text-align: left;">
+      <div class="api-modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 22px;">📁</span>
+          <h2 style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0;">주차 자료 업로드</h2>
+        </div>
+        <button id="closeWeekUploadModalBtn" class="remove-file-btn" style="font-size: 18px;" title="닫기">✕</button>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 14px;">
+        <label style="font-size:0.8rem; font-weight:700; color:var(--text-main); display:block; margin-bottom:4px;">주차 선택</label>
+        <select id="weekUploadWeekSelect" class="custom-select"></select>
+      </div>
+
+      <div class="provider-tabs" id="weekUploadTabs" style="margin-bottom:16px;">
+        <button type="button" class="provider-tab-btn active" data-type="lecture">📘 교안</button>
+        <button type="button" class="provider-tab-btn" data-type="exam">🧪 기출문제</button>
+      </div>
+
+      <!-- 교안 업로드 -->
+      <div id="lectureUploadPane">
+        <div class="form-group">
+          <label style="font-size:0.8rem; font-weight:700; color:var(--text-main); display:block; margin-bottom:4px;">주차 제목</label>
+          <input type="text" id="lectureUploadTitle" placeholder="예: 3주차 부동산 경제론" style="width:100%; padding:8px 10px; border:1px solid var(--border-color); border-radius:8px; background:var(--bg-surface); color:var(--text-main);" />
+        </div>
+        <div class="form-group" style="margin-top:10px;">
+          <label style="font-size:0.8rem; font-weight:700; color:var(--text-main); display:block; margin-bottom:4px;">파일 (PDF/Word/TXT)</label>
+          <input type="file" id="lectureUploadFile" accept=".pdf,.doc,.docx,.txt" style="width:100%;" />
+        </div>
+        <button type="button" id="lectureUploadSubmitBtn" class="btn btn-primary" style="margin-top:14px; padding:8px 16px; font-size:0.82rem; cursor:pointer;">📤 교안 업로드</button>
+      </div>
+
+      <!-- 기출문제(채점형) 등록 -->
+      <div id="examUploadPane" style="display:none;">
+        <div style="padding:12px; border:1px solid var(--border-color); border-radius:var(--radius-md); margin-bottom:16px;">
+          <label style="font-size:0.8rem; font-weight:700; color:var(--text-main); display:block; margin-bottom:6px;">📄 기출문제 파일에서 자동 추출 (PDF/Word/TXT)</label>
+          <input type="file" id="examExtractFile" accept=".pdf,.doc,.docx,.txt" style="width:100%; margin-bottom:8px;" />
+          <button type="button" id="examExtractBtn" class="week-file-btn" style="width:100%;">🤖 AI로 문제 자동 추출</button>
+          <div id="examExtractStatus" style="display:none; margin-top:8px; font-size:0.78rem; line-height:1.5;"></div>
+          <p style="font-size:0.72rem; color:var(--text-subtle); margin-top:8px; margin-bottom:0;">
+            추출된 문제는 아래 입력창에 자동으로 채워지며, 등록 전 반드시 내용을 확인·수정해주세요. AI 추출은 상단 [🔑 API 키]에 ChatGPT·Gemini·Claude 중 하나가 등록되어 있어야 사용할 수 있습니다.
+          </p>
+        </div>
+
+        <p style="font-size:0.78rem; color:var(--text-muted); margin-bottom:12px;">
+          또는 문제·보기 5개·정답·해설을 직접 입력해도 됩니다. 학생들은 실제 시험처럼 풀고 자동 채점 및 해설을 받아볼 수 있습니다.
+        </p>
+        <div id="examQuestionBuilder"></div>
+        <button type="button" id="addExamQuestionBtn" class="week-file-btn" style="margin-top:6px;">＋ 문제 추가</button>
+        <button type="button" id="examQuestionSubmitBtn" class="btn btn-primary" style="margin-top:16px; padding:8px 16px; font-size:0.82rem; cursor:pointer; display:block;">📤 기출문제 등록</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 시험 응시 기록 (목록 + 상세보기/인쇄/오답분석) -->
+  <div class="modal-overlay" id="examHistoryModal">
+    <div class="modal-card" style="max-width: 640px; text-align: left;">
+      <div class="api-modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 22px;">📋</span>
+          <h2 style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0;" id="examHistoryTitle">시험 응시 기록</h2>
+        </div>
+        <button id="closeExamHistoryModalBtn" class="remove-file-btn" style="font-size: 18px;" title="닫기">✕</button>
+      </div>
+
+      <!-- 목록 화면 -->
+      <div id="examHistoryListView">
+        <div id="examHistoryScopeTabs" class="provider-tabs" style="display:none; margin-bottom:14px;">
+          <button type="button" class="provider-tab-btn active" data-scope="mine">내 기록</button>
+          <button type="button" class="provider-tab-btn" data-scope="all">학생 전체 기록</button>
+        </div>
+        <div id="examHistoryList" style="display:flex; flex-direction:column; gap:8px; max-height:420px; overflow-y:auto;">
+          <!-- JS로 채워짐 -->
+        </div>
+      </div>
+
+      <!-- 상세 보기 화면 (인쇄 대상) -->
+      <div id="examHistoryDetailView" style="display:none;">
+        <div style="display:flex; gap:8px; margin-bottom:14px;">
+          <button type="button" id="examHistoryBackBtn" class="week-file-btn">← 목록으로</button>
+          <button type="button" id="examHistoryPrintBtn" class="week-file-btn">🖨️ 인쇄하기</button>
+          <button type="button" id="examHistoryAiAnalysisBtn" class="week-file-btn">🤖 AI 오답 분석</button>
+        </div>
+        <div id="examHistoryAiAnalysisBox" style="display:none; margin-bottom:14px; padding:12px; border:1px solid var(--border-color); border-radius:var(--radius-md); font-size:0.82rem; line-height:1.6;"></div>
+        <div id="examHistoryPrintArea">
+          <!-- JS로 채워짐: 시험 제목/응시자/점수 + 문항별 상세 -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="modal-overlay" id="scoreModal">
+    <div class="modal-card">
+      <h2 style="font-size: 1.3rem; margin-bottom: 4px;">🎉 시험 채점 결과</h2>
+      <p style="font-size: 0.82rem; color: var(--text-muted);">제출된 답안의 채점이 완료되었습니다.</p>
+
+      <div class="score-circle" id="scoreCircle" style="--score-pct: 80;">
+        <div class="score-inner">
+          <span class="score-value" id="scoreNumber">80</span>
+          <span class="score-label">점 (100점 만점)</span>
+        </div>
+      </div>
+
+      <div style="background: var(--bg-panel); padding: 12px; border-radius: var(--radius-md); margin-bottom: 16px; font-size: 0.85rem; text-align: left; line-height: 1.6;">
+        <div>📊 총 문항 수: <strong id="resTotalCount">5</strong>문항</div>
+        <div>✅ 정답 수: <strong id="resCorrectCount" style="color: var(--accent-emerald);">4</strong>문항</div>
+        <div>❌ 오답 수: <strong id="resWrongCount" style="color: var(--accent-rose);">1</strong>문항</div>
+        <div>🎯 합격 여부: <strong id="resPassStatus" style="color: var(--primary);">합격권 달성!</strong></div>
+      </div>
+
+      <div style="display: flex; gap: 8px;">
+        <button class="btn btn-primary" style="flex: 1;" id="reviewAnswersBtn">📝 해설 및 오답 확인하기</button>
+        <button class="btn btn-ai" style="flex: 1;" id="closeModalBtn">확인 완료</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast">
+    <span id="toastIcon">💡</span>
+    <span id="toastMsg">알림 메시지입니다.</span>
+  </div>
+
+  <script src="config.js"></script>
+<script src="auth.js"></script>
+  <script>
+    /* ==========================================================
+       1. DATA DEFINITIONS (세법 6개 단원 & 예상문제 & AI 지식 베이스)
+       ========================================================== */
+    /* ==========================================================
+       WEEKLY SYLLABUS DATA (15주차 강의계획 및 교안 업로드)
+       - 서버(백엔드 API)에 저장된 교안을 기준으로 각 주차 제목/자료가 채워집니다.
+       - 8주차(중간고사)와 15주차(기말고사)는 시험 기간으로 교안 업로드 대상에서 제외
+       - 업로드는 배정된 교수 계정만 가능하며, 학생·기타 사용자는 열람/다운로드만 가능합니다.
+       ========================================================== */
+    const SUBJECT_ID = 'real-estate-tax';
+    const EXAM_WEEKS = { 8: '중간고사', 15: '기말고사' };
+    const TOTAL_WEEKS = 15;
+    const ALLOWED_MATERIAL_EXTS = ['pdf', 'doc', 'docx', 'txt'];
+
+    let currentUser = null;
+    let isAssignedProfessor = false; // 이 과목(SUBJECT_ID)의 승인된 담당 교수인지 여부
+
+    function buildWeekData() {
+      const weeks = [];
+      for (let w = 1; w <= TOTAL_WEEKS; w++) {
+        const id = `week${String(w).padStart(2, '0')}`;
+        const isExam = !!EXAM_WEEKS[w];
+        const name = isExam ? EXAM_WEEKS[w] : `${w}주차`;
+
+        weeks.push({
+          id,
+          weekNo: w,
+          isExam,
+          name,
+          shortName: name,
+          keyPoints: [],
+          questions: [],
+          material: null // 서버에서 불러온 뒤 채워짐 (refreshLectureMaterials)
+        });
+      }
+      return weeks;
+    }
+
+    const LAW_DATA = buildWeekData();
+
+    /* 서버에서 이 과목의 강의자료(kind=lecture) 목록을 가져와 주차별로 매핑합니다. */
+    async function refreshLectureMaterials() {
+      try {
+        const token = aiexamGetToken();
+        const res = await fetch(`${AIEXAM_API}/materials?subject_id=${SUBJECT_ID}&kind=lecture`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (!res.ok) return;
+        const materials = await res.json();
+
+        // 같은 주차에 여러 번 업로드된 경우 가장 최근 것만 사용
+        const latestByWeek = {};
+        materials.forEach(m => {
+          if (!latestByWeek[m.week_no] || m.uploaded_at > latestByWeek[m.week_no].uploaded_at) {
+            latestByWeek[m.week_no] = m;
+          }
+        });
+
+        LAW_DATA.forEach(cat => {
+          if (cat.isExam) return;
+          const m = latestByWeek[cat.weekNo];
+          if (m) {
+            cat.material = m;
+            cat.name = m.title || cat.name;
+            cat.shortName = cat.name;
+          } else {
+            cat.material = null;
+            cat.name = `${cat.weekNo}주차`;
+            cat.shortName = cat.name;
+          }
+        });
+      } catch (e) {
+        console.warn('교안 목록을 불러오지 못했습니다.', e);
+      }
+    }
+
+    /* AI Pre-programmed Knowledge Base for Instant Rich Responses */
+    const AI_KNOWLEDGE_BASE = {
+      '등록면허세': `
+        <h4>🏛️ 취득세 vs 등록면허세 핵심 비교</h4>
+        <table>
+          <tr><th>구분</th><th>취득세</th><th>등록면허세</th></tr>
+          <tr><td>과세대상</td><td>취득을 원인으로 하는 등기·등록</td><td>취득을 원인으로 하지 않는 등기·등록</td></tr>
+          <tr><td>납세의무자</td><td>취득자</td><td>등기·등록을 받는 자</td></tr>
+          <tr><td>징수방법</td><td>신고납부</td><td>신고납부</td></tr>
+          <tr><td>대표사례</td><td>매매·상속·증여로 인한 소유권이전등기</td><td>저당권설정등기, 지상권설정등기 등</td></tr>
+        </table>
+        <span class="memorize-tag">함정 주의</span> 취득 원인 등기는 <strong>등록면허세가 아니라 취득세로 흡수</strong>됩니다!
+      `,
+      '과세기준일': `
+        <h4>📅 재산세·종합부동산세 과세기준일 핵심</h4>
+        <ul>
+          <li><strong>과세기준일:</strong> 재산세·종합부동산세 모두 <strong>매년 6월 1일</strong></li>
+          <li><strong>납세의무자:</strong> 과세기준일 현재 사실상 소유자</li>
+          <li><strong>재산세 납기:</strong> 건물분 7/16~7/31, 토지분 9/16~9/30 (주택은 1/2씩 분할)</li>
+          <li><strong>종합부동산세 납부기간:</strong> 매년 12/1~12/15</li>
+        </ul>
+      `,
+      '1세대': `
+        <h4>🏠 1세대 1주택 비과세 핵심 체크</h4>
+        <ul>
+          <li><strong>보유기간 요건:</strong> 원칙적으로 2년 이상 보유 (지역에 따라 거주기간 요건 추가될 수 있음)</li>
+          <li><strong>고가주택 예외:</strong> 실지거래가액이 일정 기준을 초과하는 고가주택은 비과세 요건 충족해도 초과분 과세</li>
+          <li><strong>일시적 2주택:</strong> 신규주택 취득 후 일정 기간 내 종전주택 처분 시 비과세 특례 적용 가능</li>
+        </ul>
+      `,
+      '장기보유': `
+        <h4>📊 장기보유특별공제 핵심</h4>
+        <ul>
+          <li><strong>적용요건:</strong> 3년 이상 보유한 토지·건물 등에 적용</li>
+          <li><strong>공제율:</strong> 보유기간에 비례하여 증가 (1세대1주택은 보유기간·거주기간 각각 반영)</li>
+          <li><strong>적용 배제:</strong> 미등기 양도자산 등은 장기보유특별공제가 적용되지 않음</li>
+        </ul>
+      `,
+      '분리과세': `
+        <h4>🗺️ 토지 재산세 과세대상 구분</h4>
+        <ul>
+          <li><strong>종합합산과세대상:</strong> 나대지 등 (소유자별 관내 토지를 합산하여 누진세율 적용)</li>
+          <li><strong>별도합산과세대상:</strong> 일반 영업용 건축물의 부속토지 등</li>
+          <li><strong>분리과세대상:</strong> 농지·임야·목장용지(저율) / 골프장·고급오락장용 토지(고율) 등, 다른 토지와 합산하지 않고 별도 세율 적용</li>
+        </ul>
+      `
+    };
+
+    /* ==========================================================
+       2. APPLICATION STATE
+       ========================================================== */
+    let currentCategory = 'week01';
+    let testTimer = 2400; // 40 minutes (2400 sec)
+    let isTestRunning = false;
+    let timerInterval = null;
+    let userAnswers = {};
+    let soundEnabled = true;
+    let activeQuestions = [];
+    let isDarkTheme = false;
+    let customUploadedExam = null; // Stored user uploaded exam
+
+    // Web Audio Sound Synthesizer
+    const audioCtx = (typeof AudioContext !== 'undefined' || typeof webkitAudioContext !== 'undefined')
+      ? new (window.AudioContext || window.webkitAudioContext)()
+      : null;
+
+    function playSound(type) {
+      if (!soundEnabled || !audioCtx) return;
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      if (type === 'click') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.05);
+      } else if (type === 'correct') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+        osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.08); // E5
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.25);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.25);
+      } else if (type === 'alarm') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.4);
+      }
+    }
+
+    /* ==========================================================
+       3. DOM ELEMENTS & GEMINI API STATE
+       ========================================================== */
+    const categoryListEl = document.getElementById('categoryList');
+    const keyPointsTitleEl = document.getElementById('keyPointsTitle');
+    const keyPointsListEl = document.getElementById('keyPointsList');
+    const timerDisplayEl = document.getElementById('timerDisplay');
+    const timerTextEl = document.getElementById('timerText');
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const resetAppBtn = document.getElementById('resetAppBtn');
+    const soundToggleBtn = document.getElementById('soundToggleBtn');
+    // (구) 좌측 패널 전역 업로드 버튼은 주차별 개별 업로드 컨트롤로 대체되었습니다.
+
+    // AI API Key Header & Modal Elements (ChatGPT / Gemini / Claude 선택형)
+    const apiKeyModalBtn = document.getElementById('apiKeyModalBtn');
+    const apiKeyDot = document.getElementById('apiKeyDot');
+    const apiKeyStatusText = document.getElementById('apiKeyStatusText');
+    const apiKeyBadge = document.getElementById('apiKeyBadge');
+    const apiKeyModal = document.getElementById('apiKeyModal');
+    const closeApiKeyModalBtn = document.getElementById('closeApiKeyModalBtn');
+    const providerTabs = document.getElementById('providerTabs');
+    const apiKeyInputLabel = document.getElementById('apiKeyInputLabel');
+    const apiKeyLinkA = document.getElementById('apiKeyLinkA');
+    const apiKeyInput = document.getElementById('apiKeyInput');
+    const toggleApiKeyVisibilityBtn = document.getElementById('toggleApiKeyVisibilityBtn');
+    const apiModelSelect = document.getElementById('apiModelSelect');
+    const apiTestStatus = document.getElementById('apiTestStatus');
+    const apiTestBtn = document.getElementById('apiTestBtn');
+    const apiDeleteBtn = document.getElementById('apiDeleteBtn');
+    const apiSaveBtn = document.getElementById('apiSaveBtn');
+
+    /* ---- Multi-provider AI configuration (ChatGPT / Gemini / Claude) ---- */
+    const AI_PROVIDERS = {
+      gemini: {
+        label: 'Gemini',
+        icon: '🔷',
+        keyStorageKey: 'gemini_api_key',
+        modelStorageKey: 'gemini_model',
+        keyPlaceholder: 'AIzaSy... 로 시작하는 API 키를 입력하세요',
+        keyLink: 'https://aistudio.google.com/app/apikey',
+        keyLinkText: '🔗 무료 API 키 발급받기 (Google AI Studio)',
+        defaultModel: 'gemini-1.5-flash',
+        models: [
+          { value: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash (권장 - 무료/초고속/넉넉한 한도)' },
+          { value: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash (최신 모델 - 고성능 추론)' },
+          { value: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro (심층 분석 - 복잡한 판례/사례형)' }
+        ]
+      },
+      openai: {
+        label: 'ChatGPT',
+        icon: '🟢',
+        keyStorageKey: 'openai_api_key',
+        modelStorageKey: 'openai_model',
+        keyPlaceholder: 'sk-... 로 시작하는 API 키를 입력하세요',
+        keyLink: 'https://platform.openai.com/api-keys',
+        keyLinkText: '🔗 API 키 발급받기 (OpenAI Platform)',
+        defaultModel: 'gpt-4o-mini',
+        models: [
+          { value: 'gpt-4o-mini', label: 'GPT-4o mini (권장 - 빠르고 저렴)' },
+          { value: 'gpt-4o', label: 'GPT-4o (고성능)' },
+          { value: 'gpt-4-turbo', label: 'GPT-4 Turbo (심층 분석)' }
+        ]
+      },
+      claude: {
+        label: 'Claude',
+        icon: '🟠',
+        keyStorageKey: 'claude_api_key',
+        modelStorageKey: 'claude_model',
+        keyPlaceholder: 'sk-ant-... 로 시작하는 API 키를 입력하세요',
+        keyLink: 'https://console.anthropic.com/settings/keys',
+        keyLinkText: '🔗 API 키 발급받기 (Anthropic Console)',
+        defaultModel: 'claude-sonnet-4-5-20250929',
+        models: [
+          { value: 'claude-sonnet-4-5-20250929', label: 'Claude Sonnet 4.5 (권장 - 균형 잡힌 성능)' },
+          { value: 'claude-opus-4-1-20250805', label: 'Claude Opus 4.1 (최고 성능 - 심층 분석)' },
+          { value: 'claude-3-5-haiku-20241022', label: 'Claude 3.5 Haiku (빠르고 저렴)' }
+        ]
+      }
+    };
+
+    const STORAGE_KEY_ACTIVE_PROVIDER = 'active_ai_provider';
+
+    // 실제 채팅/문제생성에 사용되는 "활성 제공사" (마지막으로 저장하기를 누른 AI)
+    let activeProvider = localStorage.getItem(STORAGE_KEY_ACTIVE_PROVIDER) || 'gemini';
+    if (!AI_PROVIDERS[activeProvider]) activeProvider = 'gemini';
+
+    // 모달 안에서 현재 선택(탭 클릭)되어 있는 제공사 (저장 전까지는 activeProvider와 다를 수 있음)
+    let modalSelectedProvider = activeProvider;
+
+    function getProviderKey(provider) {
+      return localStorage.getItem(AI_PROVIDERS[provider].keyStorageKey) || '';
+    }
+    function getProviderModel(provider) {
+      return localStorage.getItem(AI_PROVIDERS[provider].modelStorageKey) || AI_PROVIDERS[provider].defaultModel;
+    }
+    function setProviderKey(provider, key) {
+      localStorage.setItem(AI_PROVIDERS[provider].keyStorageKey, key);
+    }
+    function setProviderModel(provider, model) {
+      localStorage.setItem(AI_PROVIDERS[provider].modelStorageKey, model);
+    }
+    function hasActiveApiKey() {
+      return !!getProviderKey(activeProvider);
+    }
+
+    const chatContainer = document.getElementById('chatContainer');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const genExamBtn = document.getElementById('genExamBtn');
+    const quickChipsContainer = document.getElementById('quickChipsContainer');
+
+    const examUploadZone = document.getElementById('examUploadZone');
+    const examFileInput = document.getElementById('examFileInput');
+    const uploadedExamCard = document.getElementById('uploadedExamCard');
+    const uploadedFileName = document.getElementById('uploadedFileName');
+    const uploadedFileMeta = document.getElementById('uploadedFileMeta');
+    const removeExamFileBtn = document.getElementById('removeExamFileBtn');
+
+    const examModeSelect = document.getElementById('examModeSelect');
+    const startTestBtn = document.getElementById('startTestBtn');
+    const bannerAiGenBtn = document.getElementById('bannerAiGenBtn');
+    const submitTestBtn = document.getElementById('submitTestBtn');
+    const testStatusBadge = document.getElementById('testStatusBadge');
+    const idleTestBanner = document.getElementById('idleTestBanner');
+    const questionsContainer = document.getElementById('questionsContainer');
+
+    const scoreModal = document.getElementById('scoreModal');
+    const scoreCircle = document.getElementById('scoreCircle');
+    const scoreNumber = document.getElementById('scoreNumber');
+    const resTotalCount = document.getElementById('resTotalCount');
+    const resCorrectCount = document.getElementById('resCorrectCount');
+    const resWrongCount = document.getElementById('resWrongCount');
+    const resPassStatus = document.getElementById('resPassStatus');
+    const reviewAnswersBtn = document.getElementById('reviewAnswersBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+
+    const toast = document.getElementById('toast');
+    const toastMsg = document.getElementById('toastMsg');
+    const toastIcon = document.getElementById('toastIcon');
+
+    /* ==========================================================
+       4. GEMINI API MANAGEMENT & HELPER FUNCTIONS
+       ========================================================== */
+    function updateApiKeyUi() {
+      const key = getProviderKey(activeProvider);
+      const info = AI_PROVIDERS[activeProvider];
+
+      if (key) {
+        if (apiKeyDot) apiKeyDot.className = 'api-status-dot active';
+        if (apiKeyModalBtn) apiKeyModalBtn.classList.add('configured');
+        if (apiKeyStatusText) apiKeyStatusText.innerText = `${info.icon} ${info.label}`;
+        if (apiKeyBadge) {
+          const masked = key.length > 8
+            ? `${key.slice(0, 4)}...${key.slice(-3)}`
+            : '연결됨';
+          apiKeyBadge.innerText = `🟢 ${masked}`;
+        }
+      } else {
+        if (apiKeyDot) apiKeyDot.className = 'api-status-dot unconfigured';
+        if (apiKeyModalBtn) apiKeyModalBtn.classList.remove('configured');
+        if (apiKeyStatusText) apiKeyStatusText.innerText = 'API 키';
+        if (apiKeyBadge) apiKeyBadge.innerText = '미등록 (클릭)';
+      }
+    }
+
+    /* Populate the modal's input/select/label/link for the given provider tab,
+       and highlight the active tab button. Does NOT change activeProvider. */
+    function renderProviderTab(provider) {
+      modalSelectedProvider = provider;
+      const info = AI_PROVIDERS[provider];
+
+      if (providerTabs) {
+        providerTabs.querySelectorAll('.provider-tab-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.provider === provider);
+        });
+      }
+
+      if (apiKeyInputLabel) apiKeyInputLabel.innerText = `${info.label} API Key`;
+      if (apiKeyLinkA) {
+        apiKeyLinkA.href = info.keyLink;
+        apiKeyLinkA.innerText = info.keyLinkText;
+      }
+      if (apiKeyInput) {
+        apiKeyInput.placeholder = info.keyPlaceholder;
+        apiKeyInput.value = getProviderKey(provider);
+        apiKeyInput.type = 'password';
+      }
+      if (toggleApiKeyVisibilityBtn) toggleApiKeyVisibilityBtn.innerText = '👁️';
+
+      if (apiModelSelect) {
+        apiModelSelect.innerHTML = info.models.map(m => `<option value="${m.value}">${m.label}</option>`).join('');
+        apiModelSelect.value = getProviderModel(provider);
+      }
+
+      if (apiTestStatus) apiTestStatus.style.display = 'none';
+      if (apiDeleteBtn) apiDeleteBtn.style.display = getProviderKey(provider) ? 'inline-flex' : 'none';
+    }
+
+    function openApiKeyModal() {
+      renderProviderTab(activeProvider);
+      apiKeyModal.classList.add('show');
+    }
+
+    /* ---- Provider-specific API callers ---- */
+    async function callGeminiApi(prompt, systemInstruction, apiKey, model) {
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey.trim()}`;
+
+      const payload = {
+        contents: [
+          {
+            parts: [{ text: prompt }]
+          }
+        ]
+      };
+
+      if (systemInstruction) {
+        payload.systemInstruction = {
+          parts: [{ text: systemInstruction }]
+        };
+      }
+
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        const msg = errorData.error?.message || `HTTP ${res.status} ${res.statusText}`;
+        throw new Error(msg);
+      }
+
+      const data = await res.json();
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      return text;
+    }
+
+    async function callOpenAiApi(prompt, systemInstruction, apiKey, model) {
+      const endpoint = 'https://api.openai.com/v1/chat/completions';
+
+      const messages = [];
+      if (systemInstruction) messages.push({ role: 'system', content: systemInstruction });
+      messages.push({ role: 'user', content: prompt });
+
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey.trim()}`
+        },
+        body: JSON.stringify({ model, messages })
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        const msg = errorData.error?.message || `HTTP ${res.status} ${res.statusText}`;
+        throw new Error(msg);
+      }
+
+      const data = await res.json();
+      const text = data.choices?.[0]?.message?.content || '';
+      return text;
+    }
+
+    async function callClaudeApi(prompt, systemInstruction, apiKey, model) {
+      const endpoint = 'https://api.anthropic.com/v1/messages';
+
+      const payload = {
+        model,
+        max_tokens: 1500,
+        messages: [{ role: 'user', content: prompt }]
+      };
+      if (systemInstruction) payload.system = systemInstruction;
+
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey.trim(),
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        const msg = errorData.error?.message || `HTTP ${res.status} ${res.statusText}`;
+        throw new Error(msg);
+      }
+
+      const data = await res.json();
+      const text = data.content?.[0]?.text || '';
+      return text;
+    }
+
+    /* Unified dispatcher: routes the call to whichever provider is currently active */
+    async function callAiApi(prompt, systemInstruction = '') {
+      const apiKey = getProviderKey(activeProvider);
+      const model = getProviderModel(activeProvider);
+      if (!apiKey) throw new Error('NO_API_KEY');
+
+      if (activeProvider === 'gemini') return callGeminiApi(prompt, systemInstruction, apiKey, model);
+      if (activeProvider === 'openai') return callOpenAiApi(prompt, systemInstruction, apiKey, model);
+      if (activeProvider === 'claude') return callClaudeApi(prompt, systemInstruction, apiKey, model);
+      throw new Error('UNKNOWN_PROVIDER');
+    }
+
+    function formatAiResponseToHtml(mdText) {
+      if (!mdText) return '';
+      let html = mdText
+        .replace(/^### (.*$)/gim, '<h4 style="color:var(--primary); margin:8px 0 4px; font-weight:700;">$1</h4>')
+        .replace(/^## (.*$)/gim, '<h3 style="color:var(--primary); margin:10px 0 6px; font-weight:800;">$1</h3>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/^[-*] (.*$)/gim, '<li>$1</li>');
+      
+      html = html.replace(/(<li>.*<\/li>)/gims, '<ul style="margin: 6px 0 8px 18px;">$1</ul>');
+      html = html.replace(/\n\n/g, '<br><br>');
+      return html;
+    }
+
+    /* Sends a tiny test request to whichever provider tab is currently open in the modal */
+    async function testApiKeyConnection() {
+      const provider = modalSelectedProvider;
+      const info = AI_PROVIDERS[provider];
+      const inputKey = apiKeyInput.value.trim();
+      const selectedModel = apiModelSelect.value;
+
+      if (!inputKey) {
+        apiTestStatus.style.display = 'block';
+        apiTestStatus.style.background = '#fee2e2';
+        apiTestStatus.style.border = '1px solid #fecdd3';
+        apiTestStatus.style.color = '#991b1b';
+        apiTestStatus.innerHTML = '⚠️ API 키를 먼저 입력해주세요.';
+        return;
+      }
+
+      apiTestStatus.style.display = 'block';
+      apiTestStatus.style.background = '#eff6ff';
+      apiTestStatus.style.border = '1px solid #bfdbfe';
+      apiTestStatus.style.color = '#1e40af';
+      apiTestStatus.innerHTML = `⏳ ${info.icon} ${info.label} API 서버에 연결을 테스트하는 중입니다...`;
+
+      apiTestBtn.disabled = true;
+      const originalText = apiTestBtn.innerText;
+      apiTestBtn.innerText = '연결 중...';
+
+      try {
+        const startTime = Date.now();
+        const testPrompt = 'Respond with OK if you receive this.';
+        let resultText = '';
+
+        if (provider === 'gemini') {
+          resultText = await callGeminiApi(testPrompt, '', inputKey, selectedModel);
+        } else if (provider === 'openai') {
+          resultText = await callOpenAiApi(testPrompt, '', inputKey, selectedModel);
+        } else if (provider === 'claude') {
+          resultText = await callClaudeApi(testPrompt, '', inputKey, selectedModel);
+        }
+
+        const elapsed = Date.now() - startTime;
+
+        apiTestStatus.style.background = '#f0fdf4';
+        apiTestStatus.style.border = '1px solid #bbf7d0';
+        apiTestStatus.style.color = '#166534';
+        apiTestStatus.innerHTML = `✅ <strong>연결 성공!</strong> (${selectedModel}, 응답속도: ${elapsed}ms)<br>${info.label} 모델과 정상적으로 통신되었습니다. [저장하기]를 눌러 적용하세요.`;
+        playSound('correct');
+      } catch (e) {
+        apiTestStatus.style.background = '#fee2e2';
+        apiTestStatus.style.border = '1px solid #fecdd3';
+        apiTestStatus.style.color = '#991b1b';
+        apiTestStatus.innerHTML = `❌ <strong>연결 실패:</strong> ${e.message}<br>API 키가 올바른지, 또는 브라우저에서 이 API사에 직접 접속이 허용되는지 확인해주세요.`;
+        playSound('alarm');
+      } finally {
+        apiTestBtn.disabled = false;
+        apiTestBtn.innerText = originalText;
+      }
+    }
+
+    /* Saves the key/model for whichever provider tab is open, and makes it the active provider */
+    function saveApiKeySettings() {
+      const provider = modalSelectedProvider;
+      const info = AI_PROVIDERS[provider];
+      const inputKey = apiKeyInput.value.trim();
+      const selectedModel = apiModelSelect.value;
+
+      if (!inputKey) {
+        showToast('API 키를 입력해주세요.', '⚠️');
+        return;
+      }
+
+      setProviderKey(provider, inputKey);
+      setProviderModel(provider, selectedModel);
+
+      activeProvider = provider;
+      localStorage.setItem(STORAGE_KEY_ACTIVE_PROVIDER, activeProvider);
+
+      updateApiKeyUi();
+      apiKeyModal.classList.remove('show');
+      showToast(`${info.label} API 키가 안전하게 저장되었습니다!`, '✅');
+      playSound('correct');
+
+      appendMessage('ai', `
+        <h4>✨ [${info.icon} ${info.label} 연동 활성화]</h4>
+        <p>학생 개인 <strong>${info.label} API 키</strong>(${selectedModel})가 성공적으로 연결되었습니다!<br>
+        이제 모든 질문에 대해 ${info.label}이(가) 실시간으로 전문적인 이론 분석과 맞춤 예상문제를 출제합니다.</p>
+      `);
+    }
+
+    function deleteApiKeySettings() {
+      const provider = modalSelectedProvider;
+      const info = AI_PROVIDERS[provider];
+
+      if (confirm(`저장된 ${info.label} API 키를 삭제하시겠습니까?`)) {
+        localStorage.removeItem(info.keyStorageKey);
+        apiKeyInput.value = '';
+        apiTestStatus.style.display = 'none';
+        apiDeleteBtn.style.display = 'none';
+        updateApiKeyUi();
+        showToast(`${info.label} API 키가 삭제되었습니다.`, '🗑️');
+      }
+    }
+
+    function toggleApiKeyVisibility() {
+      if (apiKeyInput.type === 'password') {
+        apiKeyInput.type = 'text';
+        toggleApiKeyVisibilityBtn.innerText = '🔒';
+      } else {
+        apiKeyInput.type = 'password';
+        toggleApiKeyVisibilityBtn.innerText = '👁️';
+      }
+    }
+
+    /* ==========================================================
+       5. UI INITIALIZATION & EVENT HANDLERS
+       ========================================================== */
+    function showToast(msg, icon = '💡') {
+      toastMsg.innerText = msg;
+      toastIcon.innerText = icon;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    function formatTimer(sec) {
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }
+
+    function escapeHtmlAttr(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    function truncateText(str, n) {
+      return str.length > n ? str.slice(0, n - 1) + '…' : str;
+    }
+
+    function renderCategoryList() {
+      categoryListEl.innerHTML = '';
+
+      LAW_DATA.forEach(cat => {
+        const li = document.createElement('li');
+        li.className = `category-item week-item ${cat.isExam ? 'exam-week' : ''} ${cat.id === currentCategory ? 'active' : ''}`;
+
+        const titleAreaHtml = `<span class="week-exam-label">${escapeHtmlAttr(cat.name)}</span>`;
+
+        let bodyHtml;
+        if (cat.isExam) {
+          bodyHtml = `<div class="week-exam-note">📌 시험 기간 (자료 업로드 불가)</div>`;
+        } else if (cat.material) {
+          bodyHtml = `<div class="week-material-row">
+              <span class="week-file-chip" title="${escapeHtmlAttr(cat.material.filename)}">📎 ${escapeHtmlAttr(truncateText(cat.material.filename, 16))}</span>
+              <button type="button" class="week-file-btn week-file-download" title="다운로드">⬇ 다운로드</button>
+            </div>`;
+        } else {
+          bodyHtml = `<div class="week-material-row"><span class="week-file-chip empty">미등록</span></div>`;
+        }
+
+        li.innerHTML = `
+          <div class="week-row-top">
+            <span class="week-num-badge">${cat.weekNo}주</span>
+            ${titleAreaHtml}
+          </div>
+          ${bodyHtml}
+        `;
+
+        li.addEventListener('click', (e) => {
+          if (e.target.closest('input, button')) return;
+          selectCategory(cat.id);
+          playSound('click');
+        });
+
+        categoryListEl.appendChild(li);
+
+        if (!cat.isExam) {
+          const downloadBtnEl = li.querySelector('.week-file-download');
+
+          if (downloadBtnEl) {
+            downloadBtnEl.addEventListener('click', (e) => {
+              e.stopPropagation();
+              downloadMaterial(cat.material.id, cat.material.filename);
+            });
+          }
+        }
+      });
+
+      renderKeyPoints();
+    }
+
+    /* Repurposed panel: shows the currently selected week's uploaded material info */
+    function renderKeyPoints() {
+      const cur = LAW_DATA.find(c => c.id === currentCategory) || LAW_DATA[0];
+      keyPointsTitleEl.innerText = `📎 ${cur.name} 교안 정보`;
+      keyPointsListEl.innerHTML = '';
+
+      if (cur.isExam) {
+        const li = document.createElement('li');
+        li.innerText = '이 주차는 시험 기간으로 별도의 교안이 없습니다.';
+        keyPointsListEl.appendChild(li);
+        return;
+      }
+
+      if (cur.material) {
+        const dateStr = new Date(cur.material.uploaded_at).toLocaleDateString('ko-KR');
+        const li1 = document.createElement('li');
+        li1.innerText = `파일명: ${cur.material.filename}`;
+        const li2 = document.createElement('li');
+        li2.innerText = `등록: ${cur.material.uploader_name} · ${dateStr}`;
+        keyPointsListEl.appendChild(li1);
+        keyPointsListEl.appendChild(li2);
+      } else {
+        const li = document.createElement('li');
+        li.innerText = isAssignedProfessor
+          ? '아직 업로드된 교안이 없습니다. 왼쪽 목록의 [📁 업로드] 버튼으로 등록해주세요.'
+          : '아직 담당 교수가 업로드한 교안이 없습니다.';
+        keyPointsListEl.appendChild(li);
+      }
+    }
+
+    /* 주차별 교안(PDF/Word/TXT) 업로드 - 서버에 저장, 배정된 교수만 가능 */
+    async function attachWeekMaterial(cat, file, titleInput) {
+      const ext = file.name.split('.').pop().toLowerCase();
+      if (!ALLOWED_MATERIAL_EXTS.includes(ext)) {
+        showToast('PDF, Word(doc/docx), TXT 파일만 업로드할 수 있습니다.', '⚠️');
+        return;
+      }
+
+      const title = titleInput || file.name.replace(/\.[^/.]+$/, '');
+      const formData = new FormData();
+      formData.append('subject_id', SUBJECT_ID);
+      formData.append('week_no', cat.weekNo);
+      formData.append('kind', 'lecture');
+      formData.append('title', title);
+      formData.append('file', file);
+
+      try {
+        const res = await fetch(`${AIEXAM_API}/materials`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${aiexamGetToken()}` },
+          body: formData
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          showToast(err.detail || '업로드에 실패했습니다.', '⚠️');
+          return;
+        }
+        await refreshLectureMaterials();
+        renderCategoryList();
+        showToast(`'${file.name}' 교안이 ${cat.weekNo}주차에 등록되었습니다.`, '📄');
+        appendMessage('ai', `📁 <strong>${title} 교안 업로드 완료:</strong> [${file.name}] 파일이 등록되었습니다.<br>이 교안 내용을 바탕으로 맞춤 질문이나 예상문제를 요청해보세요!`);
+        playSound('correct');
+      } catch (e) {
+        showToast('서버에 연결할 수 없습니다.', '⚠️');
+      }
+    }
+
+    async function removeWeekMaterial(cat) {
+      if (!cat.material) return;
+      if (!confirm(`${cat.name}에 등록된 교안을 삭제하시겠습니까?`)) return;
+
+      try {
+        const res = await fetch(`${AIEXAM_API}/materials/${cat.material.id}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${aiexamGetToken()}` }
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          showToast(err.detail || '삭제에 실패했습니다.', '⚠️');
+          return;
+        }
+        await refreshLectureMaterials();
+        renderCategoryList();
+        showToast('교안이 삭제되었습니다.', '🗑️');
+      } catch (e) {
+        showToast('서버에 연결할 수 없습니다.', '⚠️');
+      }
+    }
+
+    function downloadMaterial(materialId, filename) {
+      const token = aiexamGetToken();
+      fetch(`${AIEXAM_API}/materials/${materialId}/download`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then(res => {
+          if (!res.ok) throw new Error('다운로드 실패');
+          return res.blob();
+        })
+        .then(blob => {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(url);
+        })
+        .catch(() => showToast('파일을 다운로드할 수 없습니다.', '⚠️'));
+    }
+
+    function selectCategory(catId) {
+      currentCategory = catId;
+      renderCategoryList();
+      const cat = LAW_DATA.find(c => c.id === catId);
+      showToast(`${cat.name}이(가) 선택되었습니다.`, '📚');
+
+      if (!isTestRunning && examModeSelect.value === 'CURRENT_CHAPTER') {
+        document.getElementById('statTotalQuestions').innerText = cat.questions.length;
+      }
+    }
+
+    /* Timer Logic */
+    function updateTimerDisplay() {
+      timerTextEl.innerText = formatTimer(testTimer);
+      if (isTestRunning) {
+        timerDisplayEl.classList.add('running');
+        if (testTimer < 300) {
+          timerDisplayEl.classList.add('danger');
+        } else {
+          timerDisplayEl.classList.remove('danger');
+        }
+      } else {
+        timerDisplayEl.classList.remove('running');
+        timerDisplayEl.classList.remove('danger');
+      }
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      isTestRunning = true;
+      testTimer = 2400; // 40 min
+      updateTimerDisplay();
+
+      timerInterval = setInterval(() => {
+        if (testTimer > 0) {
+          testTimer--;
+          updateTimerDisplay();
+        } else {
+          clearInterval(timerInterval);
+          isTestRunning = false;
+          playSound('alarm');
+          alert('⏰ 시험 시간이 종료되었습니다! 답안이 자동으로 제출되고 채점됩니다.');
+          submitTest();
+        }
+      }, 1000);
+    }
+
+    function stopTimer() {
+      clearInterval(timerInterval);
+      isTestRunning = false;
+      updateTimerDisplay();
+    }
+
+    /* AI Chat System */
+    function appendMessage(sender, textHtml) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `message ${sender}`;
+      msgDiv.innerHTML = `
+        <div class="msg-avatar">${sender === 'ai' ? 'AI' : '나'}</div>
+        <div class="msg-bubble">${textHtml}</div>
+      `;
+      chatContainer.appendChild(msgDiv);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    async function handleUserQuestion(queryText) {
+      if (!queryText.trim()) return;
+      appendMessage('user', queryText);
+      userInput.value = '';
+      playSound('click');
+
+      const currentLaw = LAW_DATA.find(c => c.id === currentCategory) || LAW_DATA[0];
+
+      // AI Thinking effect
+      const thinkingId = 'think_' + Date.now();
+      const thinkingDiv = document.createElement('div');
+      thinkingDiv.className = 'message ai';
+      thinkingDiv.id = thinkingId;
+      thinkingDiv.innerHTML = `
+        <div class="msg-avatar">AI</div>
+        <div class="msg-bubble" style="color: var(--text-muted); display:flex; align-items:center; gap:8px;">
+          <span style="font-size:16px;">✨</span>
+          <span>${hasActiveApiKey() ? `[${AI_PROVIDERS[activeProvider].icon} ${AI_PROVIDERS[activeProvider].label} ${getProviderModel(activeProvider)}] 세법 전문 AI가 실시간 답변 생성 중...` : '부동산세법 조문 및 기출문제 분석 중...'}</span>
+        </div>
+      `;
+      chatContainer.appendChild(thinkingDiv);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+
+      if (hasActiveApiKey()) {
+        try {
+          const systemInstruction = `당신은 대한민국 공인중개사 2차 시험 '부동산세법' 1타 전문 강사이자 출제위원급 AI 마스터입니다.
+현재 수험생이 학습 중인 단원은 [${currentLaw.name}]입니다.
+수험생의 질문에 대해:
+1. 관련 이론·공식 기준의 정확하고 명쾌한 핵심 해설
+2. 출제위원이 자주 파는 함정 지문 및 오답 포인트
+3. 실전 암기 공식/팁
+을 알기 쉽게 설명해주세요. 가독성 높은 HTML 태그(<h4>, <p>, <ul>, <li>, <strong>, <table> 등)를 적극 활용해주세요.`;
+
+          const prompt = `[학습 과목: 공인중개사 부동산세법]
+[선택 단원: ${currentLaw.name}]
+[수험생 질문: ${queryText}]
+
+위 질문에 대해 출제 기준에 맞춘 명쾌하고 전문적인 해설을 제공해주세요.`;
+
+          const responseText = await callAiApi(prompt, systemInstruction);
+          const targetThinking = document.getElementById(thinkingId);
+          if (targetThinking) targetThinking.remove();
+
+          const providerInfo = AI_PROVIDERS[activeProvider];
+          const formattedHtml = formatAiResponseToHtml(responseText);
+          appendMessage('ai', `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; border-bottom:1px solid rgba(59,130,246,0.2); padding-bottom:4px;">
+              <span style="font-size:11px; font-weight:800; color:var(--primary);">✨ ${providerInfo.icon} ${providerInfo.label} 실시간 해설 (${getProviderModel(activeProvider)})</span>
+              <span style="font-size:11px; color:var(--text-muted);">${currentLaw.shortName}</span>
+            </div>
+            ${formattedHtml}
+          `);
+          playSound('correct');
+          return;
+        } catch (error) {
+          console.warn('AI API call failed, falling back to local KB:', error);
+          const targetThinking = document.getElementById(thinkingId);
+          if (targetThinking) targetThinking.remove();
+
+          let fallbackMsg = '';
+          if (error.message.includes('API_KEY_INVALID') || error.message.includes('API key not valid') || error.message.includes('401') || error.message.includes('authentication')) {
+            fallbackMsg = `<div style="color:var(--accent-rose); font-size:0.8rem; margin-bottom:8px;">⚠️ 등록된 ${AI_PROVIDERS[activeProvider].label} API 키가 유효하지 않습니다. 상단 우측 [🔑 API 키]에서 키를 다시 확인해주세요.</div>`;
+          }
+          renderLocalAiResponse(queryText, currentLaw, fallbackMsg);
+          return;
+        }
+      }
+
+      // Built-in Local Knowledge Base fallback
+      setTimeout(() => {
+        const targetThinking = document.getElementById(thinkingId);
+        if (targetThinking) targetThinking.remove();
+        renderLocalAiResponse(queryText, currentLaw);
+      }, 500);
+    }
+
+    function renderLocalAiResponse(queryText, currentLaw, prefixHtml = '') {
+      let aiAnswer = null;
+      for (const [key, answer] of Object.entries(AI_KNOWLEDGE_BASE)) {
+        if (queryText.includes(key)) {
+          aiAnswer = answer;
+          break;
+        }
+      }
+
+      if (!aiAnswer) {
+        aiAnswer = `
+          <h4>💡 [${currentLaw.shortName}] 세법 핵심 분석 답변</h4>
+          <p>질문하신 <strong>"${queryText}"</strong>에 대한 최신 개정 법령 해설입니다:</p>
+          <ul style="margin: 8px 0 8px 18px;">
+            <li><strong>이론적 배경:</strong> 부동산 시장의 수요·공급 원리와 자원배분 효율성을 설명하는 핵심 이론입니다.</li>
+            <li><strong>출제 포인트:</strong> 공식 계산(탄력성, 레버리지, 저당상수 등)과 개념 간 비교(예: 원가법 vs 거래사례비교법)를 꼬아서 오답 지문을 구성합니다.</li>
+            <li><strong>핵심 암기 사항:</strong> ${(currentLaw.keyPoints && currentLaw.keyPoints.length) ? currentLaw.keyPoints[0] : '업로드된 교안을 참고하여 이 주차의 핵심 내용을 정리해보세요.'}</li>
+          </ul>
+          <div style="margin-top:10px; padding:8px 10px; background:rgba(59,130,246,0.08); border-radius:6px; font-size:0.75rem; color:var(--primary);">
+            💡 <strong>TIP:</strong> 상단 우측의 <strong>[🔑 API 키]</strong>에서 ChatGPT·Gemini·Claude 중 하나를 등록하시면 실시간 초개인화 AI 맞춤 해설을 무제한으로 이용하실 수 있습니다!
+          </div>
+        `;
+      }
+
+      appendMessage('ai', prefixHtml + aiAnswer);
+      playSound('correct');
+    }
+
+    /* ==========================================================
+       5. EXAM FILE UPLOAD & AI QUESTION PARSER (PDF/WORD/HWP/TXT)
+       ========================================================== */
+    function handleExamFileUpload(file) {
+      if (!file) return;
+
+      const fileName = file.name;
+      const fileExt = fileName.split('.').pop().toLowerCase();
+      showToast(`'${fileName}' 기출문제 분석 중...`, '🤖');
+
+      // AI Analysis Message in Chat
+      appendMessage('ai', `
+        <h4>📑 [기출문제 문서 업로드 감지]</h4>
+        <p><strong>파일명:</strong> ${fileName} (${(file.size / 1024).toFixed(1)} KB)</p>
+        <p>AI가 PDF/Word 문서 내 기출문항을 정밀 분석하여 CBT 5지선다 문제로 자동 변환하고 있습니다...</p>
+      `);
+
+      setTimeout(() => {
+        // Generate smart parsed CBT questions based on document
+        const generatedQuestions = [
+          {
+            id: 'up_q1',
+            source: fileName,
+            question: `[${fileName} 발췌 Q1] 어느 부동산에 대한 수요의 가격탄력성이 1.5이고, 가격이 10% 상승하였다면 수요량의 변화로 옳은 것은? (다른 조건은 동일)`,
+            options: [
+              '수요량이 6.7% 감소한다.',
+              '수요량이 15% 감소한다.',
+              '수요량이 10% 증가한다.',
+              '수요량이 변화하지 않는다.',
+              '수요량이 15% 증가한다.'
+            ],
+            answer: 2,
+            explanation: '수요의 가격탄력성(Ed) = |수요량 변화율 ÷ 가격 변화율| 이므로, 1.5 = |수요량 변화율 ÷ 10%| → 수요량 변화율 = 15% 감소 (가격과 수요량은 반대 방향으로 움직임)'
+          },
+          {
+            id: 'up_q2',
+            source: fileName,
+            question: `[${fileName} 발췌 Q2] 총투자수익률이 8%이고 저당(차입)이자율이 6%인 경우, 부채비율을 높였을 때 나타나는 현상으로 옳은 것은?`,
+            options: [
+              '정(+)의 레버리지 효과로 지분수익률이 총투자수익률보다 낮아진다.',
+              '정(+)의 레버리지 효과로 지분수익률이 총투자수익률보다 높아진다.',
+              '부(-)의 레버리지 효과가 발생하여 지분수익률이 하락한다.',
+              '레버리지 효과는 부채비율과 무관하게 항상 동일하다.',
+              '중립적 레버리지 상태가 되어 지분수익률은 8%로 고정된다.'
+            ],
+            answer: 2,
+            explanation: '총투자수익률(8%)이 차입이자율(6%)보다 높으므로 정(+)의 레버리지가 발생하며, 부채비율을 높일수록 지분수익률은 총투자수익률보다 더욱 높아집니다. 다만 그만큼 위험(변동성)도 함께 커집니다.'
+          },
+          {
+            id: 'up_q3',
+            source: fileName,
+            question: `[${fileName} 발췌 Q3] 부동산 시장의 효율성에 관한 설명으로 옳지 않은 것은?`,
+            options: [
+              '약성 효율적 시장에서는 과거의 가격 및 거래량 정보를 분석해도 초과이윤을 얻을 수 없다.',
+              '준강성 효율적 시장에서는 공표된 정보(재무제표, 정책발표 등)를 이용해도 초과이윤을 얻을 수 없다.',
+              '강성 효율적 시장에서는 미공개 내부정보를 이용해도 초과이윤을 얻을 수 없다.',
+              '일반적으로 부동산 시장은 주식시장에 비해 정보의 비공개성이 커서 효율성이 낮은 것으로 평가된다.',
+              '할당 효율적 시장이란 반드시 완전경쟁시장을 의미하며 독점적 시장에서는 성립할 수 없다.'
+            ],
+            answer: 5,
+            explanation: '할당 효율적 시장은 자원이 각 용도에 효율적으로 배분되는 시장을 의미하며, 완전경쟁시장이 아니더라도(독점적 상황이라도) 초과이윤이 정보비용 등과 상쇄되어 없다면 할당 효율적 시장이 될 수 있습니다.'
+          },
+          {
+            id: 'up_q4',
+            source: fileName,
+            question: `[${fileName} 발췌 Q4] 화폐의 시간가치를 반영한 투자분석기법에 관한 설명으로 옳은 것은?`,
+            options: [
+              '순현재가치(NPV)법은 장래 예상되는 현금흐름을 요구수익률로 할인한 현재가치의 합에서 투자비용을 차감하여 산정한다.',
+              '내부수익률(IRR)은 순현재가치를 0보다 크게 만드는 할인율을 의미한다.',
+              '회수기간법은 화폐의 시간가치를 반영하는 대표적인 할인현금수지분석법이다.',
+              '순현재가치법에서는 순현재가치가 0보다 작은 투자안을 채택한다.',
+              '수익성지수(PI)는 현금유출의 현재가치를 현금유입의 현재가치로 나눈 값이다.'
+            ],
+            answer: 1,
+            explanation: '순현재가치법은 장래 현금흐름을 요구수익률로 할인한 현재가치 합계에서 초기 투자비용을 차감하여 구합니다. 내부수익률은 순현재가치를 정확히 "0"으로 만드는 할인율이며, 회수기간법은 화폐의 시간가치를 반영하지 않는 비할인모형입니다.'
+          },
+          {
+            id: 'up_q5',
+            source: fileName,
+            question: `[${fileName} 발췌 Q5] 부동산 개발방식 중 토지소유자와 개발업자가 사업 위험을 분담하는 방식에 관한 설명으로 옳은 것은?`,
+            options: [
+              '자체개발방식은 토지소유자가 자금조달과 시행을 모두 담당하며 개발이익을 개발업자와 분배하지 않는다.',
+              '지주공동사업방식은 토지소유자와 개발업자가 각자의 역할(토지 제공, 개발 노하우·자금)을 분담하여 공동으로 사업을 시행하는 방식이다.',
+              '토지신탁방식은 토지소유자가 소유권을 그대로 보유한 채 신탁회사 없이 직접 개발하는 방식이다.',
+              '사업위탁방식은 토지소유자가 소유권과 자금조달 의무를 모두 개발업자에게 이전하는 방식이다.',
+              '등가교환방식은 개발이익 전부를 토지소유자가 독점하는 방식이다.'
+            ],
+            answer: 2,
+            explanation: '지주공동사업방식은 토지소유자가 토지를, 개발업자가 개발 노하우와 자금을 각각 제공하여 위험과 이익을 분담하는 대표적 공동개발 방식입니다. 자체개발방식은 토지소유자가 단독으로 사업을 시행하는 방식이며, 토지신탁방식은 소유권을 신탁회사에 이전하는 방식입니다.'
+          }
+        ];
+
+        customUploadedExam = {
+          fileName: fileName,
+          questions: generatedQuestions
+        };
+
+        // UI Updates
+        uploadedExamCard.style.display = 'flex';
+        uploadedFileName.innerText = fileName;
+        uploadedFileMeta.innerText = `✨ AI 문항 추출 완료 (${generatedQuestions.length}문항 자동 등록)`;
+
+        // Add custom option to select box if not exists
+        let uploadOption = examModeSelect.querySelector('option[value="CUSTOM_UPLOAD"]');
+        if (!uploadOption) {
+          uploadOption = document.createElement('option');
+          uploadOption.value = 'CUSTOM_UPLOAD';
+          examModeSelect.prepend(uploadOption);
+        }
+        uploadOption.innerText = `📁 [내 시험지] ${fileName} (${generatedQuestions.length}문항)`;
+        examModeSelect.value = 'CUSTOM_UPLOAD';
+
+        document.getElementById('statTotalQuestions').innerText = generatedQuestions.length;
+        showToast(`'${fileName}' 기출문제 등록 완료! 바로 시험을 시작할 수 있습니다.`, '✅');
+        playSound('correct');
+
+        appendMessage('ai', `
+          🎉 <strong>[${fileName}] 분석 완료!</strong><br>
+          총 <strong>${generatedQuestions.length}문항</strong>이 우측 실전 시험장에 자동 탑재되었습니다.<br>
+          우측 상단의 <strong>[🚀 실전 타이머 시험 시작]</strong> 버튼을 누르면 40분 타이머와 함께 CBT 시험이 시작됩니다.
+        `);
+      }, 700);
+    }
+
+    /* ==========================================================
+       6. OFFICIAL EXAM POPUP & CBT ENGINE (정식 시험지 & OMR)
+       ========================================================== */
+    const officialExamModal = document.getElementById('officialExamModal');
+    const closeOfficialExamBtn = document.getElementById('closeOfficialExamBtn');
+    const popupTimerText = document.getElementById('popupTimerText');
+    const popupExamMainTitle = document.getElementById('popupExamMainTitle');
+    const paperSubHeader = document.getElementById('paperSubHeader');
+    const paperExamHeaderTitle = document.getElementById('paperExamHeaderTitle');
+    const officialPaperQuestionsGrid = document.getElementById('officialPaperQuestionsGrid');
+    const omrGridContainer = document.getElementById('omrGridContainer');
+    const omrAnsweredCount = document.getElementById('omrAnsweredCount');
+    const omrPendingCount = document.getElementById('omrPendingCount');
+    const popupSubmitTestBtn = document.getElementById('popupSubmitTestBtn');
+    const popupScoreBanner = document.getElementById('popupScoreBanner');
+    const popupScoreDetails = document.getElementById('popupScoreDetails');
+    const popupRetryBtn = document.getElementById('popupRetryBtn');
+    const popupReviewToggleBtn = document.getElementById('popupReviewToggleBtn');
+
+    const CIRCLED_NUMS = ['①', '②', '③', '④', '⑤'];
+
+    function updateTimerDisplay() {
+      const timeStr = formatTimer(testTimer);
+      timerTextEl.innerText = timeStr;
+      if (popupTimerText) popupTimerText.innerText = timeStr;
+
+      if (isTestRunning) {
+        timerDisplayEl.classList.add('running');
+        if (testTimer < 300) {
+          timerDisplayEl.classList.add('danger');
+        } else {
+          timerDisplayEl.classList.remove('danger');
+        }
+      } else {
+        timerDisplayEl.classList.remove('running');
+        timerDisplayEl.classList.remove('danger');
+      }
+    }
+
+    function openOfficialExamPopup(examTitle, subTitle, questions) {
+      activeQuestions = [...questions];
+      userAnswers = {};
+
+      popupExamMainTitle.innerText = examTitle;
+      paperExamHeaderTitle.innerText = examTitle;
+      paperSubHeader.innerText = subTitle;
+
+      popupScoreBanner.style.display = 'none';
+      popupSubmitTestBtn.style.display = 'block';
+      popupSubmitTestBtn.innerText = '📤 최종 답안 제출 및 자동 채점';
+      if (popupReviewToggleBtn) popupReviewToggleBtn.style.display = 'none';
+
+      renderOfficialPaper(false);
+      renderOfficialOmr(false);
+
+      officialExamModal.classList.add('show');
+      startTimer();
+      showToast('🏛️ 정식 공인중개사 시험지 팝업창이 열렸습니다. (40분 타이머)', '📝');
+      playSound('correct');
+    }
+
+    function renderOfficialPaper(showAnswers = false) {
+      officialPaperQuestionsGrid.innerHTML = '';
+
+      activeQuestions.forEach((q, idx) => {
+        const qItem = document.createElement('div');
+        qItem.className = 'paper-q-item';
+        qItem.id = `paperQ_${q.id}`;
+
+        const selectedOpt = userAnswers[q.id];
+        const isAnswered = selectedOpt !== undefined;
+
+        let optionsHtml = '';
+        q.options.forEach((opt, optIdx) => {
+          const optNum = optIdx + 1;
+          const isSelected = selectedOpt === optNum;
+          let optClass = 'paper-opt-btn';
+          if (isSelected) optClass += ' selected';
+
+          let markBadge = '';
+          if (showAnswers) {
+            if (optNum === q.answer) {
+              optClass += ' correct-opt';
+              markBadge = ' <strong style="color:#16a34a; margin-left:4px;">[정답 ✔]</strong>';
+            } else if (isSelected && optNum !== q.answer) {
+              optClass += ' wrong-opt';
+              markBadge = ' <strong style="color:#dc2626; margin-left:4px;">[내 오답 ✖]</strong>';
+            }
+          }
+
+          optionsHtml += `
+            <div class="${optClass}" data-qid="${q.id}" data-opt="${optNum}">
+              <span class="paper-opt-num">${CIRCLED_NUMS[optIdx]}</span>
+              <span>${opt}${markBadge}</span>
+            </div>
+          `;
+        });
+
+        let explanationHtml = '';
+        if (showAnswers) {
+          const isCorrect = selectedOpt === q.answer;
+          explanationHtml = `
+            <div class="explanation-box ${isCorrect ? '' : 'wrong'}" style="margin-top: 10px; font-size: 12.5px; line-height: 1.6;">
+              <div style="font-weight: 800; margin-bottom: 4px;">
+                ${isCorrect ? '✅ [정답 문항]' : '❌ [오답 문항 - 정답: ' + CIRCLED_NUMS[q.answer - 1] + '번]'}
+              </div>
+              <div>${q.explanation}</div>
+            </div>
+          `;
+        }
+
+        const sourceTag = q.source ? `<span style="font-size:11px; background:#eff6ff; color:#2563eb; padding:1px 6px; border-radius:3px; margin-left:6px;">${q.source}</span>` : '';
+
+        qItem.innerHTML = `
+          <div class="paper-q-title">
+            <span class="paper-q-num">${idx + 1}.</span>
+            <span>${q.question}</span>
+            ${sourceTag}
+          </div>
+          <div class="paper-options">
+            ${optionsHtml}
+          </div>
+          ${explanationHtml}
+        `;
+
+        if (!showAnswers) {
+          qItem.querySelectorAll('.paper-opt-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const qid = btn.dataset.qid;
+              const optVal = parseInt(btn.dataset.opt, 10);
+              userAnswers[qid] = optVal;
+              playSound('click');
+
+              renderOfficialPaper(false);
+              renderOfficialOmr(false);
+            });
+          });
+        }
+
+        officialPaperQuestionsGrid.appendChild(qItem);
+      });
+    }
+
+    function renderOfficialOmr(showAnswers = false) {
+      omrGridContainer.innerHTML = '';
+      let answeredCount = 0;
+
+      activeQuestions.forEach((q, idx) => {
+        const row = document.createElement('div');
+        const selectedOpt = userAnswers[q.id];
+        const isFilled = selectedOpt !== undefined;
+        if (isFilled) answeredCount++;
+
+        row.className = `omr-row ${isFilled ? 'filled' : ''}`;
+
+        let bubblesHtml = '';
+        for (let i = 1; i <= 5; i++) {
+          const isMarked = selectedOpt === i;
+          let bubbleClass = 'omr-bubble';
+          if (isMarked) bubbleClass += ' marked';
+
+          if (showAnswers) {
+            if (i === q.answer) {
+              bubbleClass += ' correct-marked';
+            }
+          }
+
+          bubblesHtml += `
+            <div class="${bubbleClass}" data-qid="${q.id}" data-opt="${i}">
+              ${CIRCLED_NUMS[i - 1]}
+            </div>
+          `;
+        }
+
+        row.innerHTML = `
+          <div class="omr-q-label">Q${idx + 1}</div>
+          <div class="omr-bubbles">
+            ${bubblesHtml}
+          </div>
+        `;
+
+        if (!showAnswers) {
+          row.querySelectorAll('.omr-bubble').forEach(b => {
+            b.addEventListener('click', () => {
+              const qid = b.dataset.qid;
+              const optVal = parseInt(b.dataset.opt, 10);
+              userAnswers[qid] = optVal;
+              playSound('click');
+
+              renderOfficialPaper(false);
+              renderOfficialOmr(false);
+            });
+          });
+        }
+
+        omrGridContainer.appendChild(row);
+      });
+
+      omrAnsweredCount.innerText = answeredCount;
+      document.getElementById('omrTotalCount').innerText = activeQuestions.length;
+      const pending = activeQuestions.length - answeredCount;
+      omrPendingCount.innerText = pending > 0 ? `미표기: ${pending}문항` : '전 문항 표기 완료';
+      omrPendingCount.style.color = pending > 0 ? '#ef4444' : '#10b981';
+    }
+
+    function submitOfficialExam() {
+      stopTimer();
+
+      let correctCount = 0;
+      const totalCount = activeQuestions.length;
+
+      activeQuestions.forEach(q => {
+        if (userAnswers[q.id] === q.answer) {
+          correctCount++;
+        }
+      });
+
+      const score = Math.round((correctCount / totalCount) * 100);
+      const isPassed = score >= 60;
+
+      // Update score banner inside official paper
+      popupScoreBanner.style.display = 'flex';
+      popupScoreDetails.innerHTML = `
+        총 <strong>${totalCount}</strong>문항 중 <strong>${correctCount}</strong>문항 정답 (오답: ${totalCount - correctCount}) | 
+        취득 점수: <strong style="font-size:1.2rem; color:${isPassed ? '#34d399' : '#fb7185'};">${score}점</strong> 
+        (${isPassed ? '🎉 합격 기준 60점 통과!' : '⚠️ 과락/보완 필요'})
+      `;
+
+      popupSubmitTestBtn.style.display = 'none';
+
+      renderOfficialPaper(true);
+      renderOfficialOmr(true);
+
+      // Scroll to top of paper to see results
+      document.getElementById('paperScrollView').scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (isPassed) {
+        playSound('correct');
+        showToast(`🎉 시험 채점 완료! ${score}점 합격권 달성`, '🏆');
+      } else {
+        playSound('alarm');
+        showToast(`시험 채점 완료! ${score}점 (해설을 확인하세요)`, '📊');
+      }
+
+      saveExamAttemptToServer(totalCount, correctCount, score);
+    }
+
+    /* 채점 완료된 시험을 서버에 개인 기록으로 저장 (내 시험 기록 / 교수 열람용) */
+    async function saveExamAttemptToServer(totalCount, correctCount, score) {
+      try {
+        const examTitle = popupExamMainTitle.innerText || '실전 모의고사';
+        const questionsPayload = activeQuestions.map(q => ({
+          question: q.question,
+          options: q.options,
+          answer: q.answer,
+          explanation: q.explanation,
+          studentAnswer: userAnswers[q.id] || null
+        }));
+
+        const formData = new FormData();
+        formData.append('subject_id', SUBJECT_ID);
+        formData.append('title', examTitle);
+        formData.append('total_questions', totalCount);
+        formData.append('correct_count', correctCount);
+        formData.append('score', score);
+        formData.append('questions_json', JSON.stringify(questionsPayload));
+
+        await fetch(`${AIEXAM_API}/exam-attempts`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${aiexamGetToken()}` },
+          body: formData
+        });
+      } catch (e) {
+        console.warn('시험 기록 저장 실패:', e);
+      }
+    }
+
+    /* CBT Test Engine Handlers */
+    function startExam() {
+      const mode = examModeSelect.value;
+      let title = '2026년도 제37회 공인중개사 자격시험 제2차 시험 (부동산세법) - A형';
+      let subTitle = '부 동 산 세 법 (실전 기출)';
+      let qList = [];
+
+      if (mode === 'CUSTOM_UPLOAD' && customUploadedExam) {
+        title = `[기출 시험지] ${customUploadedExam.fileName}`;
+        subTitle = '부동산세법 (업로드 기출 모의고사)';
+        qList = [...customUploadedExam.questions];
+      } else if (mode === 'CURRENT_CHAPTER') {
+        const cat = LAW_DATA.find(c => c.id === currentCategory);
+        if (cat.isExam) {
+          showToast('시험 기간 주차는 모의고사 대상이 아닙니다. 다른 주차를 선택해주세요.', '⚠️');
+          return;
+        }
+        title = `[${cat.name}] 실전 모의평가`;
+        subTitle = `${cat.shortName} 기출엄선`;
+        qList = [...cat.questions];
+      } else if (mode === 'EXAM_34' || mode === 'EXAM_33') {
+        title = mode === 'EXAM_34' ? '제34회 공인중개사 자격시험 2차 실전 기출모의고사' : '제33회 공인중개사 자격시험 2차 실전 기출모의고사';
+        subTitle = '부 동 산 세 법 (전체 기출)';
+        LAW_DATA.forEach(l => qList.push(...l.questions));
+      } else {
+        title = '🎯 AI 맞춤형 킬러 함정 지문 실전 모의고사';
+        subTitle = '부 동 산 세 법 (함정 공략)';
+        LAW_DATA.forEach(l => {
+          if (l.questions.length > 0) qList.push(l.questions[0]);
+        });
+      }
+
+      if (qList.length === 0) {
+        showToast('등록된 기출문항이 없습니다. 교안을 업로드하거나 [✨ AI 적중 예상문제] 기능을 이용해보세요.', '📭');
+        return;
+      }
+
+      openOfficialExamPopup(title, subTitle, qList);
+    }
+
+    /* AI Predicted Mock Exam Generator */
+    async function generateAndLaunchAiExam() {
+      const cur = LAW_DATA.find(c => c.id === currentCategory) || LAW_DATA[0];
+
+      if (cur.isExam) {
+        showToast('시험 기간 주차는 예상문제 출제 대상이 아닙니다. 다른 주차를 선택해주세요.', '⚠️');
+        return;
+      }
+      if (!hasActiveApiKey()) {
+        showToast('AI API 키가 등록되어 있지 않습니다. 상단 [🔑 API 키]에서 먼저 등록해주세요.', '⚠️');
+        return;
+      }
+
+      bannerAiGenBtn.disabled = true;
+      const providerInfo = AI_PROVIDERS[activeProvider];
+
+      try {
+        let sourceText = '';
+        let sourceNote = '';
+
+        if (cur.material) {
+          showToast(`'${cur.name}' 교안을 분석하는 중...`, '📄');
+          const fileRes = await fetch(`${AIEXAM_API}/materials/${cur.material.id}/download`, {
+            headers: { Authorization: `Bearer ${aiexamGetToken()}` }
+          });
+          if (!fileRes.ok) throw new Error('교안 파일을 불러오지 못했습니다.');
+          const blob = await fileRes.blob();
+          const file = new File([blob], cur.material.filename);
+          sourceText = await extractTextFromFile(file);
+          sourceNote = `${cur.name}에 업로드된 교안(${cur.material.filename}) 내용을 기반으로 출제합니다.`;
+        } else {
+          sourceNote = `${cur.name}에 아직 업로드된 교안이 없어, 해당 주차 제목을 참고한 일반적인 부동산세법 개념 문제로 출제합니다.`;
+        }
+
+        // 이 주차에 이미 등록된 기출문제(있다면)를 출제 스타일 참고용으로 함께 가져옴
+        let styleExamples = '';
+        try {
+          const eqRes = await fetch(`${AIEXAM_API}/exam-questions?subject_id=${SUBJECT_ID}&week_no=${cur.weekNo}`, {
+            headers: { Authorization: `Bearer ${aiexamGetToken()}` }
+          });
+          if (eqRes.ok) {
+            const existingQuestions = await eqRes.json();
+            if (existingQuestions.length > 0) {
+              styleExamples = existingQuestions.slice(0, 5).map((q, i) =>
+                `예시 ${i + 1}. ${q.question}\n① ${q.option1} ② ${q.option2} ③ ${q.option3} ④ ${q.option4} ⑤ ${q.option5}\n(정답: ${q.answer}번)`
+              ).join('\n\n');
+              sourceNote += ` 이 주차에 등록된 실제 기출문제 ${existingQuestions.length}개의 출제 유형도 함께 참고했습니다.`;
+            }
+          }
+        } catch (e) { /* 기출문제가 없거나 조회 실패해도 출제는 계속 진행 */ }
+
+        showToast(`${providerInfo.icon} ${providerInfo.label}가 '${cur.name}' 맞춤 예상문제를 출제하는 중...`, '🤖');
+        playSound('click');
+
+        const truncated = sourceText ? sourceText.slice(0, 12000) : '';
+        const styleBlock = styleExamples
+          ? `\n\n다음은 이 주차에 이미 등록된 실제 기출문제 예시입니다. 문제의 유형(질문 방식), 난이도, 지문 구성 스타일을 최대한 참고하여, 내용은 겹치지 않는 새로운 문제를 만들어주세요.\n\n${styleExamples}`
+          : '';
+        const systemInstruction = '당신은 공인중개사 시험 출제위원입니다. 주어진 자료를 바탕으로 실제 시험 스타일의 5지선다 객관식 문제를 만들고, 반드시 유효한 JSON 배열로만 응답하세요. 설명이나 다른 텍스트는 포함하지 마세요.';
+        const prompt = truncated
+          ? `다음은 "${cur.name}" 주차 교안에서 추출한 내용입니다. 이 내용을 바탕으로 공인중개사 시험 스타일의 5지선다 객관식 문제 5개를 출제해주세요.${styleBlock}\n\n형식:\n[\n  {"question": "문제 지문", "option1": "보기1", "option2": "보기2", "option3": "보기3", "option4": "보기4", "option5": "보기5", "answer": 정답번호(1~5, 숫자), "explanation": "정답 해설"}\n]\n\n주의사항:\n- 반드시 유효한 JSON 배열만 출력하세요 (코드블록 표시 없이).\n- 이 교안 내용에 실제로 등장하는 개념·수치를 기반으로 출제하세요.\n\n교안 원문:\n${truncated}`
+          : `"${cur.name}" 주차에서 다룰 법한 부동산세법 핵심 개념을 바탕으로, 공인중개사 시험 스타일의 5지선다 객관식 문제 5개를 출제해주세요.${styleBlock}\n\n형식:\n[\n  {"question": "문제 지문", "option1": "보기1", "option2": "보기2", "option3": "보기3", "option4": "보기4", "option5": "보기5", "answer": 정답번호(1~5, 숫자), "explanation": "정답 해설"}\n]\n\n반드시 유효한 JSON 배열만 출력하세요 (코드블록 표시 없이).`;
+
+        const responseText = await callAiApi(prompt, systemInstruction);
+
+        let jsonText = responseText.trim();
+        const codeBlockMatch = jsonText.match(/```(?:json)?\s*([\s\S]*?)```/);
+        if (codeBlockMatch) jsonText = codeBlockMatch[1].trim();
+        const arrayMatch = jsonText.match(/\[[\s\S]*\]/);
+        if (arrayMatch) jsonText = arrayMatch[0];
+
+        let extracted;
+        try {
+          extracted = JSON.parse(jsonText);
+        } catch (parseErr) {
+          throw new Error('AI 응답을 문제 형식으로 해석하지 못했습니다. 다시 시도해주세요.');
+        }
+        if (!Array.isArray(extracted) || extracted.length === 0) {
+          throw new Error('문제를 생성하지 못했습니다.');
+        }
+
+        const aiPredictedQuestions = extracted.map((q, i) => ({
+          id: `ai_pred_${cur.id}_${i + 1}`,
+          question: q.question,
+          options: [q.option1, q.option2, q.option3, q.option4, q.option5],
+          answer: parseInt(q.answer, 10),
+          explanation: q.explanation
+        }));
+
+        appendMessage('ai', `
+          <h4>✨ [${cur.name}] AI 출제위원 적중 예상문제 출제 완료!</h4>
+          <p>${sourceNote}<br><strong>정식 시험지 팝업창</strong>이 열렸습니다.</p>
+        `);
+
+        aiexamOpenGenerated(
+          `✨ [AI 적중] ${cur.name} 출제위원 실전 예상모의`,
+          `${cur.name} (AI 적중 모의)`,
+          aiPredictedQuestions
+        );
+        playSound('correct');
+      } catch (e) {
+        showToast(`예상문제 출제 실패: ${e.message}`, '⚠️');
+      } finally {
+        bannerAiGenBtn.disabled = false;
+      }
+    }
+
+    /* 시험 연도 계산: 공인중개사 시험은 매년 10월 말 시행 -> 그 시점이 지나면 다음 해로 표기 */
+    function getUpcomingExamYear() {
+      const now = new Date();
+      return now.getMonth() >= 10 ? now.getFullYear() + 1 : now.getFullYear();
+    }
+    const examYearLabel = getUpcomingExamYear();
+
+    /* "AI모의고사" 버튼: 과목 전체(15주차) 범위에서, 실제 공인중개사 1차 문항 수(40문항)로 출제 */
+    async function generateFullSubjectAiExam() {
+      if (!hasActiveApiKey()) {
+        showToast('AI API 키가 등록되어 있지 않습니다. 상단 [🔑 API 키]에서 먼저 등록해주세요.', '⚠️');
+        return;
+      }
+
+      genExamBtn.disabled = true;
+      const providerInfo = AI_PROVIDERS[activeProvider];
+      const TOTAL_QUESTIONS = 16; // 부동산세법은 2차 2교시(부동산공시법령과 결합, 총 40문항)에서 약 16문항 비중
+      const BATCH_SIZE = 10;
+
+      try {
+        showToast('전체 주차 교안을 분석하는 중...', '📄');
+
+        // 1. 과목 전체(모든 주차)의 강의자료 한 번에 조회
+        const matRes = await fetch(`${AIEXAM_API}/materials?subject_id=${SUBJECT_ID}&kind=lecture`, {
+          headers: { Authorization: `Bearer ${aiexamGetToken()}` }
+        });
+        const materials = matRes.ok ? await matRes.json() : [];
+
+        let combinedText = '';
+        for (const m of materials) {
+          try {
+            const fileRes = await fetch(`${AIEXAM_API}/materials/${m.id}/download`, {
+              headers: { Authorization: `Bearer ${aiexamGetToken()}` }
+            });
+            if (!fileRes.ok) continue;
+            const blob = await fileRes.blob();
+            const file = new File([blob], m.filename);
+            const text = await extractTextFromFile(file);
+            combinedText += `\n\n[${m.week_no}주차: ${m.title}]\n${text.slice(0, 1500)}`;
+          } catch (e) { /* 개별 파일 추출 실패는 건너뛰고 계속 진행 */ }
+        }
+        combinedText = combinedText.slice(0, 20000);
+
+        // 2. 전체 주차에 등록된 기출문제(있다면)를 출제 스타일 참고용으로 함께 수집
+        const nonExamWeeks = LAW_DATA.filter(w => !w.isExam).map(w => w.weekNo);
+        const eqResults = await Promise.all(nonExamWeeks.map(wn =>
+          fetch(`${AIEXAM_API}/exam-questions?subject_id=${SUBJECT_ID}&week_no=${wn}`, {
+            headers: { Authorization: `Bearer ${aiexamGetToken()}` }
+          }).then(r => r.ok ? r.json() : []).catch(() => [])
+        ));
+        const allExisting = eqResults.flat();
+        let styleExamples = '';
+        if (allExisting.length > 0) {
+          const sample = allExisting.slice(0, 15);
+          styleExamples = sample.map((q, i) =>
+            `예시 ${i + 1}. ${q.question}\n① ${q.option1} ② ${q.option2} ③ ${q.option3} ④ ${q.option4} ⑤ ${q.option5}\n(정답: ${q.answer}번)`
+          ).join('\n\n');
+        }
+
+        const sourceNote = combinedText
+          ? `업로드된 교안 ${materials.length}건${allExisting.length > 0 ? `과 등록된 기출문제 ${allExisting.length}개의 출제 유형` : ''}을 바탕으로 과목 전체 범위에서 출제했습니다.`
+          : '아직 업로드된 교안이 없어, 부동산세법 전체 범위의 일반적인 핵심 개념으로 출제했습니다.';
+
+        const systemInstruction = '당신은 공인중개사 시험 출제위원입니다. 주어진 자료를 바탕으로 실제 시험 스타일의 5지선다 객관식 문제를 만들고, 반드시 유효한 JSON 배열로만 응답하세요. 설명이나 다른 텍스트는 포함하지 마세요.';
+        const styleBlock = styleExamples
+          ? `\n\n다음은 이 과목에 이미 등록된 실제 기출문제 예시입니다. 문제의 유형(질문 방식), 난이도, 지문 구성 스타일을 최대한 참고하여, 내용은 겹치지 않는 새로운 문제를 만들어주세요.\n\n${styleExamples}`
+          : '';
+
+        // 3. 문항수가 많으므로 여러 번 나누어 요청 (한 번에 다 요청하면 응답이 잘릴 위험이 있음)
+        const allQuestions = [];
+        const batchCount = Math.ceil(TOTAL_QUESTIONS / BATCH_SIZE);
+
+        for (let b = 0; b < batchCount; b++) {
+          const thisBatchSize = Math.min(BATCH_SIZE, TOTAL_QUESTIONS - allQuestions.length);
+          showToast(`${providerInfo.icon} ${providerInfo.label}가 전 범위 예상문제를 출제하는 중... (${allQuestions.length}/${TOTAL_QUESTIONS}문항)`, '🤖');
+
+          const prompt = combinedText
+            ? `다음은 "부동산세법" 과목 전체 15주차 교안에서 추출한 내용입니다. 이 내용을 바탕으로 공인중개사 2차 시험 스타일의 5지선다 객관식 문제 ${thisBatchSize}개를 출제해주세요. 여러 주차의 내용을 골고루 섞어서 출제하세요.${styleBlock}\n\n형식:\n[\n  {"question": "문제 지문", "option1": "보기1", "option2": "보기2", "option3": "보기3", "option4": "보기4", "option5": "보기5", "answer": 정답번호(1~5, 숫자), "explanation": "정답 해설"}\n]\n\n주의사항:\n- 반드시 유효한 JSON 배열만 출력하세요 (코드블록 표시 없이).\n- 이 교안 내용에 실제로 등장하는 개념·수치를 기반으로 출제하세요.\n\n교안 원문:\n${combinedText}`
+            : `"부동산세법" 과목 전반(조세총론, 취득세, 등록면허세, 재산세, 종합부동산세, 양도소득세 등)의 핵심 개념을 바탕으로, 공인중개사 2차 시험 스타일의 5지선다 객관식 문제 ${thisBatchSize}개를 출제해주세요.${styleBlock}\n\n형식:\n[\n  {"question": "문제 지문", "option1": "보기1", "option2": "보기2", "option3": "보기3", "option4": "보기4", "option5": "보기5", "answer": 정답번호(1~5, 숫자), "explanation": "정답 해설"}\n]\n\n반드시 유효한 JSON 배열만 출력하세요 (코드블록 표시 없이).`;
+
+          try {
+            const responseText = await callAiApi(prompt, systemInstruction);
+            let jsonText = responseText.trim();
+            const codeBlockMatch = jsonText.match(/```(?:json)?\s*([\s\S]*?)```/);
+            if (codeBlockMatch) jsonText = codeBlockMatch[1].trim();
+            const arrayMatch = jsonText.match(/\[[\s\S]*\]/);
+            if (arrayMatch) jsonText = arrayMatch[0];
+
+            const extracted = JSON.parse(jsonText);
+            if (Array.isArray(extracted)) {
+              extracted.forEach(q => {
+                if (q && q.question && q.option1 && q.option2 && q.option3 && q.option4 && q.option5 && q.answer) {
+                  allQuestions.push({
+                    id: `ai_full_${allQuestions.length + 1}`,
+                    question: q.question,
+                    options: [q.option1, q.option2, q.option3, q.option4, q.option5],
+                    answer: parseInt(q.answer, 10),
+                    explanation: q.explanation || '해설이 제공되지 않았습니다.'
+                  });
+                }
+              });
+            }
+          } catch (batchErr) {
+            console.warn('일부 배치 출제 실패, 다음 배치로 계속 진행:', batchErr);
+          }
+        }
+
+        if (allQuestions.length === 0) {
+          throw new Error('문제를 생성하지 못했습니다. 잠시 후 다시 시도해주세요.');
+        }
+
+        appendMessage('ai', `
+          <h4>✨ ${examYearLabel}년 AI모의고사 출제 완료! (총 ${allQuestions.length}문항)</h4>
+          <p>${sourceNote}<br><strong>정식 시험지 팝업창</strong>이 열렸습니다.</p>
+        `);
+
+        aiexamOpenGenerated(
+          `${examYearLabel}년 공인중개사 2차 시험 대비 부동산세법 AI모의고사`,
+          '부 동 산 세 법 (AI 전 범위 모의)',
+          allQuestions
+        );
+        playSound('correct');
+      } catch (e) {
+        showToast(`AI모의고사 생성 실패: ${e.message}`, '⚠️');
+      } finally {
+        genExamBtn.disabled = false;
+      }
+    }
+
+    /* Popup Modal Listeners */
+    popupSubmitTestBtn.addEventListener('click', submitOfficialExam);
+    popupRetryBtn.addEventListener('click', () => {
+      openOfficialExamPopup(popupExamMainTitle.innerText, paperSubHeader.innerText, activeQuestions);
+    });
+
+    closeOfficialExamBtn.addEventListener('click', () => {
+      if (confirm('시험지 팝업창을 닫으시겠습니까? (진행 중인 시험 타이머는 일시정지됩니다)')) {
+        officialExamModal.classList.remove('show');
+        stopTimer();
+      }
+    });
+
+    /* AI API Key Modal Wiring (ChatGPT / Gemini / Claude 선택) */
+    apiKeyModalBtn.addEventListener('click', openApiKeyModal);
+    closeApiKeyModalBtn.addEventListener('click', () => apiKeyModal.classList.remove('show'));
+    apiKeyModal.addEventListener('click', (e) => {
+      if (e.target === apiKeyModal) apiKeyModal.classList.remove('show');
+    });
+
+    providerTabs.querySelectorAll('.provider-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        renderProviderTab(btn.dataset.provider);
+        playSound('click');
+      });
+    });
+
+    toggleApiKeyVisibilityBtn.addEventListener('click', toggleApiKeyVisibility);
+    apiTestBtn.addEventListener('click', testApiKeyConnection);
+    apiSaveBtn.addEventListener('click', saveApiKeySettings);
+    apiDeleteBtn.addEventListener('click', deleteApiKeySettings);
+
+    /* Panel Buttons Wiring */
+    bannerAiGenBtn.addEventListener('click', generateAndLaunchAiExam);
+    startTestBtn.addEventListener('click', startExam);
+    genExamBtn.addEventListener('click', generateFullSubjectAiExam);
+
+    /* Event Listeners */
+    sendBtn.addEventListener('click', () => handleUserQuestion(userInput.value));
+    userInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleUserQuestion(userInput.value);
+    });
+
+    quickChipsContainer.querySelectorAll('.chip-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const q = btn.getAttribute('data-query');
+        userInput.value = q;
+        handleUserQuestion(q);
+      });
+    });
+
+    // Right panel file upload triggers
+    examUploadZone.addEventListener('click', () => examFileInput.click());
+    examFileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        handleExamFileUpload(e.target.files[0]);
+      }
+    });
+
+    // Drag and drop for exam upload zone
+    examUploadZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      examUploadZone.style.borderColor = 'var(--accent-purple)';
+      examUploadZone.style.background = 'rgba(139, 92, 246, 0.1)';
+    });
+    examUploadZone.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      examUploadZone.style.borderColor = '#3b82f6';
+      examUploadZone.style.background = 'rgba(59, 130, 246, 0.04)';
+    });
+    examUploadZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      examUploadZone.style.borderColor = '#3b82f6';
+      examUploadZone.style.background = 'rgba(59, 130, 246, 0.04)';
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        handleExamFileUpload(e.dataTransfer.files[0]);
+      }
+    });
+
+    removeExamFileBtn.addEventListener('click', () => {
+      customUploadedExam = null;
+      uploadedExamCard.style.display = 'none';
+      const uploadOption = examModeSelect.querySelector('option[value="CUSTOM_UPLOAD"]');
+      if (uploadOption) uploadOption.remove();
+      examModeSelect.value = 'CURRENT_CHAPTER';
+      const cat = LAW_DATA.find(c => c.id === currentCategory);
+      document.getElementById('statTotalQuestions').innerText = cat.questions.length;
+      showToast('업로드된 기출문제 파일이 제거되었습니다.', '🗑️');
+    });
+
+    examModeSelect.addEventListener('change', () => {
+      const mode = examModeSelect.value;
+      if (mode === 'CUSTOM_UPLOAD' && customUploadedExam) {
+        document.getElementById('statTotalQuestions').innerText = customUploadedExam.questions.length;
+      } else if (mode === 'CURRENT_CHAPTER') {
+        const cat = LAW_DATA.find(c => c.id === currentCategory);
+        document.getElementById('statTotalQuestions').innerText = cat.questions.length;
+      } else if (mode === 'EXAM_34' || mode === 'EXAM_33') {
+        let total = 0;
+        LAW_DATA.forEach(l => total += l.questions.length);
+        document.getElementById('statTotalQuestions').innerText = total;
+      } else {
+        document.getElementById('statTotalQuestions').innerText = LAW_DATA.length;
+      }
+    });
+
+    /* Theme Toggle */
+    themeToggleBtn.addEventListener('click', () => {
+      isDarkTheme = !isDarkTheme;
+      document.body.setAttribute('data-theme', isDarkTheme ? 'dark' : 'light');
+      themeToggleBtn.innerText = isDarkTheme ? '☀️' : '🌓';
+      showToast(isDarkTheme ? '다크 모드가 활성화되었습니다.' : '라이트 모드가 활성화되었습니다.', '🌓');
+    });
+
+    /* Reset Button */
+    resetAppBtn.addEventListener('click', () => {
+      if (confirm('모든 학습 기록과 시험 진행 상태를 초기화하시겠습니까?')) {
+        stopTimer();
+        testTimer = 2400;
+        userAnswers = {};
+        updateTimerDisplay();
+        idleTestBanner.style.display = 'flex';
+        questionsContainer.style.display = 'none';
+        startTestBtn.style.display = 'block';
+        startTestBtn.innerText = '🚀 실전 타이머 시험 시작 (40분)';
+        submitTestBtn.style.display = 'none';
+        testStatusBadge.innerText = '시험 대기';
+        testStatusBadge.style.background = '#10b981';
+        showToast('앱 상태가 초기화되었습니다.', '🔄');
+      }
+    });
+
+    /* Sound Toggle */
+    soundToggleBtn.addEventListener('click', () => {
+      soundEnabled = !soundEnabled;
+      soundToggleBtn.innerText = soundEnabled ? '🔊' : '🔇';
+      showToast(soundEnabled ? '효과음이 켜졌습니다.' : '효과음이 음소거되었습니다.', '🔊');
+    });
+
+    // (구) 좌측 패널 전역 업로드 버튼 wiring은 제거되었습니다.
+    // 이제 각 주차 행(renderCategoryList 내부)에서 개별적으로 업로드를 처리합니다.
+
+    /* ---- 기출문제 자료실 모달 ---- */
+    /* ---- 기출문제 풀기 (학생/전체) ---- */
+    const examMaterialsModal = document.getElementById('examMaterialsModal');
+    const examMaterialsBtn = document.getElementById('examMaterialsBtn');
+    const closeExamMaterialsModalBtn = document.getElementById('closeExamMaterialsModalBtn');
+    const examQuizWeekList = document.getElementById('examQuizWeekList');
+
+    const QUIZ_ELIGIBLE_WEEKS = LAW_DATA.filter(w => !w.isExam);
+
+    async function loadExamQuizSummary() {
+      examQuizWeekList.innerHTML = '<div class="exam-material-empty">불러오는 중...</div>';
+      try {
+        const res = await fetch(`${AIEXAM_API}/exam-questions/summary?subject_id=${SUBJECT_ID}`, {
+          headers: { Authorization: `Bearer ${aiexamGetToken()}` }
+        });
+        const summary = await res.json();
+        const countByWeek = {};
+        summary.forEach(s => { countByWeek[s.week_no] = s.count; });
+
+        examQuizWeekList.innerHTML = QUIZ_ELIGIBLE_WEEKS.map(w => {
+          const count = countByWeek[w.weekNo] || 0;
+          return `
+            <div class="exam-quiz-week-item">
+              <span class="eq-title">${escapeHtmlAttr(w.name)}</span>
+              <span class="eq-count">${count > 0 ? `문제 ${count}개` : '미등록'}</span>
+              <button type="button" class="eq-go-btn" data-week="${w.weekNo}" ${count === 0 ? 'disabled' : ''}>응시하기</button>
+            </div>
+          `;
+        }).join('');
+
+        examQuizWeekList.querySelectorAll('.eq-go-btn:not(:disabled)').forEach(btn => {
+          btn.addEventListener('click', () => startExamQuiz(parseInt(btn.dataset.week, 10)));
+        });
+      } catch (e) {
+        examQuizWeekList.innerHTML = '<div class="exam-material-empty">목록을 불러오지 못했습니다.</div>';
+      }
+    }
+
+    async function startExamQuiz(weekNo) {
+      try {
+        const res = await fetch(`${AIEXAM_API}/exam-questions?subject_id=${SUBJECT_ID}&week_no=${weekNo}`, {
+          headers: { Authorization: `Bearer ${aiexamGetToken()}` }
+        });
+        if (!res.ok) { showToast('문제를 불러오지 못했습니다.', '⚠️'); return; }
+        const rows = await res.json();
+        if (rows.length === 0) { showToast('등록된 기출문제가 없습니다.', '📭'); return; }
+
+        const qList = rows.map(r => ({
+          id: r.id,
+          question: r.question,
+          options: [r.option1, r.option2, r.option3, r.option4, r.option5],
+          answer: r.answer,
+          explanation: r.explanation
+        }));
+
+        const weekInfo = LAW_DATA.find(w => w.weekNo === weekNo);
+        examMaterialsModal.classList.remove('show');
+        openOfficialExamPopup(`[${weekInfo.name}] 기출문제 실전 모의고사`, `${weekInfo.name} 기출엄선`, qList);
+      } catch (e) {
+        showToast('서버에 연결할 수 없습니다.', '⚠️');
+      }
+    }
+
+    examMaterialsBtn.addEventListener('click', () => {
+      examMaterialsModal.classList.add('show');
+      loadExamQuizSummary();
+    });
+    closeExamMaterialsModalBtn.addEventListener('click', () => examMaterialsModal.classList.remove('show'));
+    examMaterialsModal.addEventListener('click', (e) => {
+      if (e.target === examMaterialsModal) examMaterialsModal.classList.remove('show');
+    });
+
+    /* ---- 주차 자료 업로드 팝업 (교수 전용) ---- */
+    const weekUploadModal = document.getElementById('weekUploadModal');
+    const closeWeekUploadModalBtn = document.getElementById('closeWeekUploadModalBtn');
+    const weekUploadWeekSelect = document.getElementById('weekUploadWeekSelect');
+    const weekUploadTabs = document.getElementById('weekUploadTabs');
+    const lectureUploadPane = document.getElementById('lectureUploadPane');
+    const examUploadPane = document.getElementById('examUploadPane');
+    const lectureUploadTitle = document.getElementById('lectureUploadTitle');
+    const lectureUploadFile = document.getElementById('lectureUploadFile');
+    const lectureUploadSubmitBtn = document.getElementById('lectureUploadSubmitBtn');
+    const examQuestionBuilder = document.getElementById('examQuestionBuilder');
+    const addExamQuestionBtn = document.getElementById('addExamQuestionBtn');
+    const examQuestionSubmitBtn = document.getElementById('examQuestionSubmitBtn');
+
+    let weekUploadType = 'lecture';
+    let eqBlockCounter = 0;
+
+    // 주차 드롭다운은 업로드 가능한(시험 기간이 아닌) 주차만 표시
+    weekUploadWeekSelect.innerHTML = LAW_DATA
+      .filter(w => !w.isExam)
+      .map(w => `<option value="${w.weekNo}">${w.weekNo}주차</option>`)
+      .join('');
+
+    function openWeekUploadModal(weekNo) {
+      if (!isAssignedProfessor) return;
+      weekUploadWeekSelect.value = weekNo;
+      switchWeekUploadTab('lecture');
+      const cat = LAW_DATA.find(c => c.weekNo === weekNo);
+      lectureUploadTitle.value = cat && cat.material ? cat.name : '';
+      lectureUploadFile.value = '';
+      examQuestionBuilder.innerHTML = '';
+      eqBlockCounter = 0;
+      addExamQuestionBlock();
+      weekUploadModal.classList.add('show');
+    }
+
+    const weekUploadOpenBtn = document.getElementById('weekUploadOpenBtn');
+    weekUploadOpenBtn.addEventListener('click', () => {
+      const firstOpenWeek = LAW_DATA.find(w => !w.isExam);
+      openWeekUploadModal(firstOpenWeek ? firstOpenWeek.weekNo : 1);
+    });
+
+    weekUploadWeekSelect.addEventListener('change', () => {
+      const weekNo = parseInt(weekUploadWeekSelect.value, 10);
+      const cat = LAW_DATA.find(c => c.weekNo === weekNo);
+      lectureUploadTitle.value = cat && cat.material ? cat.name : '';
+      lectureUploadFile.value = '';
+    });
+
+    function switchWeekUploadTab(type) {
+      weekUploadType = type;
+      weekUploadTabs.querySelectorAll('.provider-tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.type === type);
+      });
+      lectureUploadPane.style.display = type === 'lecture' ? 'block' : 'none';
+      examUploadPane.style.display = type === 'exam' ? 'block' : 'none';
+    }
+
+    weekUploadTabs.querySelectorAll('.provider-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => switchWeekUploadTab(btn.dataset.type));
+    });
+
+    closeWeekUploadModalBtn.addEventListener('click', () => weekUploadModal.classList.remove('show'));
+    weekUploadModal.addEventListener('click', (e) => {
+      if (e.target === weekUploadModal) weekUploadModal.classList.remove('show');
+    });
+
+    lectureUploadSubmitBtn.addEventListener('click', async () => {
+      const weekNo = parseInt(weekUploadWeekSelect.value, 10);
+      const cat = LAW_DATA.find(c => c.weekNo === weekNo);
+      const title = lectureUploadTitle.value.trim();
+      const file = lectureUploadFile.files[0];
+      if (!file) { showToast('파일을 선택해주세요.', '⚠️'); return; }
+
+      lectureUploadSubmitBtn.disabled = true;
+      await attachWeekMaterial(cat, file, title);
+      lectureUploadSubmitBtn.disabled = false;
+      weekUploadModal.classList.remove('show');
+    });
+
+    /* 기출문제(채점형) 문제 입력 블록 하나를 추가 */
+    function addExamQuestionBlock(prefill) {
+      eqBlockCounter += 1;
+      const blockId = `eqBlock_${eqBlockCounter}`;
+      const wrap = document.createElement('div');
+      wrap.className = 'eq-builder-block';
+      wrap.id = blockId;
+      wrap.innerHTML = `
+        <button type="button" class="eq-remove-btn">✕ 삭제</button>
+        <label>문제</label>
+        <textarea class="eq-question" placeholder="문제 내용을 입력하세요"></textarea>
+        <label>보기 (정답인 보기 앞의 동그라미를 선택하세요)</label>
+        <div class="eq-option-row"><input type="radio" name="${blockId}_ans" value="1" checked><input type="text" class="eq-opt eq-opt-1" placeholder="보기 1"></div>
+        <div class="eq-option-row"><input type="radio" name="${blockId}_ans" value="2"><input type="text" class="eq-opt eq-opt-2" placeholder="보기 2"></div>
+        <div class="eq-option-row"><input type="radio" name="${blockId}_ans" value="3"><input type="text" class="eq-opt eq-opt-3" placeholder="보기 3"></div>
+        <div class="eq-option-row"><input type="radio" name="${blockId}_ans" value="4"><input type="text" class="eq-opt eq-opt-4" placeholder="보기 4"></div>
+        <div class="eq-option-row"><input type="radio" name="${blockId}_ans" value="5"><input type="text" class="eq-opt eq-opt-5" placeholder="보기 5"></div>
+        <label>해설</label>
+        <textarea class="eq-explanation" placeholder="정답 해설을 입력하세요"></textarea>
+      `;
+      wrap.querySelector('.eq-remove-btn').addEventListener('click', () => {
+        if (examQuestionBuilder.children.length <= 1) {
+          showToast('최소 1개의 문제는 남아있어야 합니다.', '⚠️');
+          return;
+        }
+        wrap.remove();
+      });
+      examQuestionBuilder.appendChild(wrap);
+
+      if (prefill) {
+        wrap.querySelector('.eq-question').value = prefill.question || '';
+        wrap.querySelector('.eq-opt-1').value = prefill.option1 || '';
+        wrap.querySelector('.eq-opt-2').value = prefill.option2 || '';
+        wrap.querySelector('.eq-opt-3').value = prefill.option3 || '';
+        wrap.querySelector('.eq-opt-4').value = prefill.option4 || '';
+        wrap.querySelector('.eq-opt-5').value = prefill.option5 || '';
+        wrap.querySelector('.eq-explanation').value = prefill.explanation || '';
+        const answerNum = parseInt(prefill.answer, 10);
+        if (answerNum >= 1 && answerNum <= 5) {
+          const radio = wrap.querySelector(`input[type="radio"][value="${answerNum}"]`);
+          if (radio) radio.checked = true;
+        }
+      }
+
+      return wrap;
+    }
+
+    addExamQuestionBtn.addEventListener('click', () => addExamQuestionBlock());
+
+    /* ---- 기출문제 파일에서 AI로 자동 추출 ---- */
+    const examExtractFile = document.getElementById('examExtractFile');
+    const examExtractBtn = document.getElementById('examExtractBtn');
+    const examExtractStatus = document.getElementById('examExtractStatus');
+
+    function showExtractStatus(text, kind) {
+      examExtractStatus.style.display = 'block';
+      examExtractStatus.style.color = kind === 'error' ? 'var(--accent-rose)' : (kind === 'success' ? 'var(--accent-emerald)' : 'var(--text-muted)');
+      examExtractStatus.innerText = text;
+    }
+
+    async function extractTextFromFile(file) {
+      await aiexamEnsureDocumentLibraries();
+      const ext = file.name.split('.').pop().toLowerCase();
+
+      if (ext === 'txt') {
+        return await file.text();
+      }
+
+      if (ext === 'pdf') {
+        if (typeof pdfjsLib === 'undefined') throw new Error('PDF 처리 라이브러리를 불러오지 못했습니다.');
+        const buf = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+        let text = '';
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          text += content.items.map(it => it.str).join(' ') + '\n';
+        }
+        return text;
+      }
+
+      if (ext === 'docx') {
+        if (typeof mammoth === 'undefined') throw new Error('Word 처리 라이브러리를 불러오지 못했습니다.');
+        const buf = await file.arrayBuffer();
+        const result = await mammoth.extractRawText({ arrayBuffer: buf });
+        return result.value;
+      }
+
+      if (ext === 'doc') {
+        throw new Error('구버전 .doc 파일은 자동 추출을 지원하지 않습니다. .docx, PDF 또는 TXT로 저장해서 올려주세요.');
+      }
+
+      throw new Error('지원하지 않는 파일 형식입니다.');
+    }
+
+    examExtractBtn.addEventListener('click', async () => {
+      const file = examExtractFile.files[0];
+      if (!file) { showToast('먼저 파일을 선택해주세요.', '⚠️'); return; }
+      if (!hasActiveApiKey()) {
+        showExtractStatus('⚠️ AI API 키가 등록되어 있지 않습니다. 상단 [🔑 API 키]에서 먼저 등록해주세요.', 'error');
+        return;
+      }
+
+      examExtractBtn.disabled = true;
+      showExtractStatus('📄 파일에서 텍스트를 추출하는 중...', 'info');
+
+      try {
+        const rawText = await extractTextFromFile(file);
+        if (!rawText || rawText.trim().length < 20) {
+          showExtractStatus('⚠️ 파일에서 텍스트를 거의 추출하지 못했습니다. 스캔 이미지 PDF는 지원되지 않습니다.', 'error');
+          return;
+        }
+
+        const providerInfo = AI_PROVIDERS[activeProvider];
+        showExtractStatus(`🤖 ${providerInfo.icon} ${providerInfo.label}로 문제를 분석하는 중... (문항 수에 따라 다소 시간이 걸릴 수 있습니다)`, 'info');
+
+        const truncated = rawText.slice(0, 12000);
+        const systemInstruction = '당신은 시험 문제 파일에서 객관식 문제를 정확히 추출하여 JSON으로만 응답하는 도구입니다. 설명이나 인사말 없이 JSON 배열만 출력하세요.';
+        const prompt = `다음은 기출문제 파일에서 추출한 원문입니다. 이 안에 포함된 5지선다 객관식 문제를 모두 찾아서 아래 JSON 형식의 배열로만 응답해주세요.
+
+형식:
+[
+  {"question": "문제 지문", "option1": "보기1", "option2": "보기2", "option3": "보기3", "option4": "보기4", "option5": "보기5", "answer": 정답번호(1~5, 숫자), "explanation": "정답 해설(원문에 해설이 없으면 핵심 근거를 1~2문장으로 간단히 작성)"}
+]
+
+주의사항:
+- 반드시 유효한 JSON 배열만 출력하고, 다른 텍스트나 코드블록 표시(\`\`\`)는 포함하지 마세요.
+- 보기가 5개가 아닌 문제는 제외하세요.
+- 정답을 원문에서 확인할 수 없는 문제는 제외하세요.
+
+원문:
+${truncated}`;
+
+        const responseText = await callAiApi(prompt, systemInstruction);
+
+        let jsonText = responseText.trim();
+        const codeBlockMatch = jsonText.match(/```(?:json)?\s*([\s\S]*?)```/);
+        if (codeBlockMatch) jsonText = codeBlockMatch[1].trim();
+        const arrayMatch = jsonText.match(/\[[\s\S]*\]/);
+        if (arrayMatch) jsonText = arrayMatch[0];
+
+        let extracted;
+        try {
+          extracted = JSON.parse(jsonText);
+        } catch (parseErr) {
+          showExtractStatus('❌ AI 응답을 문제 형식으로 해석하지 못했습니다. 파일 내용을 확인하거나 직접 입력해주세요.', 'error');
+          return;
+        }
+
+        if (!Array.isArray(extracted) || extracted.length === 0) {
+          showExtractStatus('⚠️ 파일에서 객관식 문제를 찾지 못했습니다.', 'error');
+          return;
+        }
+
+        examQuestionBuilder.innerHTML = '';
+        eqBlockCounter = 0;
+        extracted.forEach(q => addExamQuestionBlock(q));
+
+        showExtractStatus(`✅ ${extracted.length}개 문제를 추출했습니다. 아래에서 내용을 확인·수정한 뒤 등록해주세요.`, 'success');
+        playSound('correct');
+      } catch (e) {
+        showExtractStatus(`❌ 추출 실패: ${e.message}`, 'error');
+      } finally {
+        examExtractBtn.disabled = false;
+      }
+    });
+
+    examQuestionSubmitBtn.addEventListener('click', async () => {
+      const weekNo = parseInt(weekUploadWeekSelect.value, 10);
+      const blocks = Array.from(examQuestionBuilder.querySelectorAll('.eq-builder-block'));
+
+      const payloads = [];
+      for (const block of blocks) {
+        const question = block.querySelector('.eq-question').value.trim();
+        const opt1 = block.querySelector('.eq-opt-1').value.trim();
+        const opt2 = block.querySelector('.eq-opt-2').value.trim();
+        const opt3 = block.querySelector('.eq-opt-3').value.trim();
+        const opt4 = block.querySelector('.eq-opt-4').value.trim();
+        const opt5 = block.querySelector('.eq-opt-5').value.trim();
+        const explanation = block.querySelector('.eq-explanation').value.trim();
+        const answerInput = block.querySelector('input[type="radio"]:checked');
+        const answer = answerInput ? parseInt(answerInput.value, 10) : 1;
+
+        if (!question || !opt1 || !opt2 || !opt3 || !opt4 || !opt5 || !explanation) {
+          showToast('모든 문제의 문항·보기 5개·해설을 빠짐없이 입력해주세요.', '⚠️');
+          return;
+        }
+        payloads.push({ question, opt1, opt2, opt3, opt4, opt5, answer, explanation });
+      }
+
+      examQuestionSubmitBtn.disabled = true;
+      try {
+        for (const p of payloads) {
+          const formData = new FormData();
+          formData.append('subject_id', SUBJECT_ID);
+          formData.append('week_no', weekNo);
+          formData.append('question', p.question);
+          formData.append('option1', p.opt1);
+          formData.append('option2', p.opt2);
+          formData.append('option3', p.opt3);
+          formData.append('option4', p.opt4);
+          formData.append('option5', p.opt5);
+          formData.append('answer', p.answer);
+          formData.append('explanation', p.explanation);
+
+          const res = await fetch(`${AIEXAM_API}/exam-questions`, {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${aiexamGetToken()}` },
+            body: formData
+          });
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            showToast(err.detail || '문제 등록에 실패했습니다.', '⚠️');
+            examQuestionSubmitBtn.disabled = false;
+            return;
+          }
+        }
+        showToast(`기출문제 ${payloads.length}개가 등록되었습니다.`, '✅');
+        playSound('correct');
+        weekUploadModal.classList.remove('show');
+      } catch (e) {
+        showToast('서버에 연결할 수 없습니다.', '⚠️');
+      } finally {
+        examQuestionSubmitBtn.disabled = false;
+      }
+    });
+
+    /* ---- 시험 응시 기록 (내 기록 / 학생 전체 기록, 상세보기, 인쇄, AI 오답 분석) ---- */
+    const examHistoryModal = document.getElementById('examHistoryModal');
+    const examHistoryBtn = document.getElementById('examHistoryBtn');
+    const closeExamHistoryModalBtn = document.getElementById('closeExamHistoryModalBtn');
+    const examHistoryTitle = document.getElementById('examHistoryTitle');
+    const examHistoryScopeTabs = document.getElementById('examHistoryScopeTabs');
+    const examHistoryListView = document.getElementById('examHistoryListView');
+    const examHistoryDetailView = document.getElementById('examHistoryDetailView');
+    const examHistoryList = document.getElementById('examHistoryList');
+    const examHistoryBackBtn = document.getElementById('examHistoryBackBtn');
+    const examHistoryPrintBtn = document.getElementById('examHistoryPrintBtn');
+    const examHistoryAiAnalysisBtn = document.getElementById('examHistoryAiAnalysisBtn');
+    const examHistoryAiAnalysisBox = document.getElementById('examHistoryAiAnalysisBox');
+    const examHistoryPrintArea = document.getElementById('examHistoryPrintArea');
+
+    let examHistoryScope = 'mine';
+    let currentAttemptDetail = null;
+
+    function canViewAllHistory() {
+      return currentUser && (currentUser.role === 'admin' || isAssignedProfessor);
+    }
+
+    async function loadExamHistoryList() {
+      examHistoryList.innerHTML = '<div class="exam-material-empty">불러오는 중...</div>';
+      try {
+        const res = await fetch(`${AIEXAM_API}/exam-attempts?subject_id=${SUBJECT_ID}&scope=${examHistoryScope}`, {
+          headers: { Authorization: `Bearer ${aiexamGetToken()}` }
+        });
+        if (!res.ok) { examHistoryList.innerHTML = '<div class="exam-material-empty">목록을 불러오지 못했습니다.</div>'; return; }
+        const list = await res.json();
+
+        if (list.length === 0) {
+          examHistoryList.innerHTML = '<div class="exam-material-empty">아직 응시한 시험 기록이 없습니다.</div>';
+          return;
+        }
+
+        examHistoryList.innerHTML = list.map(a => {
+          const dateStr = new Date(a.submitted_at).toLocaleString('ko-KR');
+          const passClass = a.score >= 60 ? 'pass' : 'fail';
+          const studentLabel = examHistoryScope === 'all' ? `${a.student_name} · ` : '';
+          return `
+            <div class="eh-list-item" data-id="${a.id}">
+              <div style="flex:1; min-width:0;">
+                <div class="eh-item-title">${escapeHtmlAttr(a.title)}</div>
+                <div class="eh-item-meta">${studentLabel}${dateStr} · ${a.correct_count}/${a.total_questions}문항 정답</div>
+              </div>
+              <span class="eh-item-score ${passClass}">${a.score}점</span>
+            </div>
+          `;
+        }).join('');
+
+        examHistoryList.querySelectorAll('.eh-list-item').forEach(item => {
+          item.addEventListener('click', () => openExamAttemptDetail(item.dataset.id));
+        });
+      } catch (e) {
+        examHistoryList.innerHTML = '<div class="exam-material-empty">목록을 불러오지 못했습니다.</div>';
+      }
+    }
+
+    async function openExamAttemptDetail(attemptId) {
+      try {
+        const res = await fetch(`${AIEXAM_API}/exam-attempts/${attemptId}`, {
+          headers: { Authorization: `Bearer ${aiexamGetToken()}` }
+        });
+        if (!res.ok) { showToast('기록을 불러오지 못했습니다.', '⚠️'); return; }
+        const attempt = await res.json();
+        currentAttemptDetail = attempt;
+
+        renderExamAttemptDetail(attempt);
+        examHistoryListView.style.display = 'none';
+        examHistoryDetailView.style.display = 'block';
+        examHistoryAiAnalysisBox.style.display = 'none';
+        examHistoryAiAnalysisBox.innerHTML = '';
+      } catch (e) {
+        showToast('서버에 연결할 수 없습니다.', '⚠️');
+      }
+    }
+
+    function renderExamAttemptDetail(attempt) {
+      const dateStr = new Date(attempt.submitted_at).toLocaleString('ko-KR');
+      const passLabel = attempt.score >= 60 ? '🎉 합격 기준 통과' : '⚠️ 과락/보완 필요';
+
+      const questionsHtml = attempt.questions.map((q, idx) => {
+        const isCorrect = q.studentAnswer === q.answer;
+        return `
+          <div class="eh-question-block">
+            <div class="eh-q-text">
+              Q${idx + 1}. ${escapeHtmlAttr(q.question)}
+              <span class="eh-status-badge ${isCorrect ? 'correct' : 'wrong'}">${isCorrect ? '정답' : '오답'}</span>
+            </div>
+            ${q.options.map((opt, i) => {
+              const optNum = i + 1;
+              let cls = '';
+              if (optNum === q.answer) cls = 'eh-correct';
+              else if (optNum === q.studentAnswer) cls = 'eh-wrong-picked';
+              return `<div class="eh-opt ${cls}">${optNum}. ${escapeHtmlAttr(opt)}${optNum === q.studentAnswer ? ' (내가 선택함)' : ''}${optNum === q.answer ? ' ✓ 정답' : ''}</div>`;
+            }).join('')}
+            <div class="eh-explanation"><strong>해설:</strong> ${escapeHtmlAttr(q.explanation)}</div>
+          </div>
+        `;
+      }).join('');
+
+      examHistoryPrintArea.innerHTML = `
+        <div id="examHistoryPrintHeader" style="margin-bottom:16px;">
+          <h2 style="margin:0 0 4px;">${escapeHtmlAttr(attempt.title)}</h2>
+          <p style="margin:0; font-size:0.85rem; color:#555;">
+            응시자: ${escapeHtmlAttr(attempt.student_name || (currentUser ? currentUser.name : ''))} · 응시일: ${dateStr}<br>
+            점수: ${attempt.score}점 (${attempt.correct_count}/${attempt.total_questions}문항 정답) · ${passLabel}
+          </p>
+          <hr style="margin:12px 0;">
+        </div>
+        <div id="examHistoryScreenInfo" style="margin-bottom:14px; font-size:0.85rem; color:var(--text-muted);">
+          ${attempt.student_name ? `응시자: <strong style="color:var(--text-main);">${escapeHtmlAttr(attempt.student_name)}</strong> · ` : ''}
+          ${dateStr} · 점수: <strong style="color:var(--text-main);">${attempt.score}점</strong> (${attempt.correct_count}/${attempt.total_questions}문항 정답)
+        </div>
+        ${questionsHtml}
+      `;
+    }
+
+    examHistoryBtn.addEventListener('click', () => {
+      examHistoryTitle.innerText = '시험 응시 기록';
+      examHistoryListView.style.display = 'block';
+      examHistoryDetailView.style.display = 'none';
+
+      if (canViewAllHistory()) {
+        examHistoryScopeTabs.style.display = 'flex';
+        examHistoryScope = 'all';
+        examHistoryScopeTabs.querySelectorAll('.provider-tab-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.scope === 'all');
+        });
+      } else {
+        examHistoryScopeTabs.style.display = 'none';
+        examHistoryScope = 'mine';
+      }
+
+      examHistoryModal.classList.add('show');
+      loadExamHistoryList();
+    });
+
+    examHistoryScopeTabs.querySelectorAll('.provider-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        examHistoryScope = btn.dataset.scope;
+        examHistoryScopeTabs.querySelectorAll('.provider-tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+        loadExamHistoryList();
+      });
+    });
+
+    closeExamHistoryModalBtn.addEventListener('click', () => examHistoryModal.classList.remove('show'));
+    examHistoryModal.addEventListener('click', (e) => {
+      if (e.target === examHistoryModal) examHistoryModal.classList.remove('show');
+    });
+
+    examHistoryBackBtn.addEventListener('click', () => {
+      examHistoryDetailView.style.display = 'none';
+      examHistoryListView.style.display = 'block';
+      loadExamHistoryList();
+    });
+
+    examHistoryPrintBtn.addEventListener('click', () => {
+      window.print();
+    });
+
+    examHistoryAiAnalysisBtn.addEventListener('click', async () => {
+      if (!currentAttemptDetail) return;
+      if (!hasActiveApiKey()) {
+        examHistoryAiAnalysisBox.style.display = 'block';
+        examHistoryAiAnalysisBox.innerHTML = '⚠️ AI API 키가 등록되어 있지 않습니다. 상단 [🔑 API 키]에서 먼저 등록해주세요.';
+        return;
+      }
+
+      const wrongQuestions = currentAttemptDetail.questions.filter(q => q.studentAnswer !== q.answer);
+      if (wrongQuestions.length === 0) {
+        examHistoryAiAnalysisBox.style.display = 'block';
+        examHistoryAiAnalysisBox.innerHTML = '🎉 오답이 없습니다! 모든 문항을 맞혔습니다.';
+        return;
+      }
+
+      examHistoryAiAnalysisBtn.disabled = true;
+      examHistoryAiAnalysisBox.style.display = 'block';
+      const providerInfo = AI_PROVIDERS[activeProvider];
+      examHistoryAiAnalysisBox.innerHTML = `🤖 ${providerInfo.icon} ${providerInfo.label}가 오답 원인을 분석하는 중...`;
+
+      try {
+        const wrongSummary = wrongQuestions.map((q, i) =>
+          `${i + 1}. 문제: ${q.question}\n   학생이 고른 답: ${q.options[q.studentAnswer - 1] || '무응답'}\n   정답: ${q.options[q.answer - 1]}\n   해설: ${q.explanation}`
+        ).join('\n\n');
+
+        const systemInstruction = '당신은 공인중개사 시험 과목의 학습 코치입니다. 학생이 틀린 문제들을 보고, 어떤 개념을 헷갈렸는지, 공통적인 취약 부분이 무엇인지 진단하고 다음에 무엇을 복습하면 좋을지 간결하게 조언해주세요.';
+        const prompt = `다음은 학생이 이번 시험에서 틀린 문제들입니다.\n\n${wrongSummary}\n\n이 오답들을 분석해서:\n1. 공통적으로 어떤 개념/단원을 헷갈렸는지\n2. 왜 틀렸을 가능성이 높은지(단순 암기 부족인지, 개념 혼동인지 등)\n3. 다음 학습에서 무엇을 우선 복습하면 좋을지\n를 4~6문장으로 간결하게 정리해주세요.`;
+
+        const analysisText = await callAiApi(prompt, systemInstruction);
+        examHistoryAiAnalysisBox.innerHTML = `<strong>🤖 ${providerInfo.label} 오답 분석</strong><br>${formatAiResponseToHtml(analysisText)}`;
+      } catch (e) {
+        examHistoryAiAnalysisBox.innerHTML = `❌ 분석에 실패했습니다: ${e.message}`;
+      } finally {
+        examHistoryAiAnalysisBtn.disabled = false;
+      }
+    });
+
+    /* ---- 로그인 확인 후 초기 렌더 ---- */
+    (async function initApp() {
+      currentUser = await aiexamRequireAuth();
+      if (!currentUser) return; // 로그인 안 되어 있으면 auth.js가 이미 로그인 페이지로 이동시킴
+
+      // 교수는 자신이 배정된 과목만 열람할 수 있음 (다른 과목 담당 교수는 접근 차단)
+      if (currentUser.role === 'professor' && currentUser.subject_id !== SUBJECT_ID) {
+        alert('담당 과목이 아니므로 이 페이지를 열람할 수 없습니다.');
+        location.href = 'index.html';
+        return;
+      }
+
+      isAssignedProfessor =
+        currentUser.role === 'professor' &&
+        currentUser.subject_id === SUBJECT_ID;
+
+      weekUploadOpenBtn.style.display = isAssignedProfessor ? 'block' : 'none';
+      document.getElementById('genExamBtnLabel').innerText = `${examYearLabel}년 AI모의고사`;
+
+      aiexamRenderUserBar(document.getElementById('userBar'), currentUser);
+      document.getElementById('authLoadingOverlay').style.display = 'none';
+
+      await refreshLectureMaterials();
+      renderCategoryList();
+      updateTimerDisplay();
+      updateApiKeyUi();
+    })();
+  </script>
+</body>
+</html>

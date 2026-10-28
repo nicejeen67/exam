@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script>
+  // 로그인 여부를 화면이 그려지기 전에 즉시 확인 - 없으면 바로 로그인 페이지로 이동 (깜박임 방지)
+  if (!sessionStorage.getItem('aiexam_token')) {
+    location.replace('auth.html?redirect=' + encodeURIComponent(location.pathname + location.search));
+  }
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI EXAM | 서울사이버대학교 AI부동산빅데이터학과 국가고시 통합 학습 플랫폼</title>
+<meta name="description" content="공인중개사 국가고시 7개 과목 AI 학습 도구를 한 곳에서. 서울사이버대학교 AI부동산빅데이터학과.">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<style>
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard/dist/web/static/woff2/Pretendard-Regular.woff2') format('woff2');
+  font-weight: 45 920;
+  font-display: swap;
+}
+
+:root {
+  --bg: #0B1220;
+  --bg-panel: #121A2C;
+  --bg-panel-raised: #17213A;
+  --line: #26324C;
+  --line-bright: #37456A;
+  --gold: #C9A227;
+  --gold-soft: rgba(201, 162, 39, 0.14);
+  --signal: #38D39F;
+  --signal-soft: rgba(56, 211, 159, 0.12);
+  --urgent: #E2572B;
+  --urgent-soft: rgba(226, 87, 43, 0.14);
+  --text: #EDF1F7;
+  --text-muted: #92A0BC;
+  --text-faint: #5E6B87;
+  --radius: 14px;
+  --serif-track: -0.01em;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+
+.wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+/* ================= HEADER ================= */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(11, 18, 32, 0.86);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 28px;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.brand-mark {
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.brand-mark span { color: var(--gold); }
+
+.brand-sub {
+  font-size: 0.76rem;
+  color: var(--text-faint);
+  font-weight: 500;
+}
+
+.header-nav {
+  display: flex;
+  gap: 22px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.header-nav a:hover { color: var(--text); }
+
+@media (max-width: 640px) {
+  .header-nav { display: none; }
+}
+
+/* ================= HERO ================= */
+.hero {
+  padding: 76px 0 64px;
+  border-bottom: 1px solid var(--line);
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 48px;
+  align-items: end;
+}
+
+@media (max-width: 800px) {
+  .hero-grid { grid-template-columns: 1fr; gap: 32px; }
+}
+
+.hero h1 {
+  font-size: clamp(2.1rem, 4.6vw, 3.2rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.18;
+}
+
+.hero p.lede {
+  margin-top: 18px;
+  font-size: 1.02rem;
+  color: var(--text-muted);
+  max-width: 46ch;
+  line-height: 1.65;
+}
+
+.hero-meta {
+  margin-top: 28px;
+  display: flex;
+  gap: 22px;
+  flex-wrap: wrap;
+}
+
+.hero-meta-item {
+  font-size: 0.82rem;
+  color: var(--text-faint);
+}
+
+.hero-meta-item strong {
+  display: block;
+  color: var(--text);
+  font-size: 0.92rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+/* D-day box */
+.dday-box {
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 26px 28px;
+}
+
+.dday-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.dday-exam-name {
+  font-size: 0.92rem;
+  color: var(--text);
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+.dday-number {
+  margin-top: 16px;
+  font-size: 3.2rem;
+  font-weight: 800;
+  color: var(--urgent);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.dday-date {
+  margin-top: 10px;
+  font-size: 0.78rem;
+  color: var(--text-faint);
+}
+
+/* ================= ROUTE SECTION ================= */
+.route-section {
+  padding: 68px 0 40px;
+}
+
+.route-heading {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin-bottom: 6px;
+}
+
+.route-sub {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 48px;
+  max-width: 54ch;
+}
+
+.route-track {
+  position: relative;
+  padding-left: 34px;
+}
+
+.route-track::before {
+  content: '';
+  position: absolute;
+  left: 13px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--gold), var(--line-bright) 12%, var(--line-bright) 88%, var(--signal));
+}
+
+.route-phase {
+  margin-bottom: 6px;
+}
+
+.phase-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--gold);
+  padding: 22px 0 14px;
+}
+
+.phase-label .count {
+  color: var(--text-faint);
+  font-weight: 500;
+}
+
+.station {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 20px;
+  padding: 18px 20px;
+  margin-bottom: 10px;
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  transition: border-color 0.18s ease, transform 0.18s ease, background 0.18s ease;
+}
+
+.station::before {
+  content: '';
+  position: absolute;
+  left: -27px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2px solid var(--line-bright);
+}
+
+.station:hover {
+  border-color: var(--gold);
+  transform: translateX(3px);
+  background: var(--bg-panel-raised);
+}
+
+.station:hover::before {
+  border-color: var(--gold);
+}
+
+/* 담당 과목이 아닌 경우 (교수 계정) - 잠금 상태 */
+.station.locked {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.station.locked:hover {
+  border-color: var(--line);
+  transform: none;
+  background: var(--bg-panel);
+}
+
+.station.locked:hover::before {
+  border-color: var(--line-bright);
+}
+
+.station.locked .station-go {
+  background: transparent;
+  border-color: var(--line);
+  color: var(--text-faint);
+}
+
+.station.locked:hover .station-go {
+  background: transparent;
+  color: var(--text-faint);
+}
+
+.station-num {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--gold-soft);
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.station-body h3 {
+  font-size: 1.02rem;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+}
+
+.station-body p {
+  margin-top: 3px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.station-go {
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 9px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--line-bright);
+  color: var(--text);
+  white-space: nowrap;
+  transition: var(--transition, all 0.18s ease);
+}
+
+.station:hover .station-go {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #1A1404;
+}
+
+@media (max-width: 640px) {
+  .station { grid-template-columns: auto 1fr; }
+  .station-go { grid-column: 2; justify-self: start; margin-top: 8px; }
+}
+
+/* ================= INFO STRIP ================= */
+.info-strip {
+  margin-top: 56px;
+  padding: 26px 0 72px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  border-top: 1px solid var(--line);
+  padding-top: 40px;
+}
+
+@media (max-width: 720px) {
+  .info-strip { grid-template-columns: 1fr; }
+}
+
+.info-card h4 {
+  font-size: 0.92rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.info-card p {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* ================= FOOTER ================= */
+footer {
+  border-top: 1px solid var(--line);
+  padding: 32px 0 48px;
+}
+
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.78rem;
+  color: var(--text-faint);
+}
+
+.footer-inner strong { color: var(--text-muted); }
+
+.aiexam-userbar-name {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-right: 10px;
+}
+
+.aiexam-userbar-logout {
+  font-size: 0.75rem;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ===== 내 학습 폴더 ===== */
+.my-section { padding: 44px 0 0; }
+.my-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.my-head h2 { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.01em; }
+.my-head p { font-size: .86rem; color: var(--text-muted); margin-top: 4px; }
+.my-path { font-family: ui-monospace, Consolas, monospace; color: var(--gold); background: var(--gold-soft); padding: 2px 9px; border-radius: 999px; font-size: .8rem; }
+.my-btn { font-size: .8rem; font-weight: 700; padding: 9px 16px; border-radius: 999px; border: 1px solid var(--gold); color: #1A1404; background: var(--gold); white-space: nowrap; }
+.my-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.my-card { background: var(--bg-panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; transition: border-color .18s; }
+.my-card:hover { border-color: var(--gold); }
+.my-card h4 { font-size: .9rem; font-weight: 700; }
+.my-card .meta { font-size: .76rem; color: var(--text-muted); }
+.my-card .best { font-size: 1.2rem; font-weight: 800; color: var(--signal); }
+.my-card .best.none { color: var(--text-faint); font-size: .85rem; font-weight: 600; }
+.my-card .links { display: flex; gap: 10px; font-size: .78rem; margin-top: 2px; }
+.my-card .links a { color: var(--gold); }
+.station-rec { display: inline-block; margin-left: 8px; font-size: .7rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--signal-soft); color: var(--signal); vertical-align: middle; }
+
+#authLoadingOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-faint);
+  font-size: 0.85rem;
+}
+</style>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+</head>
+<body>
+
+<div id="authLoadingOverlay">확인 중...</div>
+
+<header>
+  <div class="header-inner">
+    <div class="brand">
+      <span class="brand-mark">AI<span>EXAM</span></span>
+      <span class="brand-sub">서울사이버대학교 AI부동산빅데이터학과</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:18px;">
+      <nav class="header-nav">
+        <a href="#myFolder">내 폴더</a>
+        <a href="#route">학습 경로</a>
+        <a id="adminNavLink" href="admin.html" style="display:none;">관리자</a>
+        <a href="https://iscubigdata.co.kr/aiviewer/" target="_blank" rel="noopener">AI홈테크 | ISCUBigData</a>
+      </nav>
+      <div id="userBar"></div>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <h1>합격으로 가는<br>한 줄의 경로</h1>
+      <p class="lede">공인중개사 국가고시 7개 과목의 AI 튜터와 실전 모의고사까지 — 준비의 모든 여정을 이 한 페이지에서 시작합니다.</p>
+      <div class="hero-meta">
+        <div class="hero-meta-item"><strong>7개 과목</strong>AI 학습 도구</div>
+        <div class="hero-meta-item"><strong>1차·2차</strong>시험 구조 반영</div>
+        <div class="hero-meta-item"><strong>AI 튜터</strong>실시간 맞춤 해설</div>
+      </div>
+    </div>
+    <div class="dday-box">
+      <div class="dday-label">다음 시험일까지</div>
+      <div class="dday-exam-name">제37회 공인중개사 자격시험</div>
+      <div class="dday-number" id="ddayNumber">D-000</div>
+      <div class="dday-date" id="ddayDate">기준일 계산 중...</div>
+    </div>
+  </div>
+</section>
+
+<section class="my-section" id="myFolder">
+  <div class="wrap">
+    <div class="my-head">
+      <div>
+        <h2 id="myGreeting">내 학습 폴더</h2>
+        <p>시험을 치르거나 AI 모의고사를 생성하면 <span class="my-path" id="myPathLabel">아이디/</span> 폴더에 과목별로 저장됩니다.</p>
+      </div>
+      <a class="my-btn" href="my.html">📁 내 폴더 열기</a>
+    </div>
+    <div class="my-grid" id="myGrid"><div class="my-card"><span class="meta">불러오는 중...</span></div></div>
+  </div>
+</section>
+
+<section class="route-section" id="route">
+  <div class="wrap">
+    <h2 class="route-heading">학습 경로</h2>
+    <p class="route-sub">실제 시험 일정 순서대로 정렬했습니다. 과목을 눌러 AI 튜터와 실전 모의고사를 바로 시작하세요.</p>
+
+    <div class="route-track">
+
+      <div class="route-phase">
+        <div class="phase-label">1차 시험 <span class="count">· 2과목</span></div>
+
+        <a class="station" href="real-estate-intro.html">
+          <div class="station-num">1</div>
+          <div class="station-body">
+            <h3>부동산학개론</h3>
+            <p>수요·공급, 투자·금융론, 감정평가 기초까지 핵심 이론</p>
+          </div>
+          <span class="station-go">학습 시작</span>
+        </a>
+
+        <a class="station" href="real-estate-law.html">
+          <div class="station-num">2</div>
+          <div class="station-body">
+            <h3>민법 및 민사특별법</h3>
+            <p>물권·계약법과 주택임대차보호법 등 실무 특별법</p>
+          </div>
+          <span class="station-go">학습 시작</span>
+        </a>
+      </div>
+
+      <div class="route-phase">
+        <div class="phase-label">2차 시험 1교시 <span class="count">· 2과목</span></div>
+
+        <a class="station" href="brokerage-practice.html">
+          <div class="station-num">3</div>
+          <div class="station-body">
+            <h3>공인중개사법령 및 중개실무</h3>
+            <p>중개계약, 확인·설명의무, 부동산 거래신고 실무</p>
+          </div>
+          <span class="station-go">학습 시작</span>
+        </a>
+
+        <a class="station" href="real-estate-public-law.html">
+          <div class="station-num">4</div>
+          <div class="station-body">
+            <h3>부동산공법</h3>
+            <p>국토계획법, 도시개발·정비법, 주택법, 건축법, 농지법</p>
+          </div>
+          <span class="station-go">학습 시작</span>
+        </a>
+      </div>
+
+      <div class="route-phase">
+        <div class="phase-label">2차 시험 2교시 <span class="count">· 2과목</span></div>
+
+        <a class="station" href="public-notice-law.html">
+          <div class="station-num">5</div>
+          <div class="station-body">
+            <h3>부동산공시법령</h3>
+            <p>부동산등기법과 공간정보관리법(지적) 핵심 규정</p>
+          </div>
+          <span class="station-go">학습 시작</span>
+        </a>
+
+        <a class="station" href="real-estate-tax.html">
+          <div class="station-num">6</div>
+          <div class="station-body">
+            <h3>부동산세법</h3>
+            <p>취득세·재산세·종합부동산세·양도소득세 계산 실무</p>
+          </div>
+          <span class="station-go">학습 시작</span>
+        </a>
+      </div>
+
+      <div class="route-phase">
+        <div class="phase-label">심화 과목 <span class="count">· 실무 역량</span></div>
+
+        <a class="station" href="appraisal-theory.html">
+          <div class="station-num">7</div>
+          <div class="station-body">
+            <h3>감정평가론</h3>
+            <p>원가·비교·수익 3방식과 물건별 감정평가 절차 심화</p>
+          </div>
+          <span class="station-go">학습 시작</span>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="wrap">
+  <div class="info-strip">
+    <div class="info-card">
+      <h4>AI 기반 맞춤 해설</h4>
+      <p>과목별 페이지에서 ChatGPT·Gemini·Claude 중 원하는 AI를 연결해 실시간 질의응답과 적중 예상문제를 받아보세요.</p>
+    </div>
+    <div class="info-card">
+      <h4>실전 모의고사 엔진</h4>
+      <p>기출 스타일 문제를 OMR 답안카드로 직접 풀어보며 시간 배분까지 실전처럼 연습할 수 있습니다.</p>
+    </div>
+    <div class="info-card">
+      <h4>교안 업로드 연동</h4>
+      <p>담당 교수가 주차별로 등록한 강의자료를 바탕으로 학습 내용이 계속 갱신됩니다.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap footer-inner">
+    <div><strong>AI EXAM</strong> · 서울사이버대학교 AI부동산빅데이터학과 국가고시 통합 학습 플랫폼</div>
+    <div>Powered by GeoAILab · ISCUBigData</div>
+  </div>
+</footer>
+
+<script>
+  // 제37회 공인중개사 자격시험(예정일) 기준 D-day 계산
+  // 실제 공고된 시험일로 확정되면 아래 날짜만 수정하시면 됩니다.
+  const EXAM_DATE = new Date('2026-10-31T00:00:00+09:00');
+
+  function updateDday() {
+    const now = new Date();
+    const diffMs = EXAM_DATE.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+    const numberEl = document.getElementById('ddayNumber');
+    const dateEl = document.getElementById('ddayDate');
+
+    if (diffDays > 0) {
+      numberEl.innerText = `D-${diffDays}`;
+    } else if (diffDays === 0) {
+      numberEl.innerText = 'D-DAY';
+    } else {
+      numberEl.innerText = `D+${Math.abs(diffDays)}`;
+    }
+
+    const y = EXAM_DATE.getFullYear();
+    const m = EXAM_DATE.getMonth() + 1;
+    const d = EXAM_DATE.getDate();
+    dateEl.innerText = `${y}년 ${m}월 ${d}일 시행 예정 (변경될 수 있음)`;
+  }
+
+  updateDday();
+</script>
+
+<script src="config.js"></script>
+<script src="auth.js"></script>
+<script>
+  function applyProfessorRestriction(user) {
+    if (user.role !== 'professor') return; // 학생·관리자는 전 과목 자유 이용
+
+    document.querySelectorAll('.station').forEach(el => {
+      const href = el.getAttribute('href') || '';
+      const match = href.match(/([a-z-]+)\.html$/);
+      const slug = match ? match[1] : null;
+      if (!slug) return;
+
+      if (slug !== user.subject_id) {
+        el.classList.add('locked');
+        el.removeAttribute('href');
+        el.setAttribute('role', 'button');
+        const goBtn = el.querySelector('.station-go');
+        if (goBtn) goBtn.innerText = '🔒 접근 불가';
+        el.addEventListener('click', (e) => {
+          e.preventDefault();
+          alert('담당 과목이 아니므로 열람할 수 없습니다.\n담당 과목 외 다른 과목은 관리자에게 문의해주세요.');
+        });
+      }
+    });
+  }
+
+  /* 과목별 모의고사 링크 + 내 폴더(학생 아이디) 요약 */
+  async function renderMyFolder(user) {
+    const esc = (x) => String(x == null ? '' : x).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    document.getElementById('myGreeting').innerText = `${user.name}님의 학습 폴더`;
+    document.getElementById('myPathLabel').innerText = `${user.username}/`;
+    const grid = document.getElementById('myGrid');
+    try {
+      const folder = await aiexamRpc('ax_folder', { p_token: aiexamGetToken(), p_username: null });
+      grid.innerHTML = folder.subjects.map(s => {
+        const fs = folder.files.filter(f => f.subject_id === s.id);
+        const att = fs.filter(f => f.kind === 'attempt');
+        const gen = fs.filter(f => f.kind === 'generated');
+        const scores = att.map(f => f.score).filter(x => typeof x === 'number');
+        const best = scores.length ? Math.max(...scores) : null;
+        const last = att[0];
+        const station = document.querySelector(`.station[href="${s.id}.html"] .station-body h3`);
+        if (station && att.length) station.insertAdjacentHTML('beforeend', `<span class="station-rec">응시 ${att.length}회 · 최고 ${best}점</span>`);
+        return `<div class="my-card">
+          <h4>${esc(s.name)}</h4>
+          ${best === null ? '<span class="best none">아직 응시 기록 없음</span>' : `<span class="best">최고 ${best}점</span>`}
+          <span class="meta">시험기록 ${att.length}개 · 생성모의고사 ${gen.length}개${last ? ` · 최근 ${new Date(last.created_at).toLocaleDateString('ko-KR')}` : ''}</span>
+          <div class="links"><a href="${s.id}.html">모의고사 풀기 →</a>${fs.length ? `<a href="my.html#${s.id}">폴더 보기</a>` : ''}</div>
+        </div>`;
+      }).join('');
+    } catch (e) {
+      grid.innerHTML = `<div class="my-card"><span class="meta">${esc(e.message)}</span></div>`;
+    }
+  }
+
+  (async function initAuth() {
+    const user = await aiexamRequireAuth();
+    if (!user) return; // 로그인 안 되어 있으면 auth.js가 이미 로그인 페이지로 이동시킴
+
+    aiexamRenderUserBar(document.getElementById('userBar'), user);
+    if (user.role === 'admin') {
+      document.getElementById('adminNavLink').style.display = 'inline';
+    }
+    applyProfessorRestriction(user);
+    document.getElementById('authLoadingOverlay').style.display = 'none';
+    renderMyFolder(user);
+  })();
+</script>
+
+</body>
+</html>
