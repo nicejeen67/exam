@@ -58,10 +58,22 @@ h1 { font-size: 1.4rem; font-weight: 800; display: flex; align-items: center; ga
 .msg { margin-top: 10px; font-size: .8rem; display: none; padding: 8px 12px; border-radius: 8px; }
 .msg.ok { display: block; background: var(--signal-soft); color: var(--signal); }
 .msg.err { display: block; background: var(--urgent-soft); color: #FCA783; }
+.up-tabs { display: none; gap: 8px; margin-bottom: 14px; }
+.up-tab { font-size: .9rem; font-weight: 800; padding: 10px 20px; border-radius: 10px 10px 0 0; border: 1px solid var(--line); background: var(--bg-panel); color: var(--text-faint, #8a96b0); cursor: pointer; font-family: inherit; }
+.up-tab.on { background: var(--gold); border-color: var(--gold); color: #1A1404; }
+.eq-pick { display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--gold); margin-bottom: 6px; cursor: pointer; }
+.eq-pick input { width: 18px; height: 18px; accent-color: var(--gold); }
+.eq-block.off { opacity: .45; }
+.eq-count { font-weight: 800; color: var(--gold); font-size: .85rem; }
 .toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
 .spacer { flex: 1; }
 .subject-block { background: var(--bg-panel); border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: 14px; overflow: hidden; }
 .subject-head { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.subject-head { cursor: pointer; user-select: none; }
+.subject-head::before { content: '▶'; font-size: .75rem; color: var(--gold); transition: transform .15s; }
+.subject-block.open .subject-head::before { transform: rotate(90deg); }
+.subject-block:not(.open) .subject-head { border-bottom: 0; }
+.subject-block:not(.open) .subject-body { display: none; }
 .subject-head h3 { font-size: 1rem; font-weight: 700; }
 .mono { font-family: ui-monospace, Consolas, monospace; font-size: .76rem; color: var(--text-faint); overflow-wrap: anywhere; }
 .kind { padding: 10px 18px 6px; }
@@ -82,7 +94,25 @@ details.week[open] > summary::before { content: '📂'; }
 .empty { color: var(--text-faint); font-size: .85rem; padding: 26px 16px; text-align: center; border: 1px dashed var(--line); border-radius: var(--radius); line-height: 1.8; }
 #status { color: var(--text-faint); font-size: .85rem; padding: 20px 0; }
 #authLoadingOverlay { position: fixed; inset: 0; z-index: 999; background: var(--bg); display: flex; align-items: center; justify-content: center; color: var(--text-faint); font-size: .85rem; }
+
+/* 기출문제 등록 */
+.panel h2 .tag { font-size:.7rem; font-weight:600; color:var(--text-faint); }
+.sub-box { border:1px solid var(--line); border-radius:10px; padding:12px; margin-bottom:12px; background:var(--bg-panel-raised); }
+.sub-box h4 { font-size:.82rem; font-weight:800; margin-bottom:8px; }
+.ai-grid { display:grid; grid-template-columns: 1fr 1.4fr auto; gap:8px; align-items:flex-end; }
+.hint { font-size:.74rem; color:var(--text-faint); margin-top:8px; line-height:1.6; }
+.eq-block { border:1px solid var(--line); border-radius:10px; padding:12px; margin-bottom:10px; position:relative; background:var(--bg-panel-raised); }
+.eq-block .eq-remove { position:absolute; top:8px; right:8px; font-size:.7rem; padding:3px 9px; border-radius:999px; border:1px solid rgba(226,87,43,.4); background:transparent; color:var(--urgent); cursor:pointer; font-family:inherit; }
+.eq-block label { display:block; font-size:.72rem; font-weight:700; color:var(--text-muted); margin:6px 0 3px; }
+.eq-block textarea, .eq-block input[type=text] { width:100%; background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:7px 9px; color:var(--text); font-size:.84rem; font-family:inherit; }
+.eq-block textarea { resize:vertical; min-height:44px; }
+.eq-block textarea:focus, .eq-block input[type=text]:focus { outline:none; border-color:var(--gold); }
+.eq-opt-row { display:flex; align-items:center; gap:6px; margin-bottom:5px; }
+.eq-opt-row input[type=radio] { flex-shrink:0; accent-color:var(--gold); }
+.eq-opt-row input[type=text] { margin:0; }
+.eq-no { font-size:.76rem; font-weight:800; color:var(--gold); }
 @media (max-width: 700px) {
+  .ai-grid { grid-template-columns: 1fr; }
   .stats { grid-template-columns: 1fr 1fr; }
   .upload-grid { grid-template-columns: 1fr; }
   .row { grid-template-columns: 1fr; }
@@ -115,6 +145,12 @@ details.week[open] > summary::before { content: '📂'; }
     <div class="stat"><div class="lbl">등록한 기출문제</div><div class="num" id="statQuestions">0</div></div>
   </div>
 
+  <!-- 자료 올리기 탭: 교안 / 기출문제 (본인 폴더일 때만) -->
+  <div class="up-tabs" id="upTabs">
+    <button type="button" class="up-tab on" data-tab="lesson">⬆ 교안 올리기</button>
+    <button type="button" class="up-tab" data-tab="exam">🧪 기출문제 올리기 (주차별 선택 등록)</button>
+  </div>
+
   <!-- 교안 올리기 (본인 폴더일 때만) -->
   <section class="panel" id="uploadPanel" style="display:none">
     <h2>⬆ 교안 올리기</h2>
@@ -129,7 +165,41 @@ details.week[open] > summary::before { content: '📂'; }
     </div>
     <div class="dest" id="upDest"></div>
     <div class="msg" id="upMsg"></div>
-    <div class="dest" style="margin-top:10px">※ 기출문제는 각 과목 페이지의 [자료 업로드 → 🧪 기출문제]에서 등록하면 이 폴더의 "기출문제"에 자동 정리됩니다.</div>
+    <div class="dest" style="margin-top:10px">※ 기출문제는 위 [🧪 기출문제 올리기] 탭에서 주차별로 올리세요. 학생은 과목 페이지의 [기출문제 풀기]에서 풉니다.</div>
+  </section>
+
+  <!-- 기출문제 등록 (본인 폴더일 때만) -->
+  <section class="panel" id="examPanel" style="display:none">
+    <h2>🧪 기출문제 올리기 <span class="tag">주차별로 파일에서 추출한 문제 중 최대 10개 선택 등록</span></h2>
+    <div class="upload-grid" style="grid-template-columns: 1.3fr .7fr;">
+      <div class="field"><label for="eqSubject">과목</label><select id="eqSubject"></select></div>
+      <div class="field"><label for="eqWeek">주차</label><select id="eqWeek"></select></div>
+    </div>
+    <div class="dest" id="eqDest"></div>
+
+    <div class="sub-box" style="margin-top:12px">
+      <h4>📄 기출문제 파일에서 자동 추출 (PDF · DOCX · TXT)</h4>
+      <div class="ai-grid">
+        <div class="field"><label for="eqProvider">AI 선택</label><select id="eqProvider"></select></div>
+        <div class="field"><label for="eqKey">API 키 <span id="eqKeyState" style="color:var(--text-faint)"></span></label><input type="password" id="eqKey" autocomplete="off" placeholder="선택한 AI의 API 키"></div>
+        <button class="btn" type="button" id="eqKeySave">키 저장</button>
+      </div>
+      <div class="upload-row">
+        <div class="field"><label for="eqFile">기출문제 파일</label><input type="file" id="eqFile" accept=".pdf,.docx,.txt"></div>
+        <button class="btn gold" type="button" id="eqExtractBtn">🤖 AI로 문제 자동 추출</button>
+      </div>
+      <div class="msg" id="eqExtractMsg"></div>
+      <div class="hint">API 키는 이 브라우저에만 저장되며(과목 페이지와 공유) 서버로 전송되지 않습니다. 추출된 문제는 아래 입력창에 채워지니, 등록 전에 반드시 확인·수정하세요. 스캔 이미지 PDF와 구버전 .doc은 추출되지 않습니다.</div>
+    </div>
+
+    <div class="eq-count" id="eqCount"></div>
+    <div id="eqBuilder"></div>
+    <div class="toolbar" style="margin-top:6px">
+      <button class="btn" type="button" id="eqAddBtn">＋ 문제 추가</button>
+      <span class="spacer"></span>
+      <button class="btn gold" type="button" id="eqSubmitBtn">📤 기출문제 등록</button>
+    </div>
+    <div class="msg" id="eqMsg"></div>
   </section>
 
   <div class="toolbar">
@@ -187,7 +257,7 @@ details.week[open] > summary::before { content: '📂'; }
     };
     ['upSubject', 'upWeek', 'upFile'].forEach(id => $(id).addEventListener('change', updateDest));
     updateDest();
-    $('uploadPanel').style.display = 'block';
+    $('upTabs').style.display = 'flex'; showTab('lesson');
 
     $('upBtn').onclick = async () => {
       const f = $('upFile').files[0];
@@ -214,6 +284,241 @@ details.week[open] > summary::before { content: '📂'; }
     };
   }
 
+  /* ---------- 기출문제 등록 ---------- */
+  const AI_PROVIDERS = {
+    gemini: { label: 'Gemini',  icon: '🔷', keyStorageKey: 'gemini_api_key', modelStorageKey: 'gemini_model', defaultModel: 'gemini-1.5-flash' },
+    openai: { label: 'ChatGPT', icon: '🟢', keyStorageKey: 'openai_api_key', modelStorageKey: 'openai_model', defaultModel: 'gpt-4o-mini' },
+    claude: { label: 'Claude',  icon: '🟠', keyStorageKey: 'claude_api_key', modelStorageKey: 'claude_model', defaultModel: 'claude-sonnet-4-5-20250929' }
+  };
+  const LS = {
+    get(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  };
+  const getKey = (p) => LS.get(AI_PROVIDERS[p].keyStorageKey);
+  const getModel = (p) => LS.get(AI_PROVIDERS[p].modelStorageKey) || AI_PROVIDERS[p].defaultModel;
+  let eqProvider = LS.get('active_ai_provider');
+  if (!AI_PROVIDERS[eqProvider]) eqProvider = 'gemini';
+  let eqCounter = 0;
+
+  function say(el, text, kind) { el.className = 'msg ' + (kind === 'ok' ? 'ok' : kind === 'err' ? 'err' : 'ok'); el.style.display = 'block'; el.innerText = text; if (kind === 'info') { el.style.background = 'var(--bg-panel-raised)'; el.style.color = 'var(--text-muted)'; } else { el.style.background = ''; el.style.color = ''; } }
+
+  async function aiCall(prompt, system) {
+    const key = getKey(eqProvider).trim(), model = getModel(eqProvider);
+    if (!key) throw new Error('API 키가 등록되어 있지 않습니다. 위에서 키를 입력하고 [키 저장]을 눌러 주세요.');
+    let res, data;
+    if (eqProvider === 'gemini') {
+      const body = { contents: [{ parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 8192 } };
+      if (system) body.systemInstruction = { parts: [{ text: system }] };
+      res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error((data.error && data.error.message) || `HTTP ${res.status}`);
+      return (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0].text) || '';
+    }
+    if (eqProvider === 'openai') {
+      const messages = []; if (system) messages.push({ role: 'system', content: system }); messages.push({ role: 'user', content: prompt });
+      res = await fetch('https://api.openai.com/v1/chat/completions', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` }, body: JSON.stringify({ model, messages }) });
+      data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error((data.error && data.error.message) || `HTTP ${res.status}`);
+      return (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '';
+    }
+    const body = { model, max_tokens: 8000, messages: [{ role: 'user', content: prompt }] };
+    if (system) body.system = system;
+    res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' }, body: JSON.stringify(body) });
+    data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error((data.error && data.error.message) || `HTTP ${res.status}`);
+    return (data.content && data.content[0] && data.content[0].text) || '';
+  }
+
+  async function extractTextFromFile(file) {
+    await aiexamEnsureDocumentLibraries();
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (ext === 'txt') return await file.text();
+    if (ext === 'pdf') {
+      if (typeof pdfjsLib === 'undefined') throw new Error('PDF 처리 라이브러리를 불러오지 못했습니다.');
+      const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+      let text = '';
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const content = await (await pdf.getPage(i)).getTextContent();
+        text += content.items.map(it => it.str).join(' ') + '\n';
+      }
+      return text;
+    }
+    if (ext === 'docx') {
+      if (typeof mammoth === 'undefined') throw new Error('Word 처리 라이브러리를 불러오지 못했습니다.');
+      return (await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() })).value;
+    }
+    if (ext === 'doc') throw new Error('구버전 .doc 파일은 자동 추출을 지원하지 않습니다. .docx, PDF 또는 TXT로 저장해서 올려 주세요.');
+    throw new Error('지원하지 않는 파일 형식입니다.');
+  }
+
+  const MAXQ = 10;
+  let openSid = null;
+  function showTab(t) {
+    $('uploadPanel').style.display = t === 'lesson' ? 'block' : 'none';
+    $('examPanel').style.display = t === 'exam' ? 'block' : 'none';
+    document.querySelectorAll('.up-tab').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
+  }
+  document.querySelectorAll('.up-tab').forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
+  function updateCount() {
+    const blocks = [...$('eqBuilder').querySelectorAll('.eq-block')];
+    const n = blocks.filter(b => b.querySelector('.eq-check').checked).length;
+    blocks.forEach(b => b.classList.toggle('off', !b.querySelector('.eq-check').checked));
+    $('eqCount').innerText = `선택 ${n} / 최대 ${MAXQ}개 (전체 ${blocks.length}개)`;
+  }
+  function addBlock(prefill) {
+    eqCounter += 1;
+    const id = 'eqb' + eqCounter;
+    const wrap = document.createElement('div');
+    wrap.className = 'eq-block';
+    wrap.innerHTML = `
+      <button type="button" class="eq-remove">✕ 삭제</button>
+      <div class="eq-no"></div>
+      <label class="eq-pick"><input type="checkbox" class="eq-check"> 이 문제를 등록 (주차당 최대 10개)</label>
+      <label>문제</label><textarea class="eq-question" placeholder="문제 내용을 입력하세요"></textarea>
+      <label>보기 (정답인 보기 앞의 동그라미를 선택하세요)</label>
+      ${[1, 2, 3, 4, 5].map(n => `<div class="eq-opt-row"><input type="radio" name="${id}" value="${n}"${n === 1 ? ' checked' : ''}><input type="text" class="eq-opt" data-n="${n}" placeholder="보기 ${n}"></div>`).join('')}
+      <label>해설</label><textarea class="eq-expl" placeholder="정답 해설을 입력하세요"></textarea>`;
+    wrap.querySelector('.eq-remove').onclick = () => {
+      if ($('eqBuilder').children.length <= 1) { say($('eqMsg'), '최소 1개의 문제는 남아 있어야 합니다.', 'err'); return; }
+      wrap.remove(); renumber(); updateCount();
+    };
+    $('eqBuilder').appendChild(wrap);
+    const chk = wrap.querySelector('.eq-check');
+    chk.checked = [...$('eqBuilder').querySelectorAll('.eq-check:checked')].length < MAXQ;
+    chk.onchange = () => {
+      if (chk.checked && $('eqBuilder').querySelectorAll('.eq-check:checked').length > MAXQ) { chk.checked = false; say($('eqMsg'), `한 번에 최대 ${MAXQ}개까지만 선택할 수 있습니다.`, 'err'); }
+      updateCount();
+    };
+    if (prefill) {
+      wrap.querySelector('.eq-question').value = prefill.question || '';
+      for (let n = 1; n <= 5; n++) wrap.querySelector(`.eq-opt[data-n="${n}"]`).value = prefill['option' + n] || '';
+      wrap.querySelector('.eq-expl').value = prefill.explanation || '';
+      const a = parseInt(prefill.answer, 10);
+      if (a >= 1 && a <= 5) wrap.querySelector(`input[type=radio][value="${a}"]`).checked = true;
+    }
+    renumber(); updateCount();
+    return wrap;
+  }
+  function renumber() { [...$('eqBuilder').children].forEach((b, i) => { b.querySelector('.eq-no').innerText = 'Q' + (i + 1); }); }
+  function resetBuilder() { $('eqBuilder').innerHTML = ''; eqCounter = 0; addBlock(); }
+
+  function chunkText(t, size) {
+    const parts = []; let i = 0;
+    while (i < t.length) {
+      let end = Math.min(i + size, t.length);
+      if (end < t.length) { const nl = t.lastIndexOf('\n', end); if (nl > i + size * 0.6) end = nl; }
+      parts.push(t.slice(i, end)); i = end;
+    }
+    return parts;
+  }
+  function parseQuestions(txt) {
+    let j = (txt || '').trim();
+    const cb = j.match(/```(?:json)?\s*([\s\S]*?)```/); if (cb) j = cb[1].trim();
+    const am = j.match(/\[[\s\S]*\]/); if (am) j = am[0];
+    const arr = JSON.parse(j);
+    return Array.isArray(arr) ? arr : [];
+  }
+
+  function setupExamPanel() {
+    const subjects = viewer.role === 'admin' ? folder.subjects : folder.subjects.filter(s => s.id === viewer.subject_id);
+    $('eqSubject').innerHTML = subjects.map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('');
+    $('eqSubject').disabled = subjects.length <= 1;
+    const weeks = []; for (let w = 1; w <= 15; w++) if (!EXAM_WEEKS.includes(w)) weeks.push(w);
+    $('eqWeek').innerHTML = weeks.map(w => `<option value="${w}">${w}주차</option>`).join('');
+    $('eqProvider').innerHTML = Object.entries(AI_PROVIDERS).map(([k, v]) => `<option value="${k}">${v.icon} ${v.label}</option>`).join('');
+    $('eqProvider').value = eqProvider;
+    const refreshKey = () => { $('eqKey').value = ''; $('eqKeyState').innerText = getKey(eqProvider) ? '(저장됨 ✓)' : '(미등록)'; };
+    const updateDest = () => { $('eqDest').innerHTML = '저장 위치: <b>' + esc(`${viewer.username}/${subjName($('eqSubject').value)}/기출문제/${wk($('eqWeek').value)}/`) + '</b>'; };
+    ['eqSubject', 'eqWeek'].forEach(id => $(id).addEventListener('change', updateDest));
+    $('eqProvider').addEventListener('change', () => { eqProvider = $('eqProvider').value; LS.set('active_ai_provider', eqProvider); refreshKey(); });
+    $('eqKeySave').onclick = () => {
+      const k = $('eqKey').value.trim();
+      if (!k) { say($('eqExtractMsg'), 'API 키를 입력해 주세요.', 'err'); return; }
+      LS.set(AI_PROVIDERS[eqProvider].keyStorageKey, k); LS.set('active_ai_provider', eqProvider);
+      refreshKey(); say($('eqExtractMsg'), `${AI_PROVIDERS[eqProvider].label} API 키를 저장했습니다.`, 'ok');
+    };
+    refreshKey(); updateDest(); resetBuilder();
+    $('eqAddBtn').onclick = () => addBlock();
+
+    $('eqExtractBtn').onclick = async () => {
+      const f = $('eqFile').files[0], m = $('eqExtractMsg');
+      if (!f) { say(m, '먼저 기출문제 파일을 선택해 주세요.', 'err'); return; }
+      if (!getKey(eqProvider)) { say(m, '선택한 AI의 API 키가 없습니다. 키를 입력하고 [키 저장]을 눌러 주세요.', 'err'); return; }
+      $('eqExtractBtn').disabled = true;
+      try {
+        say(m, '📄 파일에서 텍스트를 추출하는 중...', 'info');
+        const raw = await extractTextFromFile(f);
+        if (!raw || raw.trim().length < 20) { say(m, '파일에서 텍스트를 거의 추출하지 못했습니다. 스캔 이미지 PDF는 지원되지 않습니다.', 'err'); return; }
+        const chunks = chunkText(raw, 9000).slice(0, 8);
+        const system = '당신은 시험 문제 파일에서 객관식 문제를 정확히 추출하여 JSON으로만 응답하는 도구입니다. 설명이나 인사말 없이 JSON 배열만 출력하세요.';
+        const all = [];
+        for (let i = 0; i < chunks.length; i++) {
+          say(m, `🤖 ${AI_PROVIDERS[eqProvider].icon} ${AI_PROVIDERS[eqProvider].label}로 문제를 분석하는 중... (${i + 1}/${chunks.length})`, 'info');
+          const prompt = `다음은 기출문제 파일에서 추출한 원문 일부입니다. 이 안에 포함된 5지선다 객관식 문제를 모두 찾아서 아래 JSON 형식의 배열로만 응답해주세요.
+
+형식:
+[
+  {"question": "문제 지문", "option1": "보기1", "option2": "보기2", "option3": "보기3", "option4": "보기4", "option5": "보기5", "answer": 정답번호(1~5, 숫자), "explanation": "정답 해설(원문에 해설이 없으면 핵심 근거를 1~2문장으로 간단히 작성)"}
+]
+
+주의사항:
+- 반드시 유효한 JSON 배열만 출력하고, 다른 텍스트나 코드블록 표시(\`\`\`)는 포함하지 마세요.
+- 보기가 5개가 아닌 문제는 제외하세요.
+- 정답을 원문에서 확인할 수 없는 문제는 제외하세요.
+- 문제가 중간에 잘려 있으면 그 문제는 제외하세요.
+- 문제가 없으면 [] 만 출력하세요.
+
+원문:
+${chunks[i]}`;
+          try { all.push(...parseQuestions(await aiCall(prompt, system))); }
+          catch (e) { if (e instanceof SyntaxError) continue; throw e; }
+        }
+        // 중복 제거
+        const seen = new Set();
+        const uniq = all.filter(q => q && q.question && !seen.has(q.question.trim()) && seen.add(q.question.trim()));
+        if (!uniq.length) { say(m, '파일에서 객관식 문제를 찾지 못했거나 AI 응답을 해석하지 못했습니다. 직접 입력해 주세요.', 'err'); return; }
+        $('eqBuilder').innerHTML = ''; eqCounter = 0;
+        uniq.forEach(q => addBlock(q));
+        say(m, `✅ ${uniq.length}개 문제를 추출했습니다. 등록할 문제를 최대 ${MAXQ}개 선택(앞 ${MAXQ}개 자동 선택)하고 내용을 확인·수정한 뒤 [기출문제 등록]을 눌러 주세요.`, 'ok');
+      } catch (e) { say(m, '❌ 추출 실패: ' + e.message, 'err'); }
+      finally { $('eqExtractBtn').disabled = false; }
+    };
+
+    $('eqSubmitBtn').onclick = async () => {
+      const m = $('eqMsg');
+      const weekNo = $('eqWeek').value, subjectId = $('eqSubject').value;
+      const payloads = [];
+      for (const b of $('eqBuilder').querySelectorAll('.eq-block')) {
+        if (!b.querySelector('.eq-check').checked) continue;
+        const q = b.querySelector('.eq-question').value.trim();
+        const opts = [1, 2, 3, 4, 5].map(n => b.querySelector(`.eq-opt[data-n="${n}"]`).value.trim());
+        const ex = b.querySelector('.eq-expl').value.trim();
+        const r = b.querySelector('input[type=radio]:checked');
+        if (!q || opts.some(o => !o) || !ex) { say(m, '모든 문제의 문항·보기 5개·해설을 빠짐없이 입력해 주세요.', 'err'); return; }
+        payloads.push({ q, opts, ex, answer: r ? parseInt(r.value, 10) : 1 });
+      }
+      if (!payloads.length) { say(m, '등록할 문제를 1개 이상 선택해 주세요.', 'err'); return; }
+      $('eqSubmitBtn').disabled = true; $('eqSubmitBtn').innerText = '등록 중...';
+      let done = 0;
+      try {
+        for (const p of payloads) {
+          const fd = new FormData();
+          fd.append('subject_id', subjectId); fd.append('week_no', weekNo);
+          fd.append('question', p.q);
+          p.opts.forEach((o, i) => fd.append('option' + (i + 1), o));
+          fd.append('answer', p.answer); fd.append('explanation', p.ex);
+          const res = await fetch(`${AIEXAM_API}/exam-questions`, { method: 'POST', headers: { Authorization: `Bearer ${aiexamGetToken()}` }, body: fd });
+          if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.detail || '문제 등록에 실패했습니다.'); }
+          done++;
+        }
+        say(m, `✅ 기출문제 ${done}개를 ${wk(weekNo)}에 등록했습니다. (학생 화면 [기출문제 풀기]에 바로 표시됩니다)`, 'ok');
+        $('eqFile').value = ''; resetBuilder();
+        await load();
+      } catch (e) { say(m, (done ? `${done}개 등록 후 중단: ` : '') + e.message, 'err'); if (done) await load(); }
+      finally { $('eqSubmitBtn').disabled = false; $('eqSubmitBtn').innerText = '📤 기출문제 등록'; }
+    };
+  }
+
   /* ---------- 폴더 트리 ---------- */
   function render() {
     const mats = folder.materials, qs = folder.questions;
@@ -225,10 +530,11 @@ details.week[open] > summary::before { content: '📂'; }
 
     const list = $('folderList');
     if (!mats.length && !qs.length) {
-      list.innerHTML = `<div class="empty">📂 <b>${esc(folder.username)}/</b> 폴더가 비어 있습니다.<br>${isOwn ? '위 [교안 올리기]로 첫 교안을 저장하거나, 과목 페이지에서 기출문제를 등록해 보세요.' : '이 교수가 올린 자료가 아직 없습니다.'}</div>`;
+      list.innerHTML = `<div class="empty">📂 <b>${esc(folder.username)}/</b> 폴더가 비어 있습니다.<br>${isOwn ? '위 [교안 올리기]·[기출문제 올리기] 탭으로 첫 자료를 저장해 보세요.' : '이 교수가 올린 자료가 아직 없습니다.'}</div>`;
       return;
     }
     const subjects = SUBJECT_ORDER.filter(id => mats.some(m => m.subject_id === id) || qs.some(q => q.subject_id === id));
+    if (!subjects.includes(openSid)) openSid = subjects[0];
     list.innerHTML = subjects.map(sid => {
       const sm = mats.filter(m => m.subject_id === sid);
       const sq = qs.filter(q => q.subject_id === sid);
@@ -257,12 +563,19 @@ details.week[open] > summary::before { content: '📂'; }
               ${isOwn || viewer.role === 'admin' ? `<button class="btn sm danger" type="button" data-act="qdel" data-id="${q.id}">삭제</button>` : ''}
             </div></div>`).join('') + `</details>`).join('') + `</div>` : '';
 
-      return `<section class="subject-block">
-        <div class="subject-head"><h3>${esc(name)}</h3><span class="mono">${esc(folder.username)}/${esc(name)}/</span>
+      return `<section class="subject-block${sid === openSid ? ' open' : ''}" data-sid="${sid}">
+        <div class="subject-head" title="클릭하면 이 과목만 펼쳐집니다"><h3>${esc(name)}</h3><span class="mono">${esc(folder.username)}/${esc(name)}/</span>
           <span class="spacer"></span><a class="btn sm" href="${sid}.html">과목 페이지 →</a></div>
-        ${matHtml}${qHtml}</section>`;
+        <div class="subject-body">${matHtml}${qHtml}</div></section>`;
     }).join('');
 
+    list.querySelectorAll('.subject-head').forEach(h => h.addEventListener('click', (e) => {
+      if (e.target.closest('a')) return;
+      const blk = h.parentElement, willOpen = !blk.classList.contains('open');
+      list.querySelectorAll('.subject-block.open').forEach(x => x.classList.remove('open'));
+      if (willOpen) blk.classList.add('open');
+      openSid = willOpen ? blk.dataset.sid : null;
+    }));
     list.querySelectorAll('[data-act]').forEach(b => b.onclick = () => action(b.dataset.act, parseInt(b.dataset.id, 10)));
   }
 
@@ -328,7 +641,7 @@ details.week[open] > summary::before { content: '📂'; }
     $('authLoadingOverlay').style.display = 'none';
     try {
       await load();
-      if (isOwn) setupUpload();
+      if (isOwn) { setupUpload(); setupExamPanel(); }
     } catch (e) { $('status').innerText = e.message; }
   })();
 </script>
