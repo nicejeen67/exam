@@ -64,6 +64,8 @@ h1 { font-size: 1.4rem; font-weight: 800; display: flex; align-items: center; ga
 .eq-pick { display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--gold); margin-bottom: 6px; cursor: pointer; }
 .eq-pick input { width: 18px; height: 18px; accent-color: var(--gold); }
 .eq-block.off { opacity: .45; }
+.eq-block.warn { border-color: #e5484d !important; box-shadow: 0 0 0 1px #e5484d; }
+.eq-block.warn .eq-no::after { content: ' ⚠ 정답을 선택하세요'; color: #e5484d; font-size: .8rem; }
 .eq-count { font-weight: 800; color: var(--gold); font-size: .85rem; }
 .toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
 .spacer { flex: 1; }
@@ -178,18 +180,13 @@ details.week[open] > summary::before { content: '📂'; }
     <div class="dest" id="eqDest"></div>
 
     <div class="sub-box" style="margin-top:12px">
-      <h4>📄 기출문제 파일에서 자동 추출 (PDF · DOCX · TXT)</h4>
-      <div class="ai-grid">
-        <div class="field"><label for="eqProvider">AI 선택</label><select id="eqProvider"></select></div>
-        <div class="field"><label for="eqKey">API 키 <span id="eqKeyState" style="color:var(--text-faint)"></span></label><input type="password" id="eqKey" autocomplete="off" placeholder="선택한 AI의 API 키"></div>
-        <button class="btn" type="button" id="eqKeySave">키 저장</button>
-      </div>
+      <h4>📄 기출문제 파일에서 문제 불러오기 (PDF · DOCX · TXT)</h4>
       <div class="upload-row">
         <div class="field"><label for="eqFile">기출문제 파일</label><input type="file" id="eqFile" accept=".pdf,.docx,.txt"></div>
-        <button class="btn gold" type="button" id="eqExtractBtn">🤖 AI로 문제 자동 추출</button>
+        <button class="btn gold" type="button" id="eqExtractBtn">📄 파일에서 문제 불러오기</button>
       </div>
       <div class="msg" id="eqExtractMsg"></div>
-      <div class="hint">API 키는 이 브라우저에만 저장되며(과목 페이지와 공유) 서버로 전송되지 않습니다. 추출된 문제는 아래 입력창에 채워지니, 등록 전에 반드시 확인·수정하세요. 스캔 이미지 PDF와 구버전 .doc은 추출되지 않습니다.</div>
+      <div class="hint">AI 없이 파일의 문제 번호(1. 2. …)와 보기(①~⑤)를 읽어 자동으로 나눕니다. 정답은 문제 옆의 "정답 ③" 또는 파일 끝의 정답표에서 찾습니다. 정답을 못 찾은 문제는 빨간색으로 표시되니 정답을 직접 선택해 주세요. 해설은 비워 두어도 등록됩니다. 스캔 이미지 PDF와 .doc/.hwp는 읽을 수 없습니다.</div>
     </div>
 
     <div class="eq-count" id="eqCount"></div>
@@ -285,49 +282,9 @@ details.week[open] > summary::before { content: '📂'; }
   }
 
   /* ---------- 기출문제 등록 ---------- */
-  const AI_PROVIDERS = {
-    gemini: { label: 'Gemini',  icon: '🔷', keyStorageKey: 'gemini_api_key', modelStorageKey: 'gemini_model', defaultModel: 'gemini-1.5-flash' },
-    openai: { label: 'ChatGPT', icon: '🟢', keyStorageKey: 'openai_api_key', modelStorageKey: 'openai_model', defaultModel: 'gpt-4o-mini' },
-    claude: { label: 'Claude',  icon: '🟠', keyStorageKey: 'claude_api_key', modelStorageKey: 'claude_model', defaultModel: 'claude-sonnet-4-5-20250929' }
-  };
-  const LS = {
-    get(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } },
-    set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
-  };
-  const getKey = (p) => LS.get(AI_PROVIDERS[p].keyStorageKey);
-  const getModel = (p) => LS.get(AI_PROVIDERS[p].modelStorageKey) || AI_PROVIDERS[p].defaultModel;
-  let eqProvider = LS.get('active_ai_provider');
-  if (!AI_PROVIDERS[eqProvider]) eqProvider = 'gemini';
   let eqCounter = 0;
 
   function say(el, text, kind) { el.className = 'msg ' + (kind === 'ok' ? 'ok' : kind === 'err' ? 'err' : 'ok'); el.style.display = 'block'; el.innerText = text; if (kind === 'info') { el.style.background = 'var(--bg-panel-raised)'; el.style.color = 'var(--text-muted)'; } else { el.style.background = ''; el.style.color = ''; } }
-
-  async function aiCall(prompt, system) {
-    const key = getKey(eqProvider).trim(), model = getModel(eqProvider);
-    if (!key) throw new Error('API 키가 등록되어 있지 않습니다. 위에서 키를 입력하고 [키 저장]을 눌러 주세요.');
-    let res, data;
-    if (eqProvider === 'gemini') {
-      const body = { contents: [{ parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 8192 } };
-      if (system) body.systemInstruction = { parts: [{ text: system }] };
-      res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-      data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error((data.error && data.error.message) || `HTTP ${res.status}`);
-      return (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0].text) || '';
-    }
-    if (eqProvider === 'openai') {
-      const messages = []; if (system) messages.push({ role: 'system', content: system }); messages.push({ role: 'user', content: prompt });
-      res = await fetch('https://api.openai.com/v1/chat/completions', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` }, body: JSON.stringify({ model, messages }) });
-      data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error((data.error && data.error.message) || `HTTP ${res.status}`);
-      return (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '';
-    }
-    const body = { model, max_tokens: 8000, messages: [{ role: 'user', content: prompt }] };
-    if (system) body.system = system;
-    res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' }, body: JSON.stringify(body) });
-    data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error((data.error && data.error.message) || `HTTP ${res.status}`);
-    return (data.content && data.content[0] && data.content[0].text) || '';
-  }
 
   async function extractTextFromFile(file) {
     await aiexamEnsureDocumentLibraries();
@@ -376,7 +333,7 @@ details.week[open] > summary::before { content: '📂'; }
       <label class="eq-pick"><input type="checkbox" class="eq-check"> 이 문제를 등록 (주차당 최대 10개)</label>
       <label>문제</label><textarea class="eq-question" placeholder="문제 내용을 입력하세요"></textarea>
       <label>보기 (정답인 보기 앞의 동그라미를 선택하세요)</label>
-      ${[1, 2, 3, 4, 5].map(n => `<div class="eq-opt-row"><input type="radio" name="${id}" value="${n}"${n === 1 ? ' checked' : ''}><input type="text" class="eq-opt" data-n="${n}" placeholder="보기 ${n}"></div>`).join('')}
+      ${[1, 2, 3, 4, 5].map(n => `<div class="eq-opt-row"><input type="radio" name="${id}" value="${n}"${(!prefill && n === 1) ? ' checked' : ''}><input type="text" class="eq-opt" data-n="${n}" placeholder="보기 ${n}"></div>`).join('')}
       <label>해설</label><textarea class="eq-expl" placeholder="정답 해설을 입력하세요"></textarea>`;
     wrap.querySelector('.eq-remove').onclick = () => {
       if ($('eqBuilder').children.length <= 1) { say($('eqMsg'), '최소 1개의 문제는 남아 있어야 합니다.', 'err'); return; }
@@ -395,6 +352,8 @@ details.week[open] > summary::before { content: '📂'; }
       wrap.querySelector('.eq-expl').value = prefill.explanation || '';
       const a = parseInt(prefill.answer, 10);
       if (a >= 1 && a <= 5) wrap.querySelector(`input[type=radio][value="${a}"]`).checked = true;
+      else { wrap.classList.add('warn'); }
+      wrap.querySelectorAll('input[type=radio]').forEach(r => r.addEventListener('change', () => wrap.classList.remove('warn')));
     }
     renumber(); updateCount();
     return wrap;
@@ -402,21 +361,56 @@ details.week[open] > summary::before { content: '📂'; }
   function renumber() { [...$('eqBuilder').children].forEach((b, i) => { b.querySelector('.eq-no').innerText = 'Q' + (i + 1); }); }
   function resetBuilder() { $('eqBuilder').innerHTML = ''; eqCounter = 0; addBlock(); }
 
-  function chunkText(t, size) {
-    const parts = []; let i = 0;
-    while (i < t.length) {
-      let end = Math.min(i + size, t.length);
-      if (end < t.length) { const nl = t.lastIndexOf('\n', end); if (nl > i + size * 0.6) end = nl; }
-      parts.push(t.slice(i, end)); i = end;
+  const CIRC = '①②③④⑤';
+  function parseExamText(raw) {
+    const t = raw.replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim();
+    // 문제 시작 위치: 1,2,3… 순서대로 "n." 또는 "n)" 찾기
+    const starts = []; let pos = 0;
+    for (let n = 1; n <= 200; n++) {
+      const re = new RegExp('(?:^|[\\s])' + n + '\\s*[.)]\\s*(?=\\S)', 'g'); re.lastIndex = pos;
+      let m, found = null;
+      while ((m = re.exec(t))) {
+        const after = t.slice(m.index + m[0].length, m.index + m[0].length + 400);
+        if (after.indexOf('①') >= 0 || n === 1 || starts.length) { found = m; break; }
+      }
+      if (!found) break;
+      // ① 이 다음 문제 번호보다 앞에 있어야 진짜 문제
+      starts.push({ n, idx: found.index, body: found.index + found[0].length }); pos = found.index + found[0].length;
     }
-    return parts;
-  }
-  function parseQuestions(txt) {
-    let j = (txt || '').trim();
-    const cb = j.match(/```(?:json)?\s*([\s\S]*?)```/); if (cb) j = cb[1].trim();
-    const am = j.match(/\[[\s\S]*\]/); if (am) j = am[0];
-    const arr = JSON.parse(j);
-    return Array.isArray(arr) ? arr : [];
+    const ansTable = {}; const items = [];
+    for (let k = 0; k < starts.length; k++) {
+      const end = k + 1 < starts.length ? starts[k + 1].idx : t.length;
+      let seg = t.slice(starts[k].body, end).trim();
+      const p1 = seg.indexOf('①'); if (p1 < 0) continue;
+      const q = seg.slice(0, p1).trim();
+      let rest = seg.slice(p1), opts = [], ok = true;
+      for (let i = 0; i < 5; i++) {
+        const a = rest.indexOf(CIRC[i]); if (a !== 0 && i === 0) { ok = false; break; }
+        const nx = i < 4 ? rest.indexOf(CIRC[i + 1], 1) : -1;
+        if (i < 4 && nx < 0) { ok = false; break; }
+        opts.push(i < 4 ? rest.slice(1, nx).trim() : rest.slice(1).trim());
+        if (i < 4) rest = rest.slice(nx);
+      }
+      if (!ok) continue;
+      let extra = '';
+      const cut = opts[4].search(/정\s*답|해\s*설|답\s*[:：]/);
+      if (cut >= 0) { extra = opts[4].slice(cut); opts[4] = opts[4].slice(0, cut).trim(); }
+      if (!q || opts.some(o => !o)) continue;
+      let answer = 0, expl = '';
+      const am = extra.match(/정\s*답\s*[:：]?\s*([①-⑤1-5])/) || extra.match(/답\s*[:：]\s*([①-⑤1-5])/);
+      if (am) answer = CIRC.indexOf(am[1]) >= 0 ? CIRC.indexOf(am[1]) + 1 : parseInt(am[1], 10);
+      const em = extra.match(/해\s*설\s*[:：]?\s*([\s\S]*)/);
+      if (em) expl = em[1].trim();
+      // 마지막 문제 뒤에 붙은 정답표 수집
+      if (k === starts.length - 1 || extra.length > 60) {
+        const re = /(\d{1,3})\s*[.)번]?\s*[:：-]?\s*([①-⑤])/g; let m, c = 0;
+        const tmp = {}; while ((m = re.exec(extra))) { tmp[parseInt(m[1], 10)] = CIRC.indexOf(m[2]) + 1; c++; }
+        if (c >= 3) { Object.assign(ansTable, tmp); expl = ''; }
+      }
+      items.push({ n: starts[k].n, question: q, options: opts, answer, explanation: expl });
+    }
+    items.forEach(it => { if (!it.answer && ansTable[it.n]) it.answer = ansTable[it.n]; });
+    return items.map(it => ({ question: it.question, option1: it.options[0], option2: it.options[1], option3: it.options[2], option4: it.options[3], option5: it.options[4], answer: it.answer, explanation: it.explanation }));
   }
 
   function setupExamPanel() {
@@ -425,62 +419,27 @@ details.week[open] > summary::before { content: '📂'; }
     $('eqSubject').disabled = subjects.length <= 1;
     const weeks = []; for (let w = 1; w <= 15; w++) if (!EXAM_WEEKS.includes(w)) weeks.push(w);
     $('eqWeek').innerHTML = weeks.map(w => `<option value="${w}">${w}주차</option>`).join('');
-    $('eqProvider').innerHTML = Object.entries(AI_PROVIDERS).map(([k, v]) => `<option value="${k}">${v.icon} ${v.label}</option>`).join('');
-    $('eqProvider').value = eqProvider;
-    const refreshKey = () => { $('eqKey').value = ''; $('eqKeyState').innerText = getKey(eqProvider) ? '(저장됨 ✓)' : '(미등록)'; };
     const updateDest = () => { $('eqDest').innerHTML = '저장 위치: <b>' + esc(`${viewer.username}/${subjName($('eqSubject').value)}/기출문제/${wk($('eqWeek').value)}/`) + '</b>'; };
     ['eqSubject', 'eqWeek'].forEach(id => $(id).addEventListener('change', updateDest));
-    $('eqProvider').addEventListener('change', () => { eqProvider = $('eqProvider').value; LS.set('active_ai_provider', eqProvider); refreshKey(); });
-    $('eqKeySave').onclick = () => {
-      const k = $('eqKey').value.trim();
-      if (!k) { say($('eqExtractMsg'), 'API 키를 입력해 주세요.', 'err'); return; }
-      LS.set(AI_PROVIDERS[eqProvider].keyStorageKey, k); LS.set('active_ai_provider', eqProvider);
-      refreshKey(); say($('eqExtractMsg'), `${AI_PROVIDERS[eqProvider].label} API 키를 저장했습니다.`, 'ok');
-    };
-    refreshKey(); updateDest(); resetBuilder();
+    updateDest(); resetBuilder();
     $('eqAddBtn').onclick = () => addBlock();
 
     $('eqExtractBtn').onclick = async () => {
       const f = $('eqFile').files[0], m = $('eqExtractMsg');
       if (!f) { say(m, '먼저 기출문제 파일을 선택해 주세요.', 'err'); return; }
-      if (!getKey(eqProvider)) { say(m, '선택한 AI의 API 키가 없습니다. 키를 입력하고 [키 저장]을 눌러 주세요.', 'err'); return; }
       $('eqExtractBtn').disabled = true;
       try {
-        say(m, '📄 파일에서 텍스트를 추출하는 중...', 'info');
+        say(m, '📄 파일에서 텍스트를 읽는 중...', 'info');
         const raw = await extractTextFromFile(f);
-        if (!raw || raw.trim().length < 20) { say(m, '파일에서 텍스트를 거의 추출하지 못했습니다. 스캔 이미지 PDF는 지원되지 않습니다.', 'err'); return; }
-        const chunks = chunkText(raw, 9000).slice(0, 8);
-        const system = '당신은 시험 문제 파일에서 객관식 문제를 정확히 추출하여 JSON으로만 응답하는 도구입니다. 설명이나 인사말 없이 JSON 배열만 출력하세요.';
-        const all = [];
-        for (let i = 0; i < chunks.length; i++) {
-          say(m, `🤖 ${AI_PROVIDERS[eqProvider].icon} ${AI_PROVIDERS[eqProvider].label}로 문제를 분석하는 중... (${i + 1}/${chunks.length})`, 'info');
-          const prompt = `다음은 기출문제 파일에서 추출한 원문 일부입니다. 이 안에 포함된 5지선다 객관식 문제를 모두 찾아서 아래 JSON 형식의 배열로만 응답해주세요.
-
-형식:
-[
-  {"question": "문제 지문", "option1": "보기1", "option2": "보기2", "option3": "보기3", "option4": "보기4", "option5": "보기5", "answer": 정답번호(1~5, 숫자), "explanation": "정답 해설(원문에 해설이 없으면 핵심 근거를 1~2문장으로 간단히 작성)"}
-]
-
-주의사항:
-- 반드시 유효한 JSON 배열만 출력하고, 다른 텍스트나 코드블록 표시(\`\`\`)는 포함하지 마세요.
-- 보기가 5개가 아닌 문제는 제외하세요.
-- 정답을 원문에서 확인할 수 없는 문제는 제외하세요.
-- 문제가 중간에 잘려 있으면 그 문제는 제외하세요.
-- 문제가 없으면 [] 만 출력하세요.
-
-원문:
-${chunks[i]}`;
-          try { all.push(...parseQuestions(await aiCall(prompt, system))); }
-          catch (e) { if (e instanceof SyntaxError) continue; throw e; }
-        }
-        // 중복 제거
+        if (!raw || raw.trim().length < 20) { say(m, '파일에서 글자를 거의 읽지 못했습니다. 스캔 이미지 PDF는 지원되지 않습니다.', 'err'); return; }
         const seen = new Set();
-        const uniq = all.filter(q => q && q.question && !seen.has(q.question.trim()) && seen.add(q.question.trim()));
-        if (!uniq.length) { say(m, '파일에서 객관식 문제를 찾지 못했거나 AI 응답을 해석하지 못했습니다. 직접 입력해 주세요.', 'err'); return; }
+        const list = parseExamText(raw).filter(q => !seen.has(q.question) && seen.add(q.question));
+        if (!list.length) { say(m, '문제를 찾지 못했습니다. 문제 번호(1. 2. …)와 보기(①~⑤) 형식이어야 합니다. 직접 입력하거나 형식을 알려 주세요.', 'err'); return; }
         $('eqBuilder').innerHTML = ''; eqCounter = 0;
-        uniq.forEach(q => addBlock(q));
-        say(m, `✅ ${uniq.length}개 문제를 추출했습니다. 등록할 문제를 최대 ${MAXQ}개 선택(앞 ${MAXQ}개 자동 선택)하고 내용을 확인·수정한 뒤 [기출문제 등록]을 눌러 주세요.`, 'ok');
-      } catch (e) { say(m, '❌ 추출 실패: ' + e.message, 'err'); }
+        list.forEach(q => addBlock(q));
+        const noAns = list.filter(q => !q.answer).length;
+        say(m, `✅ ${list.length}개 문제를 불러왔습니다.` + (noAns ? ` 정답을 못 찾은 ${noAns}개는 빨간색으로 표시되니 정답을 직접 선택해 주세요.` : ' 정답도 함께 읽었습니다.') + ` 등록할 문제를 최대 ${MAXQ}개 선택하고 내용을 확인한 뒤 [기출문제 등록]을 눌러 주세요.`, 'ok');
+      } catch (e) { say(m, '❌ 불러오기 실패: ' + e.message, 'err'); }
       finally { $('eqExtractBtn').disabled = false; }
     };
 
@@ -494,8 +453,9 @@ ${chunks[i]}`;
         const opts = [1, 2, 3, 4, 5].map(n => b.querySelector(`.eq-opt[data-n="${n}"]`).value.trim());
         const ex = b.querySelector('.eq-expl').value.trim();
         const r = b.querySelector('input[type=radio]:checked');
-        if (!q || opts.some(o => !o) || !ex) { say(m, '모든 문제의 문항·보기 5개·해설을 빠짐없이 입력해 주세요.', 'err'); return; }
-        payloads.push({ q, opts, ex, answer: r ? parseInt(r.value, 10) : 1 });
+        if (!q || opts.some(o => !o)) { say(m, '선택한 문제의 문항과 보기 5개를 빠짐없이 입력해 주세요.', 'err'); return; }
+        if (!r) { b.classList.add('warn'); b.scrollIntoView({ block: 'center' }); say(m, '정답을 선택하지 않은 문제가 있습니다. 빨간색 문제의 정답을 선택해 주세요.', 'err'); return; }
+        payloads.push({ q, opts, ex: ex || '등록된 해설이 없습니다.', answer: parseInt(r.value, 10) });
       }
       if (!payloads.length) { say(m, '등록할 문제를 1개 이상 선택해 주세요.', 'err'); return; }
       $('eqSubmitBtn').disabled = true; $('eqSubmitBtn').innerText = '등록 중...';
