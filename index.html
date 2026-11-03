@@ -472,7 +472,6 @@ footer {
     <div style="display:flex; align-items:center; gap:18px;">
       <nav class="header-nav">
         <a href="#myFolder">내 폴더</a>
-        <a href="#route">학습 경로</a>
         <a id="adminNavLink" href="admin.html" style="display:none;">관리자</a>
         <a href="https://iscubigdata.co.kr/aiviewer/" target="_blank" rel="noopener">AI홈테크 | ISCUBigData</a>
       </nav>
@@ -511,96 +510,6 @@ footer {
       <a class="my-btn" href="my.html">📁 내 폴더 열기</a>
     </div>
     <div class="my-grid" id="myGrid"><div class="my-card"><span class="meta">불러오는 중...</span></div></div>
-  </div>
-</section>
-
-<section class="route-section" id="route">
-  <div class="wrap">
-    <h2 class="route-heading">학습 경로</h2>
-    <p class="route-sub">실제 시험 일정 순서대로 정렬했습니다. 과목을 눌러 AI 튜터와 실전 모의고사를 바로 시작하세요.</p>
-
-    <div class="route-track">
-
-      <div class="route-phase">
-        <div class="phase-label">1차 시험 <span class="count">· 2과목</span></div>
-
-        <a class="station" href="real-estate-intro.html">
-          <div class="station-num">1</div>
-          <div class="station-body">
-            <h3>부동산학개론</h3>
-            <p>수요·공급, 투자·금융론, 감정평가 기초까지 핵심 이론</p>
-          </div>
-          <span class="station-go">학습 시작</span>
-        </a>
-
-        <a class="station" href="real-estate-law.html">
-          <div class="station-num">2</div>
-          <div class="station-body">
-            <h3>민법 및 민사특별법</h3>
-            <p>물권·계약법과 주택임대차보호법 등 실무 특별법</p>
-          </div>
-          <span class="station-go">학습 시작</span>
-        </a>
-      </div>
-
-      <div class="route-phase">
-        <div class="phase-label">2차 시험 1교시 <span class="count">· 2과목</span></div>
-
-        <a class="station" href="brokerage-practice.html">
-          <div class="station-num">3</div>
-          <div class="station-body">
-            <h3>공인중개사법령 및 중개실무</h3>
-            <p>중개계약, 확인·설명의무, 부동산 거래신고 실무</p>
-          </div>
-          <span class="station-go">학습 시작</span>
-        </a>
-
-        <a class="station" href="real-estate-public-law.html">
-          <div class="station-num">4</div>
-          <div class="station-body">
-            <h3>부동산공법</h3>
-            <p>국토계획법, 도시개발·정비법, 주택법, 건축법, 농지법</p>
-          </div>
-          <span class="station-go">학습 시작</span>
-        </a>
-      </div>
-
-      <div class="route-phase">
-        <div class="phase-label">2차 시험 2교시 <span class="count">· 2과목</span></div>
-
-        <a class="station" href="public-notice-law.html">
-          <div class="station-num">5</div>
-          <div class="station-body">
-            <h3>부동산공시법령</h3>
-            <p>부동산등기법과 공간정보관리법(지적) 핵심 규정</p>
-          </div>
-          <span class="station-go">학습 시작</span>
-        </a>
-
-        <a class="station" href="real-estate-tax.html">
-          <div class="station-num">6</div>
-          <div class="station-body">
-            <h3>부동산세법</h3>
-            <p>취득세·재산세·종합부동산세·양도소득세 계산 실무</p>
-          </div>
-          <span class="station-go">학습 시작</span>
-        </a>
-      </div>
-
-      <div class="route-phase">
-        <div class="phase-label">심화 과목 <span class="count">· 실무 역량</span></div>
-
-        <a class="station" href="appraisal-theory.html">
-          <div class="station-num">7</div>
-          <div class="station-body">
-            <h3>감정평가론</h3>
-            <p>원가·비교·수익 3방식과 물건별 감정평가 절차 심화</p>
-          </div>
-          <span class="station-go">학습 시작</span>
-        </a>
-      </div>
-
-    </div>
   </div>
 </section>
 
@@ -663,24 +572,19 @@ footer {
 <script>
   function applyProfessorRestriction(user) {
     if (user.role !== 'professor') return; // 학생·관리자는 전 과목 자유 이용
-
-    document.querySelectorAll('.station').forEach(el => {
+    // 내 학습 폴더 카드의 "모의고사 풀기" 링크 중 담당 과목이 아닌 것은 잠금
+    document.querySelectorAll('.my-card .links a[href$=".html"]').forEach(el => {
       const href = el.getAttribute('href') || '';
-      const match = href.match(/([a-z-]+)\.html$/);
+      const match = href.match(/^([a-z-]+)\.html$/);
       const slug = match ? match[1] : null;
-      if (!slug) return;
-
-      if (slug !== user.subject_id) {
-        el.classList.add('locked');
-        el.removeAttribute('href');
-        el.setAttribute('role', 'button');
-        const goBtn = el.querySelector('.station-go');
-        if (goBtn) goBtn.innerText = '🔒 접근 불가';
-        el.addEventListener('click', (e) => {
-          e.preventDefault();
-          alert('담당 과목이 아니므로 열람할 수 없습니다.\n담당 과목 외 다른 과목은 관리자에게 문의해주세요.');
-        });
-      }
+      if (!slug || slug === 'my' || slug === user.subject_id) return;
+      el.removeAttribute('href');
+      el.style.opacity = '.4'; el.style.cursor = 'not-allowed';
+      el.innerText = '🔒 접근 불가';
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        alert('담당 과목이 아니므로 열람할 수 없습니다.\n담당 과목 외 다른 과목은 관리자에게 문의해주세요.');
+      });
     });
   }
 
@@ -726,9 +630,9 @@ footer {
     if (user.role === 'admin') {
       document.getElementById('adminNavLink').style.display = 'inline';
     }
-    applyProfessorRestriction(user);
     document.getElementById('authLoadingOverlay').style.display = 'none';
-    renderMyFolder(user);
+    await renderMyFolder(user);
+    applyProfessorRestriction(user);
   })();
 </script>
 
